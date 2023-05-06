@@ -378,7 +378,7 @@ if [ -f .webtitle ]; then
       sed -i "s/\${SITE_TITLE}/${TITLE}/g" ${ORIGINAL}/${CHATDIR}/index.html
   fi
 else
-  read -e -p "WEB存储绝对路径(回车默认标题)：" TITLE
+  read -e -p "网站标题(回车默认标题)：" TITLE
   if [ -z "${TITLE}" ];then
       TITLE="ChatGPT WEB"
       INFO "网站标题命名为：${TITLE}"
