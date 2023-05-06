@@ -20,7 +20,6 @@ wget  -O env.example https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatG
 wget  -O env.example https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/Chanzhaoyu_env.example
 
 # CentOS 7 or RHEL-8 and CentOS-8
-wget https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-WEB/env.example
 bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_C.sh)"
 ```
 
