@@ -43,13 +43,13 @@ if [[ ${NETWORK} == 1 ]];then
     if [ -f /etc/redhat-release ]; then
         INFO "《This is CentOS.》"
         SUCCESS "系统环境检测中，请稍等..."
-        bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ShellProject/main/ChatGPT/ChatGPT-WEB/chatGPT-WEB_C.sh)"
+        bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-WEB/install/chatGPT-WEB_C.sh)"
     elif [ -f /etc/lsb-release ]; then
         if grep -q "DISTRIB_ID=Ubuntu" /etc/lsb-release; then
             INFO "《This is Ubuntu.》"
             SUCCESS "系统环境检测中，请稍等..."
             systemctl restart systemd-resolved
-            bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ShellProject/main/ChatGPT/ChatGPT-WEB/chatGPT-WEB_U.sh)"
+            bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-WEB/install/chatGPT-WEB_U.sh)"
         else
             echo "Unknown Linux distribution."
             exit 1
@@ -62,13 +62,13 @@ elif [[ ${NETWORK} == 2 ]];then
         if [ -f /etc/redhat-release ]; then
         INFO "《This is CentOS.》"
         SUCCESS "系统环境检测中，请稍等..."
-        bash -c "$(wget -q -O- https://ghproxy.com/https://raw.githubusercontent.com/dqzboy/ShellProject/main/ChatGPT/ChatGPT-WEB/chatGPT-WEB_C.sh)"
+        bash -c "$(wget -q -O- https://ghproxy.com/https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-WEB/install/chatGPT-WEB_C.sh)"
     elif [ -f /etc/lsb-release ]; then
         if grep -q "DISTRIB_ID=Ubuntu" /etc/lsb-release; then
             INFO "《This is Ubuntu.》"
             SUCCESS "系统环境检测中，请稍等..."
             systemctl restart systemd-resolved
-            bash -c "$(wget -q -O- https://ghproxy.com/https://raw.githubusercontent.com/dqzboy/ShellProject/main/ChatGPT/ChatGPT-WEB/chatGPT-WEB_U.sh)"
+            bash -c "$(wget -q -O- https://ghproxy.com/https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-WEB/install/chatGPT-WEB_U.sh)"
         else
             echo "Unknown Linux distribution."
             exit 1
