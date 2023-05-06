@@ -12,16 +12,16 @@ mkdir -p /data/chatgpt-web && cd /data/chatgpt-web
 # CentOS
 yum -y install wget
 
-# CentOS 7 or RHEL-8 and CentOS-8
-wget https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-WEB/env.example
-bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_C.sh)"
-
-# 下载对应的env.example配置文件；注意执行脚本前先进行修改里面的内容
+#（3）下载对应的env.example配置文件；注意执行脚本前先进行修改里面的内容
 ## Kerwin1202/chatgpt-web
 wget  -O env.example https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/Kerwin1202_env.example
 
 ## Chanzhaoyu/chatgpt-web
 wget  -O env.example https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/Chanzhaoyu_env.example
+
+# CentOS 7 or RHEL-8 and CentOS-8
+wget https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-WEB/env.example
+bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_C.sh)"
 ```
 
 ## Nginx后端配置参考
