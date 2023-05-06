@@ -113,7 +113,7 @@ if ! command -v node &> /dev/null
 then
     echo "Node.js 未安装，正在进行安装..."
     # 安装 Node.js
-    curl -sL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &>/dev/null
+    curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash - &>/dev/null
     apt remove libnode72:amd64 libnode-dev -y &>/dev/null
     apt install -y nodejs &>/dev/null
 else
