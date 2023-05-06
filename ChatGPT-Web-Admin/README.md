@@ -14,7 +14,7 @@ yum -y install wget
 
 # CentOS 7 or RHEL-8 and CentOS-8
 wget https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-WEB/env.example
-bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-WEB/chatGPT-WEB_Build.sh)"
+bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_C.sh)"
 
 # 下载对应的env.example配置文件；注意执行脚本前先进行修改里面的内容
 ## Kerwin1202/chatgpt-web
