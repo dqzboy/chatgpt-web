@@ -167,7 +167,7 @@ if ! command -v node &> /dev/null;then
     # 安装 Node.js
     if [ "$OSVER" = "8" ]; then
         dnf -y install libstdc++.so.glibc glibc lsof &>/dev/null
-        curl -fsSL https://rpm.nodesource.com/setup_lts.x | bash - &>/dev/null
+        curl -fsSL https://rpm.nodesource.com/setup_16.x | bash - &>/dev/null
         dnf install -y nodejs &>/dev/null
     elif [ "$OSVER" = "7" ]; then
         yum -y install libstdc++.so.glibc glibc lsof &>/dev/null
