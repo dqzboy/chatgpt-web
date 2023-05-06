@@ -1,0 +1,83 @@
+#使用 OpenAI API 所需的 apiKey 二选一
+OPENAI_API_KEY=
+#使用 Web API 所需的 accessToken
+OPENAI_ACCESS_TOKEN=
+# API接口地址 - https://api.openai.com
+OPENAI_API_BASE_URL=
+
+# API模型；ChatGPTAPI 或者 ChatGPTUnofficialProxyAPI
+OPENAI_API_MODEL=ChatGPTAPI
+
+# API模型；可选,OpenAI API 时可用https://platform.openai.com/docs/models
+OPENAI_CHAT_MODEL=
+
+# 设置为true关闭DEBUG日志
+OPENAI_API_DISABLE_DEBUG=true
+
+# 设置反向代理，可选，默认：https://ai.fakeopen.com/api/conversation
+API_REVERSE_PROXY=
+
+# 超时，单位毫秒，可选
+TIMEOUT_MS=100000
+
+# 每小时最大请求次数，可选，默认无限
+MAX_REQUEST_PER_HOUR=
+
+# 下面是代理配置
+# Socks代理，可选，和 SOCKS_PROXY_PORT 一起时生效
+SOCKS_PROXY_HOST=127.0.0.1
+
+# Socks代理端口，可选，和 SOCKS_PROXY_HOST 一起时生效
+SOCKS_PROXY_PORT=7890
+
+# Socks Proxy Username
+SOCKS_PROXY_USERNAME=
+
+# Socks Proxy Password
+SOCKS_PROXY_PASSWORD=
+
+# HTTPS 代理，可选，支持 http，https，socks5
+HTTPS_PROXY=
+
+# 网站名称
+SITE_TITLE="ChatGpt Web"
+
+# mongodb 的连接字符串
+MONGODB_URL=mongodb://用户:密码@IP:27017
+
+# 访问jwt加密参数，可选 不为空则允许登录 同时需要设置 MONGODB_URL
+AUTH_SECRET_KEY=xxxx
+
+# ----- 只有在设置 AUTH_SECRET_KEY 后下面配置才有效 ----
+# 网站是否开启注册
+REGISTER_ENABLED=true
+
+# 启用注册申请审查
+REGISTER_REVIEW=false
+
+# 开启注册之后 网站域名 不含 / 注册的时候发送验证邮箱使用
+SITE_DOMAIN=https://dqzboy.com
+
+# 开启注册之后 网站注册允许的邮箱后缀 如果空 则允许任意后缀
+REGISTER_MAILS=@qq.com,@sina.com,@163.com
+
+# 开启注册之后 超级管理邮箱;登入网站使用该邮箱进行注册可以看到网站配置等选项
+ROOT_USER=dqzboy@dqzboy.com
+
+# 开启注册之后 密码加密的盐
+PASSWORD_MD5_SALT=dqzboy
+
+# 开启注册之后 发送验证邮箱配置
+SMTP_HOST=smtp.exmail.qq.com
+SMTP_PORT=465
+SMTP_TSL=true
+SMTP_USERNAME=yourname@example.com
+SMTP_PASSWORD=yourpassword
+
+# 是否开启敏感词审核, 因为响应结果是流式 所以暂时没审核
+AUDIT_ENABLED: 'false'
+# https://ai.baidu.com/ai-doc/ANTIPORN/Vk3h6xaga
+AUDIT_PROVIDER: baidu
+AUDIT_API_KEY: xxx
+AUDIT_API_SECRET: xxx
+AUDIT_TEXT_LABEL: xxx
