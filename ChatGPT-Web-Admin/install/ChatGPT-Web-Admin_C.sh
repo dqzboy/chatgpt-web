@@ -109,17 +109,17 @@ if which nginx &>/dev/null; then
   INFO "Nginx is already installed."
 else
   SUCCESS1 "Installing Nginx..."
-  NGINX="nginx-1.24.0-1.el${OS}.ngx.x86_64.rpm"
+  NGINX="nginx-1.24.0-1.el${OSVER}.ngx.x86_64.rpm"
   if [ "$OSVER" = "8" ]; then
       # 下载并安装RPM包
       dnf -y install wget git openssl-devel pcre-devel zlib-devel gd-devel &>/dev/null
       dnf -y install pcre2 &>/dev/null
       rm -f ${NGINX}
-      wget http://nginx.org/packages/centos/${OS}/x86_64/RPMS/${NGINX} &>/dev/null
+      wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} &>/dev/null
       dnf -y install ${NGINX} &>/dev/null
       if [ $? -ne 0 ]; then
         WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
-        echo " 命令：wget http://nginx.org/packages/centos/${OS}/x86_64/RPMS/${NGINX} && yum -y install ${NGINX}"
+        echo " 命令：wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} && yum -y install ${NGINX}"
         exit 1
       else
         INFO "Nginx installed."
@@ -130,11 +130,11 @@ else
       yum -y install wget git openssl-devel pcre-devel zlib-devel gd-devel &>/dev/null
       yum -y install pcre2 &>/dev/null
       rm -f ${NGINX}
-      wget http://nginx.org/packages/centos/${OS}/x86_64/RPMS/${NGINX} &>/dev/null
+      wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} &>/dev/null
       yum -y install ${NGINX} &>/dev/null
       if [ $? -ne 0 ]; then
         WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
-        echo " 命令：wget http://nginx.org/packages/centos/${OS}/x86_64/RPMS/${NGINX} && yum -y install ${NGINX}"
+        echo " 命令：wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} && yum -y install ${NGINX}"
         exit 1
       else
         echo "Nginx installed."
