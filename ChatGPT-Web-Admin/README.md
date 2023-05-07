@@ -21,6 +21,9 @@ wget  -O env.example https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatG
 
 # CentOS 7 or RHEL-8 and CentOS-8
 bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_C.sh)"
+
+# Ubuntu or Debian
+bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_U.sh)"
 ```
 
 ## 执行过程
