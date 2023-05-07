@@ -1,4 +1,4 @@
-## 脚本执行流程演示
+## 准备工作
 - **说明**：目前该脚本采用源码编译部署，非容器化运行；目前脚本适用于CentOS 7、RHEL-8 and CentOS-8
 - **重要**：目前脚本主要部署的项目为：[Kerwin1202/chatgpt-web](https://github.com/Kerwin1202/chatgpt-web) 跟 [Chanzhaoyu/chatgpt-web](https://github.com/Chanzhaoyu/chatgpt-web) ；前者带用户中心，后者无。所以env配置也有区别，部署前请根据自己要部署的项目下载本仓库下面的`env.example`配置文件到你运行脚本的目录下
 - **注意**：如果服务器已经安装了Nginx，那么构建之前请指定ChatGPT-WEB前端项目存放的Nginx根路径
@@ -22,6 +22,9 @@ wget  -O env.example https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatG
 # CentOS 7 or RHEL-8 and CentOS-8
 bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_C.sh)"
 ```
+
+## 执行过程
+<img src="https://user-images.githubusercontent.com/42825450/236674720-f332c732-7be5-4517-8a9c-d8ea00b7d6d4.gif" width="900px">
 
 ## Nginx后端配置参考
 - 需要在server块中添加一个location规则用来代理后端API接口地址，配置修改参考如下：
