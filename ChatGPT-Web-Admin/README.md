@@ -25,6 +25,7 @@ bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/Cha
 
 ## 执行过程
 <img src="https://user-images.githubusercontent.com/42825450/236674720-f332c732-7be5-4517-8a9c-d8ea00b7d6d4.gif" width="1000px">
+<img src="https://user-images.githubusercontent.com/42825450/236674847-0c726d2e-9cd2-4624-8081-d8ab4b204025.png" width="1000px">
 
 ## Nginx后端配置参考
 - 需要在server块中添加一个location规则用来代理后端API接口地址，配置修改参考如下：
