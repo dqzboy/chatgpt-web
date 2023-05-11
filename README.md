@@ -14,7 +14,7 @@
 width="2000"  height="3">
 </div>
 
-## 功能
+## 功能 | Functionality
 <details>
   <summary><b> 源代码本地一键编译部署 | One-click compile and deploy of source code locally. </b></summary>
 </details>
@@ -39,7 +39,7 @@ width="2000"  height="3">
   <summary><b> 支持一键快速卸载 | Supports one-click fast uninstallation</b></summary>
 </details>
 
-## 截图
+## 截图 | Screenshot
 <br/>
 <table>
     <tr>
@@ -68,7 +68,12 @@ width="2000"  height="3">
     </tr>
 </table>
 
-## 推荐阅读
+## 部署 | Deployment
+- [ChatGPT-WEB](ChatGPT-WEB/README.md)
+- [ChatGPT-WEB-Admin](ChatGPT-Web-Admin/README.md)
+- [ChatGPT-Next-WEB](ChatGPT-Next-Web/README.md)
+
+## 推荐阅读 | Recommended Reading
 [国内服务器实现科学上网并接入chatGPT-WEB](https://www.dqzboy.com/13754.html) 
 <br>
 [自建ChatGPT反向代理服务器](https://www.dqzboy.com/13935.html) 
