@@ -8,7 +8,7 @@
 
 > Use this script to quickly create your own ChatGPT web site. | 使用此脚本可以快速创建您自己的 ChatGPT 网站。
 
-
+[TG交流群](https://t.me/+ghs_XDp1vwxkMGU9)
 <div align="center">
 <img src="https://camo.githubusercontent.com/82291b0fe831bfc6781e07fc5090cbd0a8b912bb8b8d4fec0696c881834f81ac/68747470733a2f2f70726f626f742e6d656469612f394575424971676170492e676966"
 width="2000"  height="3">
