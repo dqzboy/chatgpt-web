@@ -16,27 +16,27 @@ width="2000"  height="3">
 
 ## 功能
 <details>
-  <summary><b> 源代码本地一键编译部署 </b></summary>
+  <summary><b> 源代码本地一键编译部署 | One-click compile and deploy of source code locally. </b></summary>
 </details>
 
 <details>
-  <summary><b> 交互式自定义个人信息、代理等 </b></summary>
+  <summary><b> 交互式自定义个人信息、代理等 | Interactive customization of personal information, proxies, etc. </b></summary>
 </details>
 
 <details>
-  <summary><b> 自动检查系统环境，一键部署基础环境 </b></summary>
+  <summary><b> 自动检查系统环境，一键部署基础环境 | Automatically check system environment and deploy basic environment with one click </b></summary>
 </details>
 
 <details>
-  <summary><b> 支持一键部署、一键更新</b></summary>
+  <summary><b> 支持一键部署、一键更新 | Supports one-click deployment and update </b></summary>
 </details>
 
 <details>
-  <summary><b> 支持主流Linux发行版操作系统 </b></summary>
+  <summary><b> 支持主流Linux发行版操作系统 | Supports mainstream Linux distribution operating systems </b></summary>
 </details>
 
 <details>
-  <summary><b> 支持一键快速卸载 </b></summary>
+  <summary><b> 支持一键快速卸载 | Supports one-click fast uninstallation</b></summary>
 </details>
 
 ## 截图
