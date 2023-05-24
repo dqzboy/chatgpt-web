@@ -19,8 +19,11 @@ wget  -O env.example https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatG
 【Chanzhaoyu/chatgpt-web】
 wget  -O env.example https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/Chanzhaoyu_env.example
 
-# CentOS 7 or RHEL-8 and CentOS-8
+# CentOS 7 or CentOS-8
 bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_C.sh)"
+
+# RHEL-8/9 or Rocky-8/9
+bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_R.sh)"
 
 # Ubuntu or Debian
 bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_U.sh)"
