@@ -77,6 +77,24 @@ echo
 # OS version
 OSVER=$(cat /etc/centos-release | grep -o '[0-9]' | head -n 1)
 
+function CHECKMEM() {
+yum install -y bc &>/dev/null
+total=$(free -m | awk 'NR==2{print $2}')  # 获取总内存数
+used=$(free -m | awk 'NR==2{print $3}')   # 获取已使用的内存数
+rate=$(echo "scale=2; $used/$total*100" | bc)  # 计算内存使用率
+
+INFO "Checking server memory resources. Please wait."
+if [[ $(echo "$rate > 70.0" | bc -l) -eq 1 ]]; then  # 判断是否超过 70%
+    read -p "Warning: Memory usage is higher than 70%. Do you want to continue? (y/n) " continu
+    if [ "$continu" == "n" ] || [ "$continu" == "N" ]; then
+        exit 1
+    fi
+else
+    SUCCESS1 "Memory resources are sufficient. Please continue."
+fi
+DONE
+}
+
 function CHECKFIRE() {
 SUCCESS "Firewall && SELinux detection."
 # Check if firewall is enabled
@@ -547,6 +565,7 @@ fi
 }
 
 function main() {
+    CHECKMEM
     CHECKFIRE
     GITCLONE
     INSTALL_NGINX
