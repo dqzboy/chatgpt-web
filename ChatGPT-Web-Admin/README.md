@@ -4,6 +4,7 @@
 - **注意**：如果服务器已经安装了Nginx，那么构建之前请指定ChatGPT-WEB前端项目存放的Nginx根路径
 - **版本更新**：更新chatGPT-web版本，只需要再次执行部署脚本即可，`env`文件无需变更；注意：更新之后强刷浏览器或者无痕模式打开
 - **目前个人使用的机场**：[机场1按量不限时，解锁ChatGPT](https://mojie.la/#/register?code=CG6h8Irm) \ [机场2按周期，解锁ChatGPT](https://teacat.cloud/#/register?code=ps4sZcDa) \ [机场3按量不限时，最便宜40/3T](https://yysw.acyun.tk/#/register?code=ZvmLh28A)
+
 ```shell
 #（1）创建脚本执行目录
 mkdir -p /data/chatgpt-web && cd /data/chatgpt-web
