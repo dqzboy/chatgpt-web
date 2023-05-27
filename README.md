@@ -77,8 +77,3 @@ width="2000"  height="3">
 [国内服务器实现科学上网并接入chatGPT-WEB](https://www.dqzboy.com/13754.html) 
 <br>
 [自建ChatGPT反向代理服务器](https://www.dqzboy.com/13935.html) 
-
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=dqzboy/ChatGPT&type=Date)](https://star-history.com/#dqzboy/ChatGPT&Date)
