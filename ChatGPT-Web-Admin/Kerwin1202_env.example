@@ -23,7 +23,7 @@ SOCKS_PROXY_PASSWORD=
 SITE_TITLE="ChatGPT WEB"
 
 # mongodb 的连接字符串
-MONGODB_URL=mongodb://chatgpt:xxxx@yourip:port
+MONGODB_URL=mongodb://chatgpt:password@127.0.0.1:27017
 
 # 网站是否开启注册
 REGISTER_ENABLED=true
