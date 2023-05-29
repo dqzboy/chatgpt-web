@@ -12,6 +12,8 @@ mkdir -p /data/chatgpt-web && cd /data/chatgpt-web
 #（2）下载执行脚本
 # CentOS
 yum -y install wget
+# ubuntu
+apt -y install wget
 
 #（3）下载对应的env.example配置文件；注意执行脚本前先进行修改里面的内容
 【Kerwin1202/chatgpt-web】
