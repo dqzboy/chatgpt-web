@@ -206,9 +206,9 @@ then
     version=$(lsb_release -rs | cut -f1 -d.)
     if [ "$version" -ge "22" ]
     then
-        # 安装 MongoDB 5.0 on Ubuntu 22.04 or later
-	wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add - &> /dev/null
-	echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb.list &> /dev/null
+        # 安装 MongoDB 6.0 on Ubuntu 22.04 or later
+	wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add - &> /dev/null
+	echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list &> /dev/null
     elif [ "$version" -ge "20" ]
     then
         # 安装 MongoDB 5.0 on Ubuntu 20.04 or later
@@ -249,7 +249,7 @@ apt-get update &> /dev/null
 apt-get install -y mongodb-org &> /dev/null
 if [ $? -ne 0 ]; then
    WARN "安装失败，请手动安装，安装成功之后再次执行脚本！[注：一般为网络环境导致安装失败]"
-   echo "命令：apt-get install -y mongodb-org"
+   echo " 命令：apt-get install -y mongodb-org"
    exit 1
 else
    INFO "MongoDB installed."
