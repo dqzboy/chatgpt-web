@@ -249,7 +249,7 @@ apt-get update &> /dev/null
 apt-get install -y mongodb-org &> /dev/null
 if [ $? -ne 0 ]; then
    WARN "安装失败，请手动安装，安装成功之后再次执行脚本！[注：一般为网络环境导致安装失败]"
-   echo "命令：yum install -y mongodb-org"
+   echo "命令：apt-get install -y mongodb-org"
    exit 1
 else
    INFO "MongoDB installed."
