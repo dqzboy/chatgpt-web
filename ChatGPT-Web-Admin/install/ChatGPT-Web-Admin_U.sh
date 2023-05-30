@@ -247,6 +247,13 @@ fi
 # 更新软件包列表并安装 MongoDB
 apt-get update &> /dev/null
 apt-get install -y mongodb-org &> /dev/null
+if [ $? -ne 0 ]; then
+   WARN "安装失败，请手动安装，安装成功之后再次执行脚本！[注：一般为网络环境导致安装失败]"
+   echo "命令：yum install -y mongodb-org"
+   exit 1
+else
+   INFO "MongoDB installed."
+fi
 
 # 启动 MongoDB 服务并设置开机自启
 if systemctl is-active mongod >/dev/null 2>&1; then
@@ -546,6 +553,74 @@ function DELSOURCE() {
   ${SETCOLOR_SUCCESS} && echo "-----------------------------------<部署完成>-----------------------------------" && ${SETCOLOR_NORMAL}
 }
 
+# 添加Nginx后端代理配置
+function NGINX_CONF() {
+read -e -p "是否修改Nginx配置[y/n](通过本脚本部署的Nginx可选择 y)：" NGCONF
+if [ "$NGCONF" = "y" ]; then
+   INFO "You chose yes."
+   INFO "config：/etc/nginx/conf.d/default.conf"
+cat > /etc/nginx/conf.d/default.conf <<\EOF
+server {
+    listen       80;
+    server_name  localhost;
+
+    #access_log  /var/log/nginx/host.access.log  main;
+
+    #禁止境内常见爬虫(根据需求自行控制是否禁止)
+    if ($http_user_agent ~* "qihoobot|Yahoo! Slurp China|Baiduspider|Baiduspider-image|spider|Sogou spider|Sogou web spider|Sogou inst spider|Sogou spider2|Sogou blog|Sogou News Spider|Sogou Orion spider|ChinasoSpider|Sosospider|YoudaoBot|yisouspider|EasouSpider|Tomato Bot|Scooter") {
+        return 403;
+    }
+
+    #禁止境外常见爬虫(根据需求自行控制是否禁止)
+    if ($http_user_agent ~* "Googlebot|Googlebot-Mobile|AdsBot-Google|Googlebot-Image|Mediapartners-Google|Adsbot-Google|Feedfetcher-Google|Yahoo! Slurp|MSNBot|Catall Spider|ArchitextSpider|AcoiRobot|Applebot|Bingbot|Discordbot|Twitterbot|facebookexternalhit|ia_archiver|LinkedInBot|Naverbot|Pinterestbot|seznambot|Slurp|teoma|TelegramBot|Yandex|Yeti|Infoseek|Lycos|Gulliver|Fast|Grabber") {
+        return 403;
+    }
+
+    #禁止指定 UA 及 UA 为空的访问
+    if ($http_user_agent ~ "WinHttp|WebZIP|FetchURL|node-superagent|java/|Bytespider|FeedDemon|Jullo|JikeSpider|Indy Library|Alexa Toolbar|AskTbFXTV|AhrefsBot|CrawlDaddy|CoolpadWebkit|Java|Feedly|Apache-HttpAsyncClient|UniversalFeedParser|ApacheBench|Microsoft URL Control|Swiftbot|ZmEu|oBot|jaunty|Python-urllib|lightDeckReports Bot|YYSpider|DigExt|HttpClient|MJ12bot|heritrix|Ezooms|BOT/0.1|YandexBot|FlightDeckReports|Linguee Bot|iaskspider|^$") {
+        return 403;
+    }
+
+    #禁止非 GET|HEAD|POST 方式的抓取
+    if ($request_method !~ ^(GET|HEAD|POST)$) {
+        return 403;
+    }
+
+    #禁止 Scrapy 等工具的抓取
+    if ($http_user_agent ~* (Scrapy|HttpClient)) {
+        return 403;
+    }
+
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+    }
+
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+
+    location /api/ {
+        # 处理 Node.js 后端 API 的请求
+        proxy_pass http://localhost:3002;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;        
+        proxy_set_header X-Nginx-Proxy true;
+        proxy_buffering off;
+        proxy_redirect off;
+    }
+}
+EOF
+elif [ "$NGCONF" = "n" ]; then
+   WARN "You chose no."
+else
+   ERROR "Invalid parameter. Please enter 'y' or 'n'."
+   exit 1
+fi
+}
+
 function REPO() {
 # 判断 repository 的值
 if [ $repository == $CGPTWEB ]; then
@@ -566,6 +641,7 @@ function main() {
     NODEJS
     REPO
     BUILD
+    NGINX_CONF
     NGINX
     DELSOURCE
 }
