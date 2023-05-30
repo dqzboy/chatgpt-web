@@ -290,6 +290,18 @@ echo "2. Kerwin1202/chatgpt-web[带用户中心]"
 while true; do
     read -n1 input
     case $input in
+        1) repository=$CGPTWEB; break;;
+        2) repository=$KGPTWEB; break;;
+        *) ERROR "无效的选项，请重试";;
+    esac
+done
+echo 
+${SETCOLOR_RED} && echo "请选择您的服务器网络环境：" && ${SETCOLOR_NORMAL}
+echo "1. 国外"
+echo "2. 国内"
+while true; do
+    read -n1 input
+    case $input in
         1)
             if git clone $repository; then
                 break
