@@ -558,7 +558,7 @@ function NGINX_CONF() {
 read -e -p "是否修改Nginx配置[y/n](通过本脚本部署的Nginx可选择 y)：" NGCONF
 if [ "$NGCONF" = "y" ]; then
    INFO "You chose yes."
-   INFO "config：/etc/nginx/conf.d/default.conf"
+   INFO "config：/etc/nginx/nginx.conf"
 cat > /etc/nginx/nginx.conf <<\EOF
 user www-data;
 worker_processes auto;
