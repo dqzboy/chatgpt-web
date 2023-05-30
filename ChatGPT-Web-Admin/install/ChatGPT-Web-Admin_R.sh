@@ -580,90 +580,58 @@ function NGINX_CONF() {
 read -e -p "是否修改Nginx配置[y/n](通过本脚本部署的Nginx可选择 y)：" NGCONF
 if [ "$NGCONF" = "y" ]; then
    INFO "You chose yes."
-   INFO "config：/etc/nginx/nginx.conf"
-cat > /etc/nginx/nginx.conf <<\EOF
-user  nginx;
-worker_processes  auto;
+   INFO "config：/etc/nginx/conf.d/default.conf"
+cat > /etc/nginx/conf.d/default.conf <<\EOF
+server {
+    listen       80;
+    server_name  localhost;
 
-error_log  /var/log/nginx/error.log notice;
-pid        /var/run/nginx.pid;
+    #access_log  /var/log/nginx/host.access.log  main;
 
+    #禁止境内常见爬虫(根据需求自行控制是否禁止)
+    if ($http_user_agent ~* "qihoobot|Yahoo! Slurp China|Baiduspider|Baiduspider-image|spider|Sogou spider|Sogou web spider|Sogou inst spider|Sogou spider2|Sogou blog|Sogou News Spider|Sogou Orion spider|ChinasoSpider|Sosospider|YoudaoBot|yisouspider|EasouSpider|Tomato Bot|Scooter") {
+        return 403;
+    }
 
-events {
-    worker_connections  1024;
-}
+    #禁止境外常见爬虫(根据需求自行控制是否禁止)
+    if ($http_user_agent ~* "Googlebot|Googlebot-Mobile|AdsBot-Google|Googlebot-Image|Mediapartners-Google|Adsbot-Google|Feedfetcher-Google|Yahoo! Slurp|MSNBot|Catall Spider|ArchitextSpider|AcoiRobot|Applebot|Bingbot|Discordbot|Twitterbot|facebookexternalhit|ia_archiver|LinkedInBot|Naverbot|Pinterestbot|seznambot|Slurp|teoma|TelegramBot|Yandex|Yeti|Infoseek|Lycos|Gulliver|Fast|Grabber") {
+        return 403;
+    }
 
+    #禁止指定 UA 及 UA 为空的访问
+    if ($http_user_agent ~ "WinHttp|WebZIP|FetchURL|node-superagent|java/|Bytespider|FeedDemon|Jullo|JikeSpider|Indy Library|Alexa Toolbar|AskTbFXTV|AhrefsBot|CrawlDaddy|CoolpadWebkit|Java|Feedly|Apache-HttpAsyncClient|UniversalFeedParser|ApacheBench|Microsoft URL Control|Swiftbot|ZmEu|oBot|jaunty|Python-urllib|lightDeckReports Bot|YYSpider|DigExt|HttpClient|MJ12bot|heritrix|Ezooms|BOT/0.1|YandexBot|FlightDeckReports|Linguee Bot|iaskspider|^$") {
+        return 403;
+    }
 
-http {
-    include       /etc/nginx/mime.types;
-    default_type  application/octet-stream;
+    #禁止非 GET|HEAD|POST 方式的抓取
+    if ($request_method !~ ^(GET|HEAD|POST)$) {
+        return 403;
+    }
 
-    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-                      '$status $body_bytes_sent "$http_referer" '
-                      '"$http_user_agent" "$http_x_forwarded_for"';
+    #禁止 Scrapy 等工具的抓取
+    if ($http_user_agent ~* (Scrapy|HttpClient)) {
+        return 403;
+    }
 
-    access_log  /var/log/nginx/access.log  main;
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+    }
 
-    sendfile        on;
-    #tcp_nopush     on;
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
 
-    keepalive_timeout  65;
-
-    #gzip  on;
-
-    include /etc/nginx/conf.d/*.conf;
-
-    server {
-        listen       80;
-        server_name  localhost;
-
-        #access_log  /var/log/nginx/host.access.log  main;
-
-        #禁止境内常见爬虫(根据需求自行控制是否禁止)
-        if ($http_user_agent ~* "qihoobot|Yahoo! Slurp China|Baiduspider|Baiduspider-image|spider|Sogou spider|Sogou web spider|Sogou inst spider|Sogou spider2|Sogou blog|Sogou News Spider|Sogou Orion spider|ChinasoSpider|Sosospider|YoudaoBot|yisouspider|EasouSpider|Tomato Bot|Scooter") {
-            return 403;
-        }
-
-        #禁止境外常见爬虫(根据需求自行控制是否禁止)
-        if ($http_user_agent ~* "Googlebot|Googlebot-Mobile|AdsBot-Google|Googlebot-Image|Mediapartners-Google|Adsbot-Google|Feedfetcher-Google|Yahoo! Slurp|MSNBot|Catall Spider|ArchitextSpider|AcoiRobot|Applebot|Bingbot|Discordbot|Twitterbot|facebookexternalhit|ia_archiver|LinkedInBot|Naverbot|Pinterestbot|seznambot|Slurp|teoma|TelegramBot|Yandex|Yeti|Infoseek|Lycos|Gulliver|Fast|Grabber") {
-            return 403;
-        }
-
-        #禁止指定 UA 及 UA 为空的访问
-        if ($http_user_agent ~ "WinHttp|WebZIP|FetchURL|node-superagent|java/|Bytespider|FeedDemon|Jullo|JikeSpider|Indy Library|Alexa Toolbar|AskTbFXTV|AhrefsBot|CrawlDaddy|CoolpadWebkit|Java|Feedly|Apache-HttpAsyncClient|UniversalFeedParser|ApacheBench|Microsoft URL Control|Swiftbot|ZmEu|oBot|jaunty|Python-urllib|lightDeckReports Bot|YYSpider|DigExt|HttpClient|MJ12bot|heritrix|Ezooms|BOT/0.1|YandexBot|FlightDeckReports|Linguee Bot|iaskspider|^$") {
-            return 403;
-        }
-
-        #禁止非 GET|HEAD|POST 方式的抓取
-        if ($request_method !~ ^(GET|HEAD|POST)$) {
-            return 403;
-        }
-
-        #禁止 Scrapy 等工具的抓取
-        if ($http_user_agent ~* (Scrapy|HttpClient)) {
-            return 403;
-        }
-
-        location / {
-            root   /usr/share/nginx/html;
-            index  index.html index.htm;
-        }
-
-        error_page   500 502 503 504  /50x.html;
-        location = /50x.html {
-            root   /usr/share/nginx/html;
-        }
-
-        location /api/ {
-            # 处理 Node.js 后端 API 的请求
-            proxy_pass http://localhost:3002;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;        
-            proxy_set_header X-Nginx-Proxy true;
-            proxy_buffering off;
-            proxy_redirect off;
-        }
+    location /api/ {
+        # 处理 Node.js 后端 API 的请求
+        proxy_pass http://localhost:3002;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;        
+        proxy_set_header X-Nginx-Proxy true;
+        proxy_buffering off;
+        proxy_redirect off;
     }
 }
 EOF
