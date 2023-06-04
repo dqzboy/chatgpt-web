@@ -4,6 +4,9 @@ AUTH_SECRET_KEY=
 # 每小时最大请求次数，可选，默认无限
 MAX_REQUEST_PER_HOUR=100
 
+# 身份验证速率限制
+AUTH_MAX_REQUEST_PER_MINUTE=5
+
 # timeout
 TIMEOUT_MS=60000
 
