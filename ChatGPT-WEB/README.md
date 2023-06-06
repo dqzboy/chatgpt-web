@@ -102,6 +102,7 @@ server {
         proxy_redirect off;
     }
 }
+ 
 ```
 - 添加配置后，重载配置
 ```shell
