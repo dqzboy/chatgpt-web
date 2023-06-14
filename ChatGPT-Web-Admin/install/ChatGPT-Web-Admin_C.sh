@@ -79,7 +79,9 @@ OSVER=$(cat /etc/centos-release | grep -o '[0-9]' | head -n 1)
 
 function CHECKMEM() {
 INFO "Checking server memory resources. Please wait."
-yum install -y bc &>/dev/null
+if ! command -v bc &> /dev/null; then
+    yum install -y bc &>/dev/null
+fi
 total=$(free -m | awk 'NR==2{print $2}')  # 获取总内存数
 used=$(free -m | awk 'NR==2{print $3}')   # 获取已使用的内存数
 rate=$(echo "scale=2; $used/$total*100" | bc)  # 计算内存使用率
