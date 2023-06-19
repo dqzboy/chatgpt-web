@@ -77,3 +77,6 @@ width="2000"  height="3">
 [国内服务器实现科学上网并接入chatGPT-WEB](https://www.dqzboy.com/13754.html) 
 <br>
 [自建ChatGPT反向代理服务器](https://www.dqzboy.com/13935.html) 
+
+## 推荐
+更多学习教程请关注 [浅时光博客](https://www.dqzboy.com/)
