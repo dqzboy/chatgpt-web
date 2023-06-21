@@ -81,6 +81,11 @@ function CHECKMEM() {
 INFO "Checking server memory resources. Please wait."
 if ! command -v bc &> /dev/null; then
     yum install -y bc &>/dev/null
+    if [ $? -ne 0 ]; then
+        WARN "内存计算工具安装失败,请尝试手动执行安装."
+        echo " 命令：yum install -y bc"
+        exit 1
+    fi
 fi
 total=$(free -m | awk 'NR==2{print $2}')  # 获取总内存数
 used=$(free -m | awk 'NR==2{print $3}')   # 获取已使用的内存数
