@@ -39,19 +39,19 @@ SUCCESS() {
 }
 
 SUCCESS1() {
-  ${SETCOLOR_SUCCESS} && echo " $1 "  && ${SETCOLOR_NORMAL}
+  ${SETCOLOR_SUCCESS} && echo "$1"  && ${SETCOLOR_NORMAL}
 }
 
 ERROR() {
-  ${SETCOLOR_RED} && echo " $1 "  && ${SETCOLOR_NORMAL}
+  ${SETCOLOR_RED} && echo "$1"  && ${SETCOLOR_NORMAL}
 }
 
 INFO() {
-  ${SETCOLOR_SKYBLUE} && echo " $1 "  && ${SETCOLOR_NORMAL}
+  ${SETCOLOR_SKYBLUE} && echo "$1"  && ${SETCOLOR_NORMAL}
 }
 
 WARN() {
-  ${SETCOLOR_YELLOW} && echo " $1 "  && ${SETCOLOR_NORMAL}
+  ${SETCOLOR_YELLOW} && echo "$1"  && ${SETCOLOR_NORMAL}
 }
 
 # 进度条
@@ -79,7 +79,21 @@ OSVER=$(lsb_release -is)
 function CHECKMEM() {
 INFO "Checking server memory resources. Please wait."
 if ! command -v bc &> /dev/null; then
-     apt-get install -y bc &>/dev/null
+    while [ $attempts -lt $maxAttempts ]; do
+        apt-get install -y bc lsof &>/dev/null
+        if [ $? -ne 0 ]; then
+            ((attempts++))
+            WARN "尝试安装内存计算工具 (Attempt: $attempts)"
+
+            if [ $attempts -eq $maxAttempts ]; then
+                ERROR "内存计算工具安装失败，请尝试手动执行安装。"
+                echo "命令：apt-get install -y bc"
+                exit 1
+            fi
+        else
+            break
+        fi
+    done
 fi
 total=$(free -m | awk 'NR==2{print $2}')  # 获取总内存数
 used=$(free -m | awk 'NR==2{print $3}')   # 获取已使用的内存数
@@ -117,12 +131,22 @@ if which nginx &>/dev/null; then
   INFO "Nginx is already installed."
 else
   SUCCESS1 "Installing Nginx..."
-  apt-get install nginx -y &>/dev/null
-  if [ $? -ne 0 ]; then
-      WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
-      echo " 命令：apt-get install nginx"
-      exit 1
-   fi
+  while [ $attempts -lt $maxAttempts ]; do
+      apt-get install nginx -y &>/dev/null
+      if [ $? -ne 0 ]; then
+          ((attempts++))
+          WARN "尝试安装Nginx (Attempt: $attempts)"
+
+          if [ $attempts -eq $maxAttempts ]; then
+              ERROR "Nginx安装失败，请尝试手动执行安装。"
+              echo "命令：apt-get install nginx -y"
+              exit 1
+          fi
+      else
+          INFO "Nginx installed."
+          break
+      fi
+  done
 fi
 
 # 检查Nginx是否正在运行
@@ -145,26 +169,54 @@ if ! command -v node &> /dev/null;then
     # 安装 Node.js
     if [ "$OSVER" = "Ubuntu" ]; then
 	curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - &>/dev/null
-        apt-get install -y nodejs &>/dev/null
         if [ $? -ne 0 ]; then
-            WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
-            echo " 命令：apt-get install -y nodejs"
-            exit 1
-        fi
+	    ERROR "NodeJS安装失败！"
+	    exit 1
+	fi
+        while [ $attempts -lt $maxAttempts ]; do
+            apt-get install -y nodejs &>/dev/null
+            if [ $? -ne 0 ]; then
+                ((attempts++))
+                WARN "尝试安装NodeJS (Attempt: $attempts)"
+
+                if [ $attempts -eq $maxAttempts ]; then
+                    ERROR "NodeJS安装失败，请尝试手动执行安装。"
+                    echo "命令：apt-get install -y nodejs"
+                    exit 1
+                fi
+            else
+                INFO "NodeJS installed."
+                break
+            fi
+        done
     elif [ "$OSVER" = "Debian" ]; then
 	curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - &>/dev/null
-        apt-get install -y nodejs &>/dev/null
-        if [ $? -ne 0 ]; then
-            WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
-            echo " 命令：apt-get install -y nodejs"
+	if [ $? -ne 0 ]; then
+            ERROR "NodeJS安装失败！"
             exit 1
         fi
+        while [ $attempts -lt $maxAttempts ]; do
+            apt-get install -y nodejs &>/dev/null
+            if [ $? -ne 0 ]; then
+                ((attempts++))
+                WARN "尝试安装NodeJS (Attempt: $attempts)"
+
+                if [ $attempts -eq $maxAttempts ]; then
+                    ERROR "NodeJS安装失败，请尝试手动执行安装。"
+                    echo "命令：apt-get install -y nodejs"
+                    exit 1
+                fi
+            else
+                INFO "NodeJS installed."
+                break
+            fi
+        done
     else
         ERROR "Unsupported OS version: $OSVER"
         exit 1
     fi
 else
-    INFO "Node.js 已安装..."
+    INFO "Node.js Installed..."
 fi
 
 # 检查是否安装了 pnpm
@@ -172,14 +224,24 @@ if ! command -v pnpm &> /dev/null
 then
     WARN "pnpm 未安装，正在进行安装..."
     # 安装 pnpm
-    npm install -g pnpm &>/dev/null
-    if [ $? -ne 0 ]; then
-         WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
-         echo " 命令：npm install -g pnpm"
-         exit 1
-    fi
+    while [ $attempts -lt $maxAttempts ]; do
+        npm install -g pnpm &>/dev/null
+        if [ $? -ne 0 ]; then
+            ((attempts++))
+            WARN "尝试安装pnpm (Attempt: $attempts)"
+
+            if [ $attempts -eq $maxAttempts ]; then
+                ERROR "pnpm安装失败，请尝试手动执行安装。"
+                echo "命令：npm install -g pnpm"
+                exit 1
+            fi
+        else
+            INFO "pnpm installed."
+            break
+        fi
+    done
 else
-    INFO "pnpm 已安装..." 
+    INFO "pnpm Installed..."
 fi
 DONE
 }
@@ -268,14 +330,22 @@ else
 fi
 # 更新软件包列表并安装 MongoDB
 apt-get update &> /dev/null
-apt-get install -y mongodb-org &> /dev/null
-if [ $? -ne 0 ]; then
-   WARN "安装失败，请手动安装，安装成功之后再次执行脚本！[注：一般为网络环境导致安装失败]"
-   echo " 命令：apt-get install -y mongodb-org"
-   exit 1
-else
-   INFO "MongoDB installed."
-fi
+while [ $attempts -lt $maxAttempts ]; do
+    apt-get install -y mongodb-org &> /dev/null
+    if [ $? -ne 0 ]; then
+        ((attempts++))
+        WARN "尝试安装mongodb (Attempt: $attempts)"
+
+        if [ $attempts -eq $maxAttempts ]; then
+            ERROR "mongodb安装失败，请尝试手动执行安装。"
+            echo "命令：apt-get install -y mongodb-org"
+            exit 1
+        fi
+    else
+        INFO "MongoDB installed."
+        break
+    fi
+done
 
 # 启动 MongoDB 服务并设置开机自启
 if systemctl is-active mongod >/dev/null 2>&1; then
@@ -475,6 +545,11 @@ echo
 ${SETCOLOR_SUCCESS} && echo "-----------------------------------<前端构建>-----------------------------------" && ${SETCOLOR_NORMAL}
 # 前端
 cd ${ORIGINAL}/${CHATDIR} && BUILDWEB
+directory="${ORIGINAL}/${CHATDIR}/${FONTDIR}"
+if [ ! -d "$directory" ]; then
+    ERROR "Frontend build failed..."
+    exit 1
+fi
 ${SETCOLOR_SUCCESS} && echo "-------------------------------------< END >-------------------------------------" && ${SETCOLOR_NORMAL}
 echo
 echo
