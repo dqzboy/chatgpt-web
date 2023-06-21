@@ -81,6 +81,11 @@ function CHECKMEM() {
 INFO "Checking server memory resources. Please wait."
 if ! command -v bc &> /dev/null; then
     yum install -y bc &>/dev/null
+    if [ $? -ne 0 ]; then
+        WARN "内存计算工具安装失败,请尝试手动执行安装."
+        echo " 命令：yum install -y bc"
+        exit 1
+    fi
 fi
 total=$(free -m | awk 'NR==2{print $2}')  # 获取总内存数
 used=$(free -m | awk 'NR==2{print $3}')   # 获取已使用的内存数
@@ -189,10 +194,20 @@ if ! command -v node &> /dev/null;then
         dnf -y install libstdc++.so.glibc glibc lsof &>/dev/null
         curl -fsSL https://rpm.nodesource.com/setup_16.x | bash - &>/dev/null
         dnf install -y nodejs &>/dev/null
+        if [ $? -ne 0 ]; then
+            WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
+            echo " 命令：dnf install -y nodejs"
+            exit 1
+        fi
     elif [ "$OSVER" = "7" ]; then
         yum -y install libstdc++.so.glibc glibc lsof &>/dev/null
         curl -fsSL https://rpm.nodesource.com/setup_16.x | bash - &>/dev/null
         yum install -y nodejs &>/dev/null
+        if [ $? -ne 0 ]; then
+            WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
+            echo " 命令：yum install -y nodejs"
+            exit 1
+        fi
     else
         ERROR "Unsupported OS version: $OSVER"
         exit 1
