@@ -118,6 +118,11 @@ if which nginx &>/dev/null; then
 else
   SUCCESS1 "Installing Nginx..."
   apt-get install nginx -y &>/dev/null
+  if [ $? -ne 0 ]; then
+      WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
+      echo " 命令：apt-get install nginx"
+      exit 1
+   fi
 fi
 
 # 检查Nginx是否正在运行
@@ -141,9 +146,19 @@ if ! command -v node &> /dev/null;then
     if [ "$OSVER" = "Ubuntu" ]; then
 	curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - &>/dev/null
         apt-get install -y nodejs &>/dev/null
+        if [ $? -ne 0 ]; then
+            WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
+            echo " 命令：apt-get install -y nodejs"
+            exit 1
+        fi
     elif [ "$OSVER" = "Debian" ]; then
 	curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - &>/dev/null
         apt-get install -y nodejs &>/dev/null
+        if [ $? -ne 0 ]; then
+            WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
+            echo " 命令：apt-get install -y nodejs"
+            exit 1
+        fi
     else
         ERROR "Unsupported OS version: $OSVER"
         exit 1
@@ -158,6 +173,11 @@ then
     WARN "pnpm 未安装，正在进行安装..."
     # 安装 pnpm
     npm install -g pnpm &>/dev/null
+    if [ $? -ne 0 ]; then
+         WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
+         echo " 命令：npm install -g pnpm"
+         exit 1
+    fi
 else
     INFO "pnpm 已安装..." 
 fi
@@ -168,7 +188,7 @@ DONE
 function MONGO_USER() {
 # 检查用户是否要创建 MongoDB 用户
 read -e -p "是否创建 MongoDB 用户？[y/n] " choice
-case "$choice" in
+case "$choice" 在
   y|Y )
     read -e -p "请输入 MongoDB 用户名：" MONGODB_USERNAME
     read -e -s -p "请输入 MongoDB 密码：" MONGODB_PASSWORD
