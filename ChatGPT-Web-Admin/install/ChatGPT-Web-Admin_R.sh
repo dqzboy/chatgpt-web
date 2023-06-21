@@ -39,19 +39,19 @@ SUCCESS() {
 }
 
 SUCCESS1() {
-  ${SETCOLOR_SUCCESS} && echo " $1 "  && ${SETCOLOR_NORMAL}
+  ${SETCOLOR_SUCCESS} && echo "$1"  && ${SETCOLOR_NORMAL}
 }
 
 ERROR() {
-  ${SETCOLOR_RED} && echo " $1 "  && ${SETCOLOR_NORMAL}
+  ${SETCOLOR_RED} && echo "$1"  && ${SETCOLOR_NORMAL}
 }
 
 INFO() {
-  ${SETCOLOR_SKYBLUE} && echo " $1 "  && ${SETCOLOR_NORMAL}
+  ${SETCOLOR_SKYBLUE} && echo "$1"  && ${SETCOLOR_NORMAL}
 }
 
 WARN() {
-  ${SETCOLOR_YELLOW} && echo " $1 "  && ${SETCOLOR_NORMAL}
+  ${SETCOLOR_YELLOW} && echo "$1"  && ${SETCOLOR_NORMAL}
 }
 
 # 进度条
@@ -80,12 +80,21 @@ OSVER=$(cat /etc/redhat-release | grep -o '[0-9]' | head -n 1)
 function CHECKMEM() {
 INFO "Checking server memory resources. Please wait."
 if ! command -v bc &> /dev/null; then
-    yum install -y bc &>/dev/null
-    if [ $? -ne 0 ]; then
-        WARN "内存计算工具安装失败,请尝试手动执行安装."
-        echo " 命令：yum install -y bc"
-        exit 1
-    fi
+    while [ $attempts -lt $maxAttempts ]; do
+        yum install -y bc lsof &>/dev/null
+        if [ $? -ne 0 ]; then
+            ((attempts++))
+            WARN "尝试安装内存计算工具 (Attempt: $attempts)"
+
+            if [ $attempts -eq $maxAttempts ]; then
+                ERROR "内存计算工具安装失败，请尝试手动执行安装。"
+                echo "命令：dnf install -y bc"
+                exit 1
+            fi
+        else
+            break
+        fi
+    done
 fi
 total=$(free -m | awk 'NR==2{print $2}')  # 获取总内存数
 used=$(free -m | awk 'NR==2{print $3}')   # 获取已使用的内存数
@@ -141,30 +150,48 @@ else
       dnf -y install pcre2 &>/dev/null
       rm -f ${NGINX}
       wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} &>/dev/null
-      dnf -y install ${NGINX} &>/dev/null
-      if [ $? -ne 0 ]; then
-        WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
-        echo " 命令：wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} && yum -y install ${NGINX}"
-        exit 1
-      else
-        INFO "Nginx installed."
-        rm -f ${NGINX}
-      fi
+      while [ $attempts -lt $maxAttempts ]; do
+          dnf -y install ${NGINX} &>/dev/null
+          if [ $? -ne 0 ]; then
+              ((attempts++))
+              WARN "尝试安装Nginx (Attempt: $attempts)"
+
+              if [ $attempts -eq $maxAttempts ]; then
+                  ERROR "Nginx安装失败，请尝试手动执行安装。"
+	          rm -f ${NGINX}
+                  echo "命令：wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} && dnf -y install ${NGINX}"
+                  exit 1
+              fi
+          else
+              INFO "Nginx installed."
+              rm -f ${NGINX}
+              break
+          fi
+      done
   elif [ "$OSVER" = "9" ]; then
       # 下载并安装RPM包
       dnf -y install wget git openssl-devel pcre-devel zlib-devel gd-devel &>/dev/null
       dnf -y install pcre2 &>/dev/null
       rm -f ${NGINX}
       wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} &>/dev/null
-      dnf -y install ${NGINX} &>/dev/null
-      if [ $? -ne 0 ]; then
-        WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
-        echo " 命令：wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} && yum -y install ${NGINX}"
-        exit 1
-      else
-        echo "Nginx installed."
-        rm -f ${NGINX}
-      fi
+      while [ $attempts -lt $maxAttempts ]; do
+          dnf -y install ${NGINX} &>/dev/null
+          if [ $? -ne 0 ]; then
+              ((attempts++))
+              WARN "尝试安装Nginx (Attempt: $attempts)"
+
+              if [ $attempts -eq $maxAttempts ]; then
+                  ERROR "Nginx安装失败，请尝试手动执行安装。"
+                  rm -f ${NGINX}
+                  echo "命令：wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} && dnf -y install ${NGINX}"
+                  exit 1
+              fi
+          else
+              INFO "Nginx installed."
+              rm -f ${NGINX}
+              break
+          fi
+      done
   else
     ERROR "Unsupported OS version: $OSVER"
     exit 1
@@ -193,27 +220,55 @@ if ! command -v node &> /dev/null;then
     if [ "$OSVER" = "8" ]; then
         dnf -y install libstdc++.so.glibc glibc lsof &>/dev/null
         curl -fsSL https://rpm.nodesource.com/setup_lts.x | bash - &>/dev/null
-        dnf install -y nodejs &>/dev/null
-        if [ $? -ne 0 ]; then
-            WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
-            echo " 命令：dnf install -y nodejs"
-            exit 1
-        fi
+	if [ $? -ne 0 ]; then
+	    ERROR "NodeJS安装失败！"
+	    exit 1
+	fi
+        while [ $attempts -lt $maxAttempts ]; do
+            dnf install -y nodejs &>/dev/null
+            if [ $? -ne 0 ]; then
+                ((attempts++))
+                WARN "尝试安装NodeJS (Attempt: $attempts)"
+
+                if [ $attempts -eq $maxAttempts ]; then
+                    ERROR "NodeJS安装失败，请尝试手动执行安装。"
+                    echo " 命令：dnf install -y nodejs"
+                    exit 1
+                fi
+            else
+                INFO "NodeJS installed."
+                break
+            fi
+        done
     elif [ "$OSVER" = "9" ]; then
         dnf -y install libstdc++.so.glibc glibc lsof &>/dev/null
         curl -fsSL https://rpm.nodesource.com/setup_lts.x | bash - &>/dev/null
-        dnf install -y nodejs &>/dev/null
         if [ $? -ne 0 ]; then
-            WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
-            echo " 命令：dnf install -y nodejs"
+            ERROR "NodeJS安装失败！"
             exit 1
         fi
+        while [ $attempts -lt $maxAttempts ]; do
+            dnf install -y nodejs &>/dev/null
+            if [ $? -ne 0 ]; then
+                ((attempts++))
+                WARN "尝试安装NodeJS (Attempt: $attempts)"
+
+                if [ $attempts -eq $maxAttempts ]; then
+                    ERROR "NodeJS安装失败，请尝试手动执行安装。"
+                    echo " 命令：dnf install -y nodejs"
+                    exit 1
+                fi
+            else
+                INFO "NodeJS installed."
+                break
+            fi
+        done
     else
         ERROR "Unsupported OS version: $OSVER"
         exit 1
     fi
 else
-    INFO "Node.js 已安装..."
+    INFO "Node.js Installed..."
 fi
 
 # 检查是否安装了 pnpm
@@ -221,14 +276,24 @@ if ! command -v pnpm &> /dev/null
 then
     WARN "pnpm 未安装，正在进行安装..."
     # 安装 pnpm
-    npm install -g pnpm &>/dev/null
-    if [ $? -ne 0 ]; then
-         WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
-         echo " 命令：npm install -g pnpm"
-         exit 1
-    fi
+    while [ $attempts -lt $maxAttempts ]; do
+        npm install -g pnpm &>/dev/null
+        if [ $? -ne 0 ]; then
+            ((attempts++))
+            WARN "尝试安装pnpm (Attempt: $attempts)"
+
+            if [ $attempts -eq $maxAttempts ]; then
+                ERROR "pnpm安装失败，请尝试手动执行安装。"
+                echo " 命令：npm install -g pnpm"
+                exit 1
+            fi
+        else
+            INFO "pnpm installed."
+            break
+        fi
+    done
 else
-    INFO "pnpm 已安装..." 
+    INFO "pnpm Installed..." 
 fi
 DONE
 }
@@ -273,14 +338,22 @@ gpgcheck=1
 enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc
 EOF
-    dnf install -y mongodb-org &>/dev/null
-    if [ $? -ne 0 ]; then
-       WARN "安装失败，请手动安装，安装成功之后再次执行脚本！[注：一般为网络环境导致安装失败]"
-       echo " 命令：dnf install -y mongodb-org"
-       exit 1
-    else
-       INFO "MongoDB installed."
-    fi
+    while [ $attempts -lt $maxAttempts ]; do
+        dnf install -y mongodb-org &>/dev/null
+        if [ $? -ne 0 ]; then
+            ((attempts++))
+            WARN "尝试安装mongodb (Attempt: $attempts)"
+
+            if [ $attempts -eq $maxAttempts ]; then
+                ERROR "mongodb安装失败，请尝试手动执行安装。"
+                echo " 命令：dnf install -y mongodb-org"
+                exit 1
+            fi
+        else
+            INFO "MongoDB installed."
+            break
+        fi
+    done
 fi
 
 # 启动 MongoDB 服务
@@ -481,6 +554,11 @@ echo
 ${SETCOLOR_SUCCESS} && echo "-----------------------------------<前端构建>-----------------------------------" && ${SETCOLOR_NORMAL}
 # 前端
 cd ${ORIGINAL}/${CHATDIR} && BUILDWEB
+directory="${ORIGINAL}/${CHATDIR}/${FONTDIR}"
+if [ ! -d "$directory" ]; then
+    ERROR "Frontend build failed..."
+    exit 1
+fi
 ${SETCOLOR_SUCCESS} && echo "-------------------------------------< END >-------------------------------------" && ${SETCOLOR_NORMAL}
 echo
 echo
