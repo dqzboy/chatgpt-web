@@ -189,10 +189,20 @@ if ! command -v node &> /dev/null;then
         dnf -y install libstdc++.so.glibc glibc lsof &>/dev/null
         curl -fsSL https://rpm.nodesource.com/setup_lts.x | bash - &>/dev/null
         dnf install -y nodejs &>/dev/null
+        if [ $? -ne 0 ]; then
+            WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
+            echo " 命令：dnf install -y nodejs"
+            exit 1
+        fi
     elif [ "$OSVER" = "9" ]; then
         dnf -y install libstdc++.so.glibc glibc lsof &>/dev/null
         curl -fsSL https://rpm.nodesource.com/setup_lts.x | bash - &>/dev/null
         dnf install -y nodejs &>/dev/null
+        if [ $? -ne 0 ]; then
+            WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
+            echo " 命令：dnf install -y nodejs"
+            exit 1
+        fi
     else
         ERROR "Unsupported OS version: $OSVER"
         exit 1
@@ -207,6 +217,11 @@ then
     WARN "pnpm 未安装，正在进行安装..."
     # 安装 pnpm
     npm install -g pnpm &>/dev/null
+    if [ $? -ne 0 ]; then
+         WARN "安装失败，请手动安装，安装成功之后再次执行脚本！"
+         echo " 命令：npm install -g pnpm"
+         exit 1
+    fi
 else
     INFO "pnpm 已安装..." 
 fi
@@ -217,7 +232,7 @@ DONE
 function MONGO_USER() {
 # 检查用户是否要创建 MongoDB 用户
 read -e -p "是否创建 MongoDB 用户？[y/n] " choice
-case "$choice" in
+case "$choice" 在
   y|Y )
     read -e -p "请输入 MongoDB 用户名：" MONGODB_USERNAME
     read -e -s -p "请输入 MongoDB 密码：" MONGODB_PASSWORD
