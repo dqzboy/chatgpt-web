@@ -188,7 +188,7 @@ DONE
 function MONGO_USER() {
 # 检查用户是否要创建 MongoDB 用户
 read -e -p "是否创建 MongoDB 用户？[y/n] " choice
-case "$choice" 在
+case "$choice" in
   y|Y )
     read -e -p "请输入 MongoDB 用户名：" MONGODB_USERNAME
     read -e -s -p "请输入 MongoDB 密码：" MONGODB_PASSWORD
