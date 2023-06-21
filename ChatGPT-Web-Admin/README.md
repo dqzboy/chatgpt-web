@@ -17,19 +17,19 @@ apt -y install wget
 
 #（3）下载对应的env.example配置文件；注意执行脚本前先进行修改里面的内容
 【Kerwin1202/chatgpt-web】
-wget  -O env.example https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/Kerwin1202_env.example
+wget  -O env.example https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/Kerwin1202_env.example
 
 【Chanzhaoyu/chatgpt-web】
-wget  -O env.example https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/Chanzhaoyu_env.example
+wget  -O env.example https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/Chanzhaoyu_env.example
 
 # CentOS 7 or CentOS-8
-bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_C.sh)"
+bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_C.sh)"
 
 # RHEL-8/9 or Rocky-8/9
-bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_R.sh)"
+bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_R.sh)"
 
 # Ubuntu or Debian
-bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_U.sh)"
+bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_U.sh)"
 ```
 
 ## 执行过程
