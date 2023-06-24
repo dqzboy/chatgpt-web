@@ -19,3 +19,5 @@ PASSWORD_MD5_SALT=xxx
 
 # 开启注册之后 超级管理邮箱
 ROOT_USER=xxx@xxx.com
+
+# 其他配置，可在部署完成之后在页面进行配置
