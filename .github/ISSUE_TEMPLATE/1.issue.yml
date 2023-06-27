@@ -13,7 +13,7 @@ body:
     attributes:
       label: 前置确认
       options:
-        - label: 我确认我的网络可以访问openai，使用的是最新脚本，并且服务器规格 > 1C1G
+        - label: 我确认我的网络可以访问openai，使用的是最新脚本，并且服务器内存规格 >= 2G
           required: true
   - type: checkboxes
     attributes:
