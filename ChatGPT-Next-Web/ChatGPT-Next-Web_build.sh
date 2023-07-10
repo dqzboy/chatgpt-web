@@ -130,31 +130,26 @@ if [ ${NETWORK} == 1 ];then
     if [ "$repo_type" = "centos" ] || [ "$repo_type" = "rhel" ]; then
         INFO "《This is $repo_type.》"
         SUCCESS "系统环境检测中，请稍等..."
-        bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ShellProject/main/ChatGPT/ChatGPT-Next-Web/install/ChatGPT-Next-Web_C.sh)"
+        bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Next-Web/install/ChatGPT-Next-Web_C.sh)"
     elif [ "$repo_type" == "ubuntu" ] || [ "$repo_type" == "debian" ]; then
         INFO "《This is $repo_type.》"
         SUCCESS "系统环境检测中，请稍等..."
         systemctl restart systemd-resolved
-        bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ShellProject/main/ChatGPT/ChatGPT-Next-Web/install/ChatGPT-Next-Web_U.sh)"
+        bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Next-Web/install/ChatGPT-Next-Web_U.sh)"
     else
         echo "Unknown Linux distribution."
         exit 2
     fi
 elif [ ${NETWORK} == 2 ];then
-        if [ -f /etc/redhat-release ]; then
-        INFO "《This is CentOS.》"
+    if [ "$repo_type" = "centos" ] || [ "$repo_type" = "rhel" ]; then
+        INFO "《This is $repo_type.》"
         SUCCESS "系统环境检测中，请稍等..."
-        bash -c "$(wget -q -O- https://ghproxy.com/https://raw.githubusercontent.com/dqzboy/ShellProject/main/ChatGPT/ChatGPT-Next-Web/install/ChatGPT-Next-Web_C.sh)"
-    elif [ -f /etc/lsb-release ]; then
-        if grep -q "DISTRIB_ID=Ubuntu" /etc/lsb-release; then
-            INFO "《This is Ubuntu.》"
-            SUCCESS "系统环境检测中，请稍等..."
-            systemctl restart systemd-resolved
-            bash -c "$(wget -q -O- https://ghproxy.com/https://raw.githubusercontent.com/dqzboy/ShellProject/main/ChatGPT/ChatGPT-Next-Web/install/ChatGPT-Next-Web_U.sh)"
-        else
-            echo "Unknown Linux distribution."
-            exit 1
-        fi
+        bash -c "$(wget -q -O- https://ghproxy.com/https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Next-Web/install/ChatGPT-Next-Web_C.sh)"
+    elif [ "$repo_type" == "ubuntu" ] || [ "$repo_type" == "debian" ]; then
+        INFO "《This is $repo_type.》"
+        SUCCESS "系统环境检测中，请稍等..."
+        systemctl restart systemd-resolved
+        bash -c "$(wget -q -O- https://ghproxy.com/https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Next-Web/install/ChatGPT-Next-Web_U.sh)"
     else
         echo "Unknown Linux distribution."
         exit 2
