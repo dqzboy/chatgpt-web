@@ -217,12 +217,13 @@ sleep 10
 if pgrep -f "$(which yarn)" > /dev/null
 then
     # 检测端口是否正在监听
+    sleep 5
     if ss -tuln | grep ":3000" > /dev/null
     then
-        echo "chatgpt-next-web后端服务已成功启动"
+        ${SETCOLOR_SUCCESS} && echo "chatgpt-next-web后端服务已成功启动" && ${SETCOLOR_NORMAL}
         PROMPT "首次安装,如需使用域名或80端口访问,请将如下配置加入到Nginx配置文件的server块中."
 echo
-cat << EOF
+cat << \EOF
     location / {
         proxy_pass http://localhost:3000;
         proxy_set_header Host $host;
