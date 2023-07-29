@@ -23,6 +23,8 @@ SERDIR="service"
 FONTDIR="dist"
 ORIGINAL=${PWD}
 
+echo "----------------------------------------------------------------------------------------------------------"
+echo -e "\033[32m机场推荐\033[0m(\033[34m按量不限时，解锁ChatGPT\033[0m)：\033[34;4mhttps://mojie.mx/#/register?code=CG6h8Irm\033[0m"
 
 echo
 cat << EOF
