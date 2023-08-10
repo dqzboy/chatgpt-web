@@ -14,6 +14,10 @@ SETCOLOR_SKYBLUE="echo -en \\E[1;36m"
 SETCOLOR_SUCCESS="echo -en \\E[0;32m"
 SETCOLOR_NORMAL="echo  -en \\E[0;39m"
 SETCOLOR_RED="echo  -en \\E[0;31m"
+SETCOLOR_YELLOW="echo -en \\E[1;33m"
+GREEN="\033[1;32m"
+RESET="\033[0m"
+PURPLE="\033[35m"
 
 # 定义项目仓库地址
 GITGPT="https://github.com/Yidadaa/ChatGPT-Next-Web"
@@ -21,6 +25,9 @@ GITGPT="https://github.com/Yidadaa/ChatGPT-Next-Web"
 CHATDIR="ChatGPT-Next-Web"
 ORIGINAL=${PWD}
 
+# Attempts to install
+maxAttempts=3
+attempts=0
 
 echo
 cat << EOF
@@ -33,47 +40,56 @@ cat << EOF
 EOF
 
 echo "----------------------------------------------------------------------------------------------------------"
-echo -e "\033[32m机场推荐\033[0m(\033[34m按量不限时，解锁ChatGPT\033[0m)：\033[34;4mhttps://mojie.mx/#/register?code=CG6h8Irm\033[0m"
-
-function SUCCESS_ON() {
-${SETCOLOR_SUCCESS} && echo "-------------------------------------<提 示>-------------------------------------" && ${SETCOLOR_NORMAL}
-}
-
-function SUCCESS_END() {
-${SETCOLOR_SUCCESS} && echo "-------------------------------------< END >-------------------------------------" && ${SETCOLOR_NORMAL}
 echo
+echo -e "\033[32m机场推荐\033[0m(\033[34m按量不限时，解锁ChatGPT\033[0m)：\033[34;4mhttps://mojie.mx/#/register?code=CG6h8Irm\033[0m"
+echo
+
+SUCCESS() {
+  ${SETCOLOR_SUCCESS} && echo "------------------------------------< $1 >-------------------------------------"  && ${SETCOLOR_NORMAL}
 }
-function PROMPT() {
-${SETCOLOR_SKYBLUE} && echo "$1"  && ${SETCOLOR_NORMAL}
+
+SUCCESS1() {
+  ${SETCOLOR_SUCCESS} && echo "$1"  && ${SETCOLOR_NORMAL}
+}
+
+ERROR() {
+  ${SETCOLOR_RED} && echo "$1"  && ${SETCOLOR_NORMAL}
+}
+
+INFO() {
+  ${SETCOLOR_SKYBLUE} && echo "$1"  && ${SETCOLOR_NORMAL}
+}
+
+WARN() {
+  ${SETCOLOR_YELLOW} && echo "$1"  && ${SETCOLOR_NORMAL}
 }
 
 function CHECKFIRE() {
-SUCCESS_ON
+SUCCESS "Firewall && SELinux detection."
 # Check if firewall is enabled
 firewall_status=$(systemctl is-active firewalld)
 if [[ $firewall_status == 'active' ]]; then
     # If firewall is enabled, disable it
     systemctl stop firewalld
     systemctl disable firewalld
-    echo "Firewall has been disabled."
+    SUCCESS1 "Firewall has been disabled."
 else
-    echo "Firewall is already disabled."
+    INFO "Firewall is already disabled."
 fi
 
 # Check if SELinux is enforcing
 if sestatus | grep "SELinux status" | grep -q "enabled"; then
-    echo "SELinux is enabled. Disabling SELinux..."
+    WARN "SELinux is enabled. Disabling SELinux..."
     setenforce 0
     sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
-    echo "SELinux is already disabled."
+    SUCCESS1 "SELinux is already disabled."
 else
-    echo "SELinux is already disabled."
+    INFO "SELinux is already disabled."
 fi
-SUCCESS_END
 }
 
 function GITCLONE() {
-${SETCOLOR_SUCCESS} && echo "-------------------------------<检测服务是否已运行>-------------------------------" && ${SETCOLOR_NORMAL}
+SUCCESS "Verify the operational status of the service."
 # 检查服务进程是否正在运行
 pid=$(lsof -t -i:3000)
 if [ -z "$pid" ]; then
@@ -89,87 +105,117 @@ else
     fi
 fi
 
-${SETCOLOR_SUCCESS} && echo "-------------------------------------<项目克隆>-------------------------------------" && ${SETCOLOR_NORMAL}
-${SETCOLOR_RED} && echo "                           注: 国内服务器请选择参数 2 "
-SUCCESS_END
+SUCCESS "Acquire the source code of the project."
+WARN "                           注: 国内服务器请选择参数 2 "
 ${SETCOLOR_NORMAL}
 
-read -e -p "请选择你的服务器网络环境[国外1/国内2]： " NETWORK
+read -e -p "$(echo -e ${GREEN}"请选择你的服务器网络环境[国外1/国内2]： "${RESET})" NETWORK
 if [ ${NETWORK} == 1 ];then
     cd ${ORIGINAL} && git clone ${GITGPT}
 elif [ ${NETWORK} == 2 ];then
     cd ${ORIGINAL} && git clone https://ghproxy.com/${GITGPT}
 fi
-SUCCESS_END
 }
 
 function NODEJS() {
-SUCCESS_ON
+SUCCESS "Node.js yarn detection and installation."
 # 检查是否安装了Node.js
-if ! command -v node &> /dev/null
-then
-    echo "Node.js 未安装，正在进行安装..."
+if ! command -v node &> /dev/null;then
+    WARN "Node.js 未安装，正在进行安装..."
     # 安装 Node.js
     yum -y install libstdc++.so.glibc glibc lsof &>/dev/null
-    curl -fsSL https://rpm.nodesource.com/setup_16.x | bash - &>/dev/null
-    yum install -y nodejs &>/dev/null
+    curl -fsSL https://rpm.nodesource.com/setup_lts.x | bash - &>/dev/null
+	if [ $? -ne 0 ]; then
+	    ERROR "NodeJS安装失败！"
+	    exit 1
+	fi
+    while [ $attempts -lt $maxAttempts ]; do
+        yum install -y nodejs &>/dev/null
+        if [ $? -ne 0 ]; then
+            ((attempts++))
+            WARN "尝试安装NodeJS (Attempt: $attempts)"
+
+            if [ $attempts -eq $maxAttempts ]; then
+                ERROR "NodeJS安装失败，请尝试手动执行安装。"
+                echo " 命令：yum install -y nodejs"
+                exit 1
+            fi
+        else
+            INFO "NodeJS installed."
+            break
+        fi
+    done
 else
-    echo "Node.js 已安装..."
+    INFO "Node.js Installed..."
 fi
 
-# 检查是否安装了 yarn
-if ! command -v yarn &> /dev/null
-then
-    echo "yarn 未安装，正在进行安装..."
+
+if ! command -v yarn &> /dev/null;then
+    WARN "yarn 未安装，正在进行安装..."
     # 安装 yarn
     npm install -g yarn &>/dev/null
+	if [ $? -ne 0 ]; then
+	    ERROR "NodeJS安装失败！"
+	    exit 1
+	fi
+    while [ $attempts -lt $maxAttempts ]; do
+        yum install -y yarn &>/dev/null
+        if [ $? -ne 0 ]; then
+            ((attempts++))
+            WARN "尝试安装yarn (Attempt: $attempts)"
+
+            if [ $attempts -eq $maxAttempts ]; then
+                ERROR "yarn安装失败，请尝试手动执行安装。"
+                echo " 命令：npm install -g yarn"
+                exit 1
+            fi
+        else
+            INFO "yarn installed."
+            break
+        fi
+    done
 else
-    echo "yarn 已安装..." 
+    INFO "Node.js Installed..."
 fi
-SUCCESS_END
 }
 
-function INFO() {
-# 交互输入ENV环境配置
-if [ -f .env ]; then
-  last_input=$(cat .env)
-  PROMPT "请在下面输入OPENAI_API_KEY/页面访问密码/代理地址(eg：http://127.0.0.1:7890),并用空格分隔;国外VPS代理可不写"
-  read -e -p "请在此处填写,用空格分隔[上次记录：${last_input} 回车用上次记录]：" ENV_LOCAL
-  if [ -z "${ENV_LOCAL}" ];then
-      ENV_LOCAL="$last_input"
-      API_KEY=$(echo "${ENV_LOCAL}" | cut -d' ' -f1)
-      CODE=$(echo "${ENV_LOCAL}" | cut -d' ' -f2)
-      PROXY_URL=$(echo "${ENV_LOCAL}" | cut -d' ' -f3)
-      ${SETCOLOR_SUCCESS} && echo "当前OPENAI_API_KEY为：${API_KEY}" && ${SETCOLOR_NORMAL}
-      ${SETCOLOR_SUCCESS} && echo "当前页面访问密码为：${CODE}" && ${SETCOLOR_NORMAL}
-      ${SETCOLOR_SUCCESS} && echo "当前代理地址为：${PROXY_URL}" && ${SETCOLOR_NORMAL}
-  else
-      API_KEY=$(echo "${ENV_LOCAL}" | cut -d' ' -f1)
-      CODE=$(echo "${ENV_LOCAL}" | cut -d' ' -f2)
-      PROXY_URL=$(echo "${ENV_LOCAL}" | cut -d' ' -f3)
-      ${SETCOLOR_SUCCESS} && echo "当前OPENAI_API_KEY为：${API_KEY}" && ${SETCOLOR_NORMAL}
-      ${SETCOLOR_SUCCESS} && echo "当前页面访问密码为：${CODE}" && ${SETCOLOR_NORMAL}
-      ${SETCOLOR_SUCCESS} && echo "当前代理地址为：${PROXY_URL}" && ${SETCOLOR_NORMAL}
+function INFO_ENV() {
+  # 交互输入ENV环境配置
+  if [ -f .env ]; then
+    last_input=$(cat .env)
   fi
-else
-  PROMPT "请在下面输入OPENAI_API_KEY/页面访问密码/代理地址(eg：http://127.0.0.1:7890),并用空格分隔;国外VPS代理可不写"
-  read -e -p "请在此处填写,用空格分隔：" ENV_LOCAL
-  if [ -z "${ENV_LOCAL}" ];then
-      ${SETCOLOR_RED} && echo "您没输入OPENAI_API_KEY,部署完成后将无法正常使用！！" && ${SETCOLOR_NORMAL}
+
+  read -e -p "$(echo -e ${GREEN}"请输入 OPENAI_API_KEY（必填项）："${RESET})" OPENAI_API_KEY
+  read -e -p "$(echo -e ${GREEN}"请输入访问密码 CODE，可选，可以使用逗号隔开多个密码："${RESET})" CODE
+  read -e -p "$(echo -e ${GREEN}"请输入BASE_URL，默认为 https://api.openai.com："${RESET})" BASE_URL
+  read -e -p "$(echo -e ${GREEN}"请输入OPENAI_ORG_ID，可选："${RESET})" OPENAI_ORG_ID
+  read -e -p "$(echo -e ${GREEN}"请输入OPENAI 接口代理 URL，如果有配置代理(eg：http://clash:7890)，可选：："${RESET})" PROXY_URL
+  read -e -p "$(echo -e ${GREEN}"如果你不想让用户自行填入 API Key，请将 HIDE_USER_API_KEY 环境变量设置为 1，可选："${RESET})" HIDE_USER_API_KEY
+  read -e -p "$(echo -e ${GREEN}"如果你不想让用户使用 GPT-4，请将 DISABLE_GPT4 环境变量设置为 1，可选："${RESET})" DISABLE_GPT4
+  read -e -p "$(echo -e ${GREEN}"如果你不想让用户查询余额，请将 HIDE_BALANCE_QUERY 环境变量设置为 1，可选："${RESET})" HIDE_BALANCE_QUERY
+
+  if [ -z "$OPENAI_API_KEY" ]; then
+    ${SETCOLOR_RED} && echo "警告：您没有输入 OPENAI_API_KEY，部署完成后将无法正常使用！！" && ${SETCOLOR_NORMAL}
   else
-      API_KEY=$(echo "${ENV_LOCAL}" | cut -d' ' -f1)
-      CODE=$(echo "${ENV_LOCAL}" | cut -d' ' -f2)
-      PROXY_URL=$(echo "${ENV_LOCAL}" | cut -d' ' -f3)
-      ${SETCOLOR_SUCCESS} && echo "当前OPENAI_API_KEY为：${API_KEY}" && ${SETCOLOR_NORMAL}
-      ${SETCOLOR_SUCCESS} && echo "当前页面访问密码为：${CODE}" && ${SETCOLOR_NORMAL}
-      ${SETCOLOR_SUCCESS} && echo "当前代理地址为：${PROXY_URL}" && ${SETCOLOR_NORMAL}
+    ENV_LOCAL="$OPENAI_API_KEY $CODE $BASE_URL $OPENAI_ORG_ID $PROXY_URL $HIDE_USER_API_KEY $DISABLE_GPT4 $HIDE_BALANCE_QUERY"
+    IFS=" " read -r API_KEY CODE BASE_URL OPENAI_ORG_ID PROXY_URL HIDE_USER_API_KEY DISABLE_GPT4 HIDE_BALANCE_QUERY <<< "$ENV_LOCAL"
+echo "------------------------------------------------------------------------------------------------"
+    ${SETCOLOR_SUCCESS} && echo "当前 OPENAI_API_KEY 为：${API_KEY}" && ${SETCOLOR_NORMAL}
+    ${SETCOLOR_SUCCESS} && echo "当前页面访问密码为：${CODE}" && ${SETCOLOR_NORMAL}
+    ${SETCOLOR_SUCCESS} && echo "当前 BASE_URL 为：${BASE_URL}" && ${SETCOLOR_NORMAL}
+    ${SETCOLOR_SUCCESS} && echo "当前 OPENAI_ORG_ID 为：${OPENAI_ORG_ID}" && ${SETCOLOR_NORMAL}
+    ${SETCOLOR_SUCCESS} && echo "当前代理地址为：${PROXY_URL}" && ${SETCOLOR_NORMAL}
+    ${SETCOLOR_SUCCESS} && echo "当前 HIDE_USER_API_KEY 为：${HIDE_USER_API_KEY}" && ${SETCOLOR_NORMAL}
+    ${SETCOLOR_SUCCESS} && echo "当前 DISABLE_GPT4 为：${DISABLE_GPT4}" && ${SETCOLOR_NORMAL}
+    ${SETCOLOR_SUCCESS} && echo "当前 HIDE_BALANCE_QUERY 为：${HIDE_BALANCE_QUERY}" && ${SETCOLOR_NORMAL}
   fi
-fi
-echo "${ENV_LOCAL}" > .env
+
+  echo "${ENV_LOCAL}" > .env
 }
+
 
 function CODE_BUILD() {
-${SETCOLOR_SKYBLUE} && echo "《构建中，请稍等...》" && ${SETCOLOR_NORMAL}
+INFO "《构建中，请稍等...》"
 # 安装依赖
 yarn install 2>&1 >/dev/null | grep -E "error|fail|warning"
 # 打包
@@ -178,14 +224,12 @@ OPENAI_API_KEY=${API_KEY} CODE={$CODE} PORT=${PROXY_URL} yarn build | grep -E "E
 
 
 function BUILD() {
-SUCCESS_ON
-echo "                           开始进行构建.构建快慢取决于你的环境"
-SUCCESS_END
+SUCCESS1 "开始进行构建.构建快慢取决于你的环境"
 ${SETCOLOR_NORMAL}
 echo
-${SETCOLOR_SUCCESS} && echo "-------------------------------------< 构建 >------------------------------------" && ${SETCOLOR_NORMAL}
+SUCCESS "< 构建 >"
 cd ${ORIGINAL}/${CHATDIR} && CODE_BUILD
-${SETCOLOR_SUCCESS} && echo "-------------------------------------< END >-------------------------------------" && ${SETCOLOR_NORMAL}
+SUCCESS "< END >"
 echo
 }
 
@@ -193,8 +237,7 @@ echo
 # 启动服务
 function START_NEX() {
 # 拷贝后端并启动
-echo
-${SETCOLOR_SUCCESS} && echo "-----------------------------------<启动服务>-----------------------------------" && ${SETCOLOR_NORMAL}
+SUCCESS "<启动服务>"
 # 添加开机自启
 cat > /etc/systemd/system/chatgpt-next-web.service <<EOF
 [Unit]
@@ -205,7 +248,12 @@ After=network.target
 Type=simple
 Environment="OPENAI_API_KEY=${API_KEY}"
 Environment="CODE=${CODE}"
-Environment="PORT=${PROXY_URL}"
+Environment="PROXY_URL=${PROXY_URL}"
+Environment="BASE_URL=${BASE_URL}"
+Environment="OPENAI_ORG_ID=${OPENAI_ORG_ID}"
+Environment="HIDE_USER_API_KEY=${HIDE_USER_API_KEY}"
+Environment="DISABLE_GPT4=${DISABLE_GPT4}"
+Environment="HIDE_BALANCE_QUERY=${HIDE_BALANCE_QUERY}"
 User=root
 Group=root
 WorkingDirectory=${ORIGINAL}/${CHATDIR} 
@@ -231,8 +279,9 @@ then
     sleep 5
     if ss -tuln | grep ":3000" > /dev/null
     then
-        ${SETCOLOR_SUCCESS} && echo "chatgpt-next-web后端服务已成功启动" && ${SETCOLOR_NORMAL}
-        PROMPT "首次安装,如需使用域名或80端口访问,请将如下配置加入到Nginx配置文件的server块中."
+        SUCCESS1 "chatgpt-next-web后端服务已成功启动"
+        echo
+        INFO "首次安装,如需使用域名或80端口访问,请将如下配置加入到Nginx配置文件的server块中."
 echo
 cat << \EOF
     location / {
@@ -247,33 +296,32 @@ cat << \EOF
 EOF
     else
         echo
-        echo "ERROR：后端服务端口 3000 未在监听"
+        WARN "ERROR：后端服务端口 3000 未在监听"
         echo
-        ${SETCOLOR_RED} && echo "----------------chatgpt-next-web后端服务启动失败，请查看错误日志 ↓↓↓----------------" && ${SETCOLOR_NORMAL}
+        ERROR "----------------chatgpt-next-web后端服务启动失败，请查看错误日志 ↓↓↓----------------"
         journalctl -u chatgpt-next-web --no-pager
-        ${SETCOLOR_RED} && echo "----------------chatgpt-next-web后端服务启动失败，请查看错误日志 ↑↑↑----------------" && ${SETCOLOR_NORMAL}
+        ERROR "----------------chatgpt-next-web后端服务启动失败，请查看错误日志 ↑↑↑----------------"
         echo
         exit 1
     fi
 else
     echo
-    echo "ERROR：后端服务进程未找到"
+    WARN "ERROR：后端服务进程未找到"
     echo
-    ${SETCOLOR_RED} && echo "----------------chatgpt-next-web后端服务启动失败，请查看错误日志 ↓↓↓----------------" && ${SETCOLOR_NORMAL}
+    ERROR "----------------chatgpt-next-web后端服务启动失败，请查看错误日志 ↓↓↓----------------"
     journalctl -u chatgpt-next-web --no-pager
-    ${SETCOLOR_RED} && echo "----------------chatgpt-next-web后端服务启动失败，请查看错误日志 ↑↑↑----------------" && ${SETCOLOR_NORMAL}
+    ERROR "----------------chatgpt-next-web后端服务启动失败，请查看错误日志 ↑↑↑----------------"
     echo
     exit 2
 fi
-${SETCOLOR_SUCCESS} && echo "-------------------------------------< END >-------------------------------------" && ${SETCOLOR_NORMAL}
-
+SUCCESS "< END >"
 }
 
 function main() {
    CHECKFIRE
    NODEJS
    GITCLONE
-   INFO
+   INFO_ENV
    BUILD
    START_NEX
 }
