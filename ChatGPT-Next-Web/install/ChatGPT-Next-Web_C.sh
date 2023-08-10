@@ -93,12 +93,12 @@ SUCCESS "Verify the operational status of the service."
 # 检查服务进程是否正在运行
 pid=$(lsof -t -i:3000)
 if [ -z "$pid" ]; then
-    echo "后端程序未运行"
+    WARN "后端程序未运行"
     if [ -d "${ORIGINAL}/${CHATDIR}" ]; then
        rm -rf ${ORIGINAL}/${CHATDIR}
     fi
 else
-    echo "后端程序正在运行,现在停止程序并更新..."
+    WARN "后端程序正在运行,现在停止程序并更新..."
     kill -9 $pid
     if [ -d "${ORIGINAL}/${CHATDIR}" ]; then
        rm -rf ${ORIGINAL}/${CHATDIR}
@@ -106,7 +106,7 @@ else
 fi
 
 SUCCESS "Acquire the source code of the project."
-WARN "                           注: 国内服务器请选择参数 2 "
+WARN "注: 国内服务器请选择参数 2 使用Git代理服务"
 ${SETCOLOR_NORMAL}
 
 read -e -p "$(echo -e ${GREEN}"请选择你的服务器网络环境[国外1/国内2]： "${RESET})" NETWORK
