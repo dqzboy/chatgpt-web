@@ -153,6 +153,7 @@ else
   NGINX="nginx-1.24.0-1.el${OSVER}.ngx.x86_64.rpm"
   if [ "$OSVER" = "8" ]; then
       # 下载并安装RPM包
+      dnf -y install epel* &>/dev/null
       dnf -y install wget &>/dev/null
       dnf -y install git &>/dev/null
       dnf -y install openssl-devel zlib-devel gd-devel &>/dev/null
@@ -179,6 +180,7 @@ else
       done
   elif [ "$OSVER" = "7" ]; then
       # 下载并安装RPM包
+      yum -y install epel* &>/dev/null
       yum -y install wget &>/dev/null
       yum -y install git &>/dev/null
       yum -y install openssl-devel  zlib-devel gd-devel &>/dev/null
