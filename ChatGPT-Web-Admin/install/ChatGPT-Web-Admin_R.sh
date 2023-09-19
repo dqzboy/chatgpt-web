@@ -149,8 +149,10 @@ else
   NGINX="nginx-1.24.0-1.el${OSVER}.ngx.x86_64.rpm"
   if [ "$OSVER" = "8" ]; then
       # 下载并安装RPM包
-      dnf -y install wget git openssl-devel pcre-devel zlib-devel gd-devel &>/dev/null
-      dnf -y install pcre2 &>/dev/null
+      dnf -y install wget &>/dev/null
+      dnf -y install git &>/dev/null
+      dnf -y install openssl-devel zlib-devel gd-devel &>/dev/null
+      dnf -y install pcre-devel pcre2 &>/dev/null
       rm -f ${NGINX}
       wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} &>/dev/null
       while [ $attempts -lt $maxAttempts ]; do
@@ -173,8 +175,10 @@ else
       done
   elif [ "$OSVER" = "9" ]; then
       # 下载并安装RPM包
-      dnf -y install wget git openssl-devel pcre-devel zlib-devel gd-devel &>/dev/null
-      dnf -y install pcre2 &>/dev/null
+      dnf -y install wget &>/dev/null
+      dnf -y install git &>/dev/null
+      dnf -y install openssl-devel zlib-devel gd-devel &>/dev/null
+      dnf -y install pcre-devel pcre2 &>/dev/null
       rm -f ${NGINX}
       wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} &>/dev/null
       while [ $attempts -lt $maxAttempts ]; do
@@ -378,6 +382,7 @@ DONE
 
 function GITCLONE() {
 SUCCESS "项目克隆"
+rm -rf chatgpt-web &>/dev/null
 CGPTWEB="https://github.com/Chanzhaoyu/chatgpt-web"
 KGPTWEB="https://github.com/Kerwin1202/chatgpt-web"
 
