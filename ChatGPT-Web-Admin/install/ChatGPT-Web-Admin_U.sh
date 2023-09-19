@@ -369,6 +369,7 @@ DONE
 
 function GITCLONE() {
 SUCCESS "项目克隆"
+rm -rf chatgpt-web &>/dev/null
 CGPTWEB="https://github.com/Chanzhaoyu/chatgpt-web"
 KGPTWEB="https://github.com/Kerwin1202/chatgpt-web"
 
