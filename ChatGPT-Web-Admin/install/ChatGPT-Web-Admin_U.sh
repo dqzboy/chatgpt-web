@@ -355,6 +355,7 @@ if systemctl is-active mongod >/dev/null 2>&1; then
     INFO "MongoDB 已启动"
     MONGO_USER
 else
+    systemctl daemon-reexec &>/dev/null
     systemctl enable --now mongod &>/dev/null
     if systemctl is-active mongod >/dev/null 2>&1; then
         INFO "MongoDB 启动成功"
