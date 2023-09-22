@@ -1,5 +1,5 @@
 # 访问jwt加密参数，可选 不为空则允许登录 同时需要设置 MONGODB_URL
-AUTH_SECRET_KEY=xxx
+AUTH_SECRET_KEY=123456
 
 # 每小时最大请求次数，可选，默认无限
 MAX_REQUEST_PER_HOUR=0
@@ -9,15 +9,15 @@ SITE_TITLE="ChatGPT WEB"
 
 # mongodb 的连接字符串
 # MONGODB_URL=mongodb://chatgpt:xxxx@yourip:port
-MONGODB_URL=mongodb://chatgpt:your_passwd@127.0.0.1:27017
+MONGODB_URL=mongodb://your_user:your_passwd@127.0.0.1:27017
 
 # 网站是否开启注册
 REGISTER_ENABLED=true
 
 # 开启注册之后 密码加密的盐
-PASSWORD_MD5_SALT=xxx
+PASSWORD_MD5_SALT=chatgpt
 
 # 开启注册之后 超级管理邮箱
 ROOT_USER=xxx@xxx.com
 
-# 其他配置，可在部署完成之后在页面进行配置
+# 其他配置，例如ACCESS TOEKN或者API KEY，可在部署完成之后使用管理员邮箱进行注册并登入，然后在页面进行配置即可
