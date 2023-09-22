@@ -83,7 +83,7 @@ function CHECKMEM() {
 INFO "Checking server memory resources. Please wait."
 if ! command -v bc &> /dev/null; then
     while [ $attempts -lt $maxAttempts ]; do
-        apt-get install -y bc lsof &>/dev/null
+        apt-get install -y bc lsof git &>/dev/null
         if [ $? -ne 0 ]; then
             ((attempts++))
             WARN "尝试安装内存计算工具 (Attempt: $attempts)"
