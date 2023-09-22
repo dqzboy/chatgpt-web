@@ -143,6 +143,27 @@ fi
 DONE
 }
 
+function INSTALL_PACKAGE() {
+SUCCESS "Install necessary system components."
+if [ "$OSVER" = "8" ]; then
+    dnf -y install epel* &>/dev/null
+    dnf -y install wget &>/dev/null
+    dnf -y install git &>/dev/null
+    dnf -y install openssl-devel zlib-devel gd-devel &>/dev/null
+    dnf -y install pcre-devel pcre2 &>/dev/null
+elif [ "$OSVER" = "7" ]; then
+    yum -y install epel* &>/dev/null
+    yum -y install wget &>/dev/null
+    yum -y install git &>/dev/null
+    yum -y install openssl-devel  zlib-devel gd-devel &>/dev/null
+    yum -y install pcre-devel pcre2 &>/dev/null
+else
+    ERROR "Unsupported OS version: $OSVER"
+    exit 1
+fi
+DONE
+}
+
 function INSTALL_NGINX() {
 SUCCESS "Nginx detection and installation."
 # 检查是否已安装Nginx
@@ -152,12 +173,6 @@ else
   SUCCESS1 "Installing Nginx..."
   NGINX="nginx-1.24.0-1.el${OSVER}.ngx.x86_64.rpm"
   if [ "$OSVER" = "8" ]; then
-      # 下载并安装RPM包
-      dnf -y install epel* &>/dev/null
-      dnf -y install wget &>/dev/null
-      dnf -y install git &>/dev/null
-      dnf -y install openssl-devel zlib-devel gd-devel &>/dev/null
-      dnf -y install pcre-devel pcre2 &>/dev/null
       rm -f ${NGINX}
       wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} &>/dev/null
       while [ $attempts -lt $maxAttempts ]; do
@@ -179,12 +194,6 @@ else
           fi
       done
   elif [ "$OSVER" = "7" ]; then
-      # 下载并安装RPM包
-      yum -y install epel* &>/dev/null
-      yum -y install wget &>/dev/null
-      yum -y install git &>/dev/null
-      yum -y install openssl-devel  zlib-devel gd-devel &>/dev/null
-      yum -y install pcre-devel pcre2 &>/dev/null
       rm -f ${NGINX}
       wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} &>/dev/null
       while [ $attempts -lt $maxAttempts ]; do
@@ -210,7 +219,6 @@ else
     exit 1
   fi
 fi
-
 
 # 检查Nginx是否正在运行
 if pgrep "nginx" > /dev/null;then
@@ -771,6 +779,7 @@ fi
 function main() {
     CHECKMEM
     CHECKFIRE
+    INSTALL_PACKAGE
     GITCLONE
     INSTALL_NGINX
     NODEJS
