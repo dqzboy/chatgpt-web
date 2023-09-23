@@ -16,7 +16,7 @@ SETCOLOR_NORMAL="echo  -en \\E[0;39m"
 SETCOLOR_RED="echo  -en \\E[0;31m"
 SETCOLOR_YELLOW="echo -en \\E[1;33m"
 
-# 定义需要拷贝的文件目录
+# 定义需要拷贝的文件目录,根据项目情况指定,目前无需变动
 CHATDIR="chatgpt-web"
 SERDIR="service"
 FONTDIR="dist"
