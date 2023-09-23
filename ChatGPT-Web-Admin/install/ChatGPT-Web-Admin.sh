@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #===============================================================================
 #
-#          FILE: ChatGPT-Web-Admin_R.sh
+#          FILE: ChatGPT-Web-Admin.sh
 # 
-#         USAGE: ./ChatGPT-Web-Admin_R.sh
+#         USAGE: ./ChatGPT-Web-Admin.sh
 #
 #   DESCRIPTION: chatGPT-WEB项目一键构建、部署脚本
 # 
