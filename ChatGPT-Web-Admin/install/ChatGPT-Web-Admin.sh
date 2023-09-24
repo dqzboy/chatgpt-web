@@ -345,6 +345,7 @@ function NODEJS() {
 function MONGO_USER() {
 # 检查用户是否要创建 MongoDB 用户
 read -e -p "是否创建 MongoDB 用户？[y/n] " choice
+INFO ">>> 提醒：如果之前创建过用户,请勿再次创建同名的用户！<<<"
 case "$choice" in
   y|Y )
     read -e -p "请输入 MongoDB 用户名：" MONGODB_USERNAME
@@ -387,13 +388,13 @@ EOF
 
     # 安装 MongoDB
     install_mongodb() {
-        while [ $attempts -lt $maxAttempts ]; do
+        while [[ $attempts -lt $maxAttempts ]]; do
             $package_manager install -y mongodb-org &>/dev/null
             if [ $? -ne 0 ]; then
                 ((attempts++))
                 WARN "尝试安装 MongoDB (Attempt: $attempts)"
 
-                if [ $attempts -eq $maxAttempts ]; then
+                if [[ $attempts -eq $maxAttempts ]]; then
                     ERROR "MongoDB 安装失败，请尝试手动执行安装。"
                     echo "命令：$package_manager install -y mongodb-org"
                     exit 1
@@ -593,7 +594,7 @@ echo "${TITLE}" > .webtitle
 
 
 function BUILDWEB() {
-INFO "《前端构建中，请稍等...》"
+INFO "《前端构建中，请稍等...在构建执行过程中请勿进行任何操作。》"
 # 安装依赖
 pnpm bootstrap 2>&1 >/dev/null | grep -E "error|fail|warning"
 # 打包
@@ -601,7 +602,7 @@ pnpm build | grep -E "ERROR|ELIFECYCLE|WARN|*built in*"
 }
 
 function BUILDSEV() {
-INFO "《后端构建中，请稍等...》"
+INFO "《后端构建中，请稍等...在构建执行过程中请勿进行任何操作。》"
 # 安装依赖
 pnpm install 2>&1 >/dev/null | grep -E "error|fail|warning"
 # 打包
@@ -638,6 +639,7 @@ function NGINX() {
 # 拷贝后端并启动
 echo
 ${SETCOLOR_SUCCESS} && echo "-----------------------------------<后端部署>-----------------------------------" && ${SETCOLOR_NORMAL}
+rm -rf ${WEBDIR}/* &>/dev/null
 \cp -fr ${ORIGINAL}/${CHATDIR}/${SERDIR} ${WEBDIR}
 # 检测返回值
 if [ $? -eq 0 ]; then
