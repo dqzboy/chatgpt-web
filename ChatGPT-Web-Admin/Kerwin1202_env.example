@@ -1,8 +1,14 @@
+# 设置 "true" 以禁用 OpenAI API 调试日志
+OPENAI_API_DISABLE_DEBUG=
+
 # 访问jwt加密参数，可选 不为空则允许登录 同时需要设置 MONGODB_URL
 AUTH_SECRET_KEY=123456
 
 # 每小时最大请求次数，可选，默认无限
 MAX_REQUEST_PER_HOUR=0
+
+# 验证速率限制
+AUTH_MAX_REQUEST_PER_MINUTE=5
 
 # 网站名称
 SITE_TITLE="ChatGPT WEB"
@@ -11,11 +17,11 @@ SITE_TITLE="ChatGPT WEB"
 # MONGODB_URL=mongodb://chatgpt:xxxx@yourip:port
 MONGODB_URL=mongodb://your_user:your_passwd@127.0.0.1:27017
 
-# 网站是否开启注册
+# 网站是否开启注册，必须开启，否则管理员无法注册，稍后可以关闭。
 REGISTER_ENABLED=true
 
 # 开启注册之后 密码加密的盐
-PASSWORD_MD5_SALT=chatgpt
+PASSWORD_MD5_SALT=anysalt
 
 # 开启注册之后 超级管理邮箱
 ROOT_USER=xxx@xxx.com
