@@ -60,6 +60,18 @@ WARN() {
   ${SETCOLOR_YELLOW} && echo "$1"  && ${SETCOLOR_NORMAL}
 }
 
+function PACKAGE_MANAGER() {
+    # 判断使用的包管理工具是 yum 还是 dnf
+    if command -v dnf &> /dev/null; then
+        package_manager="dnf"
+    elif command -v yum &> /dev/null; then
+        package_manager="yum"
+    else
+        ERROR "Unsupported package manager."
+        exit 1
+    fi
+}
+
 # 进度条
 function Progress() {
 spin='-\|/'
@@ -84,20 +96,9 @@ echo
 OSVER=$(cat /etc/os-release | grep -o '[0-9]' | head -n 1)
 
 function CHECKMEM() {
-INFO "Checking server memory resources. Please wait."
+INFO "Checking server memory resources. please wait..."
 # 检查是否已安装 bc
 if ! command -v bc &> /dev/null; then
-    package_manager=""
-
-    # 判断使用的包管理工具是 yum 还是 dnf
-    if command -v dnf &> /dev/null; then
-        package_manager="dnf"
-    elif command -v yum &> /dev/null; then
-        package_manager="yum"
-    else
-        ERROR "Unsupported package manager."
-        exit 1
-    fi
 
     while [ $attempts -lt $maxAttempts ]; do
         # 安装 bc 和 lsof 软件包
@@ -105,11 +106,11 @@ if ! command -v bc &> /dev/null; then
 
         if [ $? -ne 0 ]; then
             ((attempts++))
-            WARN "尝试安装内存计算工具 (Attempt: $attempts)"
+            WARN "Attempting to install memory computing tool >>> (Attempt: $attempts)"
 
             if [ $attempts -eq $maxAttempts ]; then
-                ERROR "内存计算工具安装失败，请尝试手动执行安装。"
-                echo "命令：$package_manager install -y bc"
+                ERROR "Memory computing tool installation failed. Please try installing manually."
+                echo "Command：$package_manager install -y bc"
                 exit 1
             fi
         else
@@ -134,10 +135,8 @@ DONE
 
 function CHECKFIRE() {
 SUCCESS "Firewall && SELinux detection."
-# Check if firewall is enabled
 firewall_status=$(systemctl is-active firewalld)
 if [[ $firewall_status == 'active' ]]; then
-    # If firewall is enabled, disable it
     systemctl stop firewalld
     systemctl disable firewalld
     INFO "Firewall has been disabled."
@@ -145,7 +144,6 @@ else
     INFO "Firewall is already disabled."
 fi
 
-# Check if SELinux is enforcing
 if sestatus | grep "SELinux status" | grep -q "enabled"; then
     WARN "SELinux is enabled. Disabling SELinux..."
     setenforce 0
@@ -159,29 +157,17 @@ DONE
 
 function INSTALL_PACKAGE() {
     SUCCESS "Install necessary system components."
-
+    INFO "Installing necessary system components. please wait..."
     # 定义要安装的软件包列表
     packages=("epel-release" "wget" "git" "openssl-devel" "zlib-devel" "gd-devel" "pcre-devel" "pcre2")
 
     # 根据不同的操作系统版本，使用不同的包管理工具
     if [ "$OSVER" = "7" ] || [ "$OSVER" = "8" ] || [ "$OSVER" = "9" ]; then
-        package_manager=""
-
-        # 通过判断命令是否存在来确定使用的包管理工具
-        if command -v dnf &>/dev/null; then
-            package_manager="dnf"
-        elif command -v yum &>/dev/null; then
-            package_manager="yum"
-        else
-            ERROR "Unsupported package manager."
-            exit 1
-        fi
-
         # 安装软件包列表中的所有软件包
         for package in "${packages[@]}"; do
             if ! $package_manager -y install "$package" &>/dev/null; then
                 ERROR "Failed to install package: $package"
-                echo "To install, run: $package_manager -y install $package"
+                INFO "To install, run: $package_manager -y install $package"
                 exit 1
             fi
         done
@@ -190,6 +176,7 @@ function INSTALL_PACKAGE() {
         exit 1
     fi
 
+    SUCCESS1 "System components installation completed."
     DONE
 }
 
@@ -198,20 +185,10 @@ function INSTALL_NGINX() {
 
     # 检查是否已安装Nginx
     if which nginx &>/dev/null; then
-        INFO "Nginx is already installed."
+        SUCCESS1 "Nginx is already installed."
     else
-        SUCCESS1 "Installing Nginx..."
+        INFO "Installing Nginx program, please wait..."
         NGINX="nginx-1.24.0-1.el${OSVER}.ngx.x86_64.rpm"
-
-        # 判断使用的包管理工具是 yum 还是 dnf
-        if command -v dnf &> /dev/null; then
-            package_manager="dnf"
-        elif command -v yum &> /dev/null; then
-            package_manager="yum"
-        else
-            ERROR "Unsupported package manager."
-            exit 1
-        fi
 
         # 下载并安装RPM包
         rm -f ${NGINX}
@@ -224,12 +201,12 @@ function INSTALL_NGINX() {
 
             if [ $? -ne 0 ]; then
                 ((attempts++))
-                WARN "尝试安装Nginx (Attempt: $attempts)"
+                WARN "Attempting to install Nginx >>> (Attempt: $attempts)"
 
                 if [ $attempts -eq $maxAttempts ]; then
-                    ERROR "Nginx安装失败，请尝试手动执行安装。"
+                    ERROR "Nginx installation failed. Please try installing manually."
                     rm -f ${NGINX}
-                    echo "命令：wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} && $package_manager -y install ${NGINX}"
+                    echo "Command：wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} && $package_manager -y install ${NGINX}"
                     exit 1
                 fi
             else
@@ -240,14 +217,34 @@ function INSTALL_NGINX() {
         done
     fi
 
-    # 检查Nginx是否正在运行
-    if pgrep "nginx" > /dev/null; then
-        INFO "Nginx is already running."
-    else
-        WARN "Nginx is not running. Starting Nginx..."
-        systemctl start nginx
+    # 定义一个函数来启动 Nginx
+    start_nginx() {
         systemctl enable nginx &>/dev/null
-        INFO "Nginx started."
+        systemctl restart nginx
+    }
+
+    # 检查 Nginx 是否正在运行
+    if pgrep "nginx" > /dev/null; then
+        SUCCESS1 "Nginx is already running."
+    else
+        WARN "Nginx is not running. Attempting to start Nginx..."
+        start_attempts=3
+
+        # 最多尝试启动 3 次
+        for ((i=1; i<=$start_attempts; i++)); do
+            start_nginx
+            if pgrep "nginx" > /dev/null; then
+                SUCCESS1 "Nginx has been successfully started."
+                break
+            else
+                if [ $i -eq $start_attempts ]; then
+                    ERROR "Nginx couldn't start after $start_attempts attempts. Please check the configuration."
+                    exit 1
+                else
+                    WARN "Failed to start Nginx for the $i time. Retrying..."
+                fi
+            fi
+        done
     fi
 
     DONE
@@ -258,7 +255,7 @@ function NODEJS() {
     
     # 检查是否安装了Node.js
     if ! command -v node &> /dev/null; then
-        ERROR "Node.js 未安装，正在进行安装..."
+        INFO "Node.js is not installed, installation in progress, please wait..."
         
         # 安装前的准备工作，不受系统版本影响
         prepare_for_install() {
@@ -276,7 +273,7 @@ function NODEJS() {
         install_nodejs() {
             curl -fsSL "https://rpm.nodesource.com/setup_16.x" | bash - &>/dev/null
             if [ $? -ne 0 ]; then
-                ERROR "Node.js 安装失败！"
+                ERROR "Node.js installation failed!"
                 exit 1
             fi
             
@@ -284,58 +281,47 @@ function NODEJS() {
                 $package_manager -y install nodejs &>/dev/null
                 if [ $? -ne 0 ]; then
                     ((attempts++))
-                    WARN "尝试安装 Node.js (Attempt: $attempts)"
+                    WARN "Attempting to install Node.js >>> (Attempt: $attempts)"
 
                     if [ $attempts -eq $maxAttempts ]; then
-                        ERROR "Node.js 安装失败，请尝试手动执行安装。"
-                        echo "命令：$package_manager -y install nodejs"
+                        ERROR "Node.js installation failed. Please try installing manually."
+                        echo "Command：$package_manager -y install nodejs"
                         exit 1
                     fi
                 else
-                    INFO "Node.js 安装成功."
+                    SUCCESS1 "Node.js installation successful."
                     break
                 fi
             done
         }
-        
-        # 判断使用的包管理工具是 yum 还是 dnf
-        if command -v dnf &> /dev/null; then
-            package_manager="dnf"
-            install_nodejs
-        elif command -v yum &> /dev/null; then
-            package_manager="yum"
-            install_nodejs
-        else
-            ERROR "Unsupported package manager."
-            exit 1
-        fi
+        install_nodejs      
     else
-        INFO "Node.js 已安装..."
+        SUCCESS1 "Node.js has been installed."
     fi
     
     # 检查是否安装了 pnpm
     if ! command -v pnpm &> /dev/null; then
-        WARN "pnpm 未安装，正在进行安装..."
+        INFO "pnpm is not installed, installation in progress, please wait..."
         
         # 安装 pnpm
         while [ $attempts -lt $maxAttempts ]; do
             npm install -g pnpm &>/dev/null
             if [ $? -ne 0 ]; then
                 ((attempts++))
-                WARN "尝试安装 pnpm (Attempt: $attempts)"
+                WARN "Attempting to install pnpm >>> (Attempt: $attempts)"
 
                 if [ $attempts -eq $maxAttempts ]; then
-                    ERROR "pnpm 安装失败，请尝试手动执行安装。"
-                    echo "命令：npm install -g pnpm"
+                    ERROR "pnpm installation failed. Please try installing manually."
+                    echo "Command：npm install -g pnpm"
                     exit 1
                 fi
             else
-                INFO "pnpm 安装成功."
+                SUCCESS1 "pnpm installation successful."
                 break
             fi
         done
     else
-        INFO "pnpm 已安装..." 
+        SUCCESS1 "pnpm has been installed." 
     fi
     
     DONE
@@ -374,7 +360,7 @@ esac
 function MONGO() {
     SUCCESS "Check MongoDB and install it."
 
-    # 检查MongoDB仓库配置文件是否存在
+    # 检查 MongoDB 仓库配置文件是否存在
     if [ ! -f /etc/yum.repos.d/mongodb-org-6.0.repo ]; then
         cat > /etc/yum.repos.d/mongodb-org-6.0.repo <<EOF
 [mongodb-org-6.0]
@@ -388,50 +374,52 @@ EOF
 
     # 安装 MongoDB
     install_mongodb() {
-        while [[ $attempts -lt $maxAttempts ]]; do
-            $package_manager install -y mongodb-org &>/dev/null
-            if [ $? -ne 0 ]; then
-                ((attempts++))
-                WARN "尝试安装 MongoDB (Attempt: $attempts)"
-
-                if [[ $attempts -eq $maxAttempts ]]; then
-                    ERROR "MongoDB 安装失败，请尝试手动执行安装。"
-                    echo "命令：$package_manager install -y mongodb-org"
-                    exit 1
-                fi
-            else
-                INFO "MongoDB 安装成功."
-                break
-            fi
-        done
+        INFO "Installing MongoDB program, please wait..."
+        $package_manager install -y mongodb-org &>/dev/null
+        if [ $? -ne 0 ]; then
+            ERROR "MongoDB installation failed. Please try installing manually."
+            echo "Command: $package_manager install -y mongodb-org"
+            exit 1
+        else
+            SUCCESS1 "MongoDB installation successful."
+        fi
     }
 
-    # 判断使用的包管理工具是 yum 还是 dnf
-    if command -v dnf &> /dev/null; then
-        package_manager="dnf"
+    # 检查 MongoDB 是否已经安装
+    if ! command -v mongod &> /dev/null; then
         install_mongodb
-    elif command -v yum &> /dev/null; then
-        package_manager="yum"
-        install_mongodb
-    else
-        ERROR "Unsupported package manager."
-        exit 1
     fi
 
-    # 启动 MongoDB 服务
-    if systemctl is-active mongod >/dev/null 2>&1; then
-        INFO "MongoDB 已启动"
-        MONGO_USER
-    else
+    # 定义一个函数来尝试启动 MongoDB
+    start_mongodb() {
         systemctl daemon-reexec &>/dev/null
         systemctl enable --now mongod &>/dev/null
-        if systemctl is-active mongod >/dev/null 2>&1; then
-            INFO "MongoDB 启动成功"
-            MONGO_USER
-        else
-            ERROR "MongoDB 启动失败"
-            exit 1
-        fi
+    }
+
+    # 检查 MongoDB 是否正在运行
+    if systemctl is-active mongod >/dev/null 2>&1; then
+        SUCCESS1 "MongoDB is already running."
+        MONGO_USER
+    else
+        WARN "MongoDB is not running. Attempting to start MongoDB..."
+        start_attempts=3
+
+        # 最多尝试启动 3 次
+        for ((i=1; i<=$start_attempts; i++)); do
+            start_mongodb
+            if systemctl is-active mongod >/dev/null 2>&1; then
+                SUCCESS1 "MongoDB has been successfully started."
+                MONGO_USER
+                break
+            else
+                if [ $i -eq $start_attempts ]; then
+                    ERROR "MongoDB couldn't start after $start_attempts attempts. Please check the logs."
+                    exit 1
+                else
+                    WARN "Failed to start MongoDB for the $i time. Retrying..."
+                fi
+            fi
+        done
     fi
 
     DONE
@@ -614,7 +602,12 @@ function BUILD() {
 SUCCESS "开始进行构建.构建快慢取决于你的环境"
 
 # 拷贝.env配置替换
-cp ${ORIGINAL}/env.example ${ORIGINAL}/${CHATDIR}/${SERDIR}/.env
+if [ ! -f "${ORIGINAL}/env.example" ]; then
+    ERROR "File 'env.example' not found. Please make sure it exists."
+    exit 1
+fi
+cp "${ORIGINAL}/env.example" "${ORIGINAL}/${CHATDIR}/${SERDIR}/.env"
+
 echo
 ${SETCOLOR_SUCCESS} && echo "-----------------------------------<前端构建>-----------------------------------" && ${SETCOLOR_NORMAL}
 # 前端
@@ -822,6 +815,7 @@ fi
 
 function main() {
     CHECKMEM
+    PACKAGE_MANAGER
     CHECKFIRE
     INSTALL_PACKAGE
     GITCLONE
