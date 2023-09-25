@@ -584,7 +584,7 @@ echo "${TITLE}" > .webtitle
 function BUILDWEB() {
 INFO "《前端构建中，请稍等...在构建执行过程中请勿进行任何操作。》"
 # 安装依赖
-pnpm bootstrap 2>&1 >/dev/null | grep -E "error|fail|warning"
+pnpm bootstrap 2>&1 >/dev/null | grep -E "ERROR|FAIL|WARN"
 # 打包
 pnpm build | grep -E "ERROR|ELIFECYCLE|WARN|*built in*"
 }
@@ -592,7 +592,7 @@ pnpm build | grep -E "ERROR|ELIFECYCLE|WARN|*built in*"
 function BUILDSEV() {
 INFO "《后端构建中，请稍等...在构建执行过程中请勿进行任何操作。》"
 # 安装依赖
-pnpm install 2>&1 >/dev/null | grep -E "error|fail|warning"
+pnpm install 2>&1 >/dev/null | grep -E "ERROR|FAIL|WARN"
 # 打包
 pnpm build | grep -E "ERROR|ELIFECYCLE|WARN|*Build success*"
 }
