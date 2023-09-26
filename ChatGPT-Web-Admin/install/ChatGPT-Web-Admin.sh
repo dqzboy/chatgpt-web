@@ -426,7 +426,7 @@ EOF
 }
 
 function GITCLONE() {
-SUCCESS "项目克隆"
+SUCCESS "ChatGPT Web Project cloning."
 rm -rf chatgpt-web &>/dev/null
 CGPTWEB="https://github.com/Chanzhaoyu/chatgpt-web"
 KGPTWEB="https://github.com/Kerwin1202/chatgpt-web"
@@ -435,39 +435,64 @@ ${SETCOLOR_RED} && echo "请选择要克隆的仓库：" && ${SETCOLOR_NORMAL}
 echo "1. Chanzhaoyu/chatgpt-web[不带用户中心]"
 echo "2. Kerwin1202/chatgpt-web[带用户中心]"
 
-while true; do
-    read -n1 input
-    case $input in
+for i in {1..3}; do
+    read -n1 inputgpt
+    case $inputgpt in
         1) repository=$CGPTWEB; break;;
         2) repository=$KGPTWEB; break;;
-        *) ERROR "无效的选项，请重试";;
+        *) ERROR "Invalid option, please retry.";;
     esac
+
+    if [ $i -eq 3 ]; then
+        ERROR "Option input error 3 times, exiting the script."
+        exit 1
+    fi
 done
 echo 
 ${SETCOLOR_RED} && echo "请选择您的服务器网络环境：" && ${SETCOLOR_NORMAL}
 echo "1. 国外"
 echo "2. 国内"
+
+attempts=0
+
 while true; do
-    read -n1 input
+    if [ -z "$input" ]; then
+        read -n1 input
+    fi
+
     case $input in
         1)
             if git clone $repository; then
                 break
             else
-                ERROR "git clone 失败，请重试"
-                exit 1
+                ((attempts++))
+                ERROR "Git clone failed, please retry. (Attempt: $attempts)"
+                input=1
+                if [ $attempts -ge 3 ]; then
+                    ERROR "Exceeded maximum attempts. Exiting script."
+                    exit 1
+                fi
+                continue
             fi
             ;;
         2)
             if git clone https://ghproxy.com/$repository; then
                 break
             else
-                ERROR "git clone 失败，请重试"
-                exit 2
+                ((attempts++))
+                ERROR "Git clone failed, please retry. (Attempt: $attempts)"
+                input=2
+                if [ $attempts -ge 3 ]; then
+                    ERROR "Exceeded maximum attempts. Exiting script."
+                    exit 2
+                fi
+                continue
             fi
             ;;
         *)
-            ERROR "无效的选项，请重试"
+            ERROR "Invalid option, please retry."
+            input=
+            continue
             ;;
     esac
 done
@@ -514,8 +539,8 @@ if [ -f .userinfo ]; then
       sed -i "s/ChenZhaoYu/${USER}/g" ${ORIGINAL}/${CHATDIR}/src/store/modules/user/helper.ts
       sed -i "s/Star on <a href=\"https:\/\/github.com\/Chanzhaoyu\/chatgpt-bot\" class=\"text-blue-500\" target=\"_blank\" >GitHub<\/a>/${INFO}/g" ${ORIGINAL}/${CHATDIR}/src/store/modules/user/helper.ts
       sed -i "s#https://raw.githubusercontent.com/Chanzhaoyu/chatgpt-web/main/src/assets/avatar.jpg#${AVATAR}#g" ${ORIGINAL}/${CHATDIR}/src/store/modules/user/helper.ts
-      # 删除配置里面的GitHub相关信息内容(可选，建议保留，尊重项目作者成果)
-      #sed -i '/<div class="p-2 space-y-2 rounded-md bg-neutral-100 dark:bg-neutral-700">/,/<\/div>/d' ${ORIGINAL}/${CHATDIR}/src/components/common/Setting/About.vue
+      # 删除配置里面的GitHub相关信息内容
+      sed -i '/<div class="p-2 space-y-2 rounded-md bg-neutral-100 dark:bg-neutral-700">/,/<\/div>/d' ${ORIGINAL}/${CHATDIR}/src/components/common/Setting/About.vue
   else
       USER=$(echo "${USERINFO}" | cut -d' ' -f1)
       INFO=$(echo "${USERINFO}" | cut -d' ' -f2)
@@ -526,8 +551,8 @@ if [ -f .userinfo ]; then
       sed -i "s/ChenZhaoYu/${USER}/g" ${ORIGINAL}/${CHATDIR}/src/store/modules/user/helper.ts
       sed -i "s/Star on <a href=\"https:\/\/github.com\/Chanzhaoyu\/chatgpt-bot\" class=\"text-blue-500\" target=\"_blank\" >GitHub<\/a>/${INFO}/g" ${ORIGINAL}/${CHATDIR}/src/store/modules/user/helper.ts
       sed -i "s#https://raw.githubusercontent.com/Chanzhaoyu/chatgpt-web/main/src/assets/avatar.jpg#${AVATAR}#g" ${ORIGINAL}/${CHATDIR}/src/store/modules/user/helper.ts
-      # 删除配置里面的GitHub相关信息内容(可选，建议保留，尊重项目作者成果)
-      #sed -i '/<div class="p-2 space-y-2 rounded-md bg-neutral-100 dark:bg-neutral-700">/,/<\/div>/d' ${ORIGINAL}/${CHATDIR}/src/components/common/Setting/About.vue
+      # 删除配置里面的GitHub相关信息内容
+      sed -i '/<div class="p-2 space-y-2 rounded-md bg-neutral-100 dark:bg-neutral-700">/,/<\/div>/d' ${ORIGINAL}/${CHATDIR}/src/components/common/Setting/About.vue
    fi
 else
    read -e -p "修改用户默认名称/描述/头像信息,请用空格分隔[回车保持默认不做修改]：" USERINFO
@@ -543,8 +568,8 @@ else
       sed -i "s/ChenZhaoYu/${USER}/g" ${ORIGINAL}/${CHATDIR}/src/store/modules/user/helper.ts
       sed -i "s/Star on <a href=\"https:\/\/github.com\/Chanzhaoyu\/chatgpt-bot\" class=\"text-blue-500\" target=\"_blank\" >GitHub<\/a>/${INFO}/g" ${ORIGINAL}/${CHATDIR}/src/store/modules/user/helper.ts
       sed -i "s#https://raw.githubusercontent.com/Chanzhaoyu/chatgpt-web/main/src/assets/avatar.jpg#${AVATAR}#g" ${ORIGINAL}/${CHATDIR}/src/store/modules/user/helper.ts
-      # 删除配置里面的GitHub相关信息内容(可选，建议保留，尊重项目作者成果)
-      #sed -i '/<div class="p-2 space-y-2 rounded-md bg-neutral-100 dark:bg-neutral-700">/,/<\/div>/d' ${ORIGINAL}/${CHATDIR}/src/components/common/Setting/About.vue
+      # 删除配置里面的GitHub相关信息内容
+      sed -i '/<div class="p-2 space-y-2 rounded-md bg-neutral-100 dark:bg-neutral-700">/,/<\/div>/d' ${ORIGINAL}/${CHATDIR}/src/components/common/Setting/About.vue
    fi
 fi
 [ -n "${USERINFO}" ] && echo "${USERINFO}" > .userinfo
