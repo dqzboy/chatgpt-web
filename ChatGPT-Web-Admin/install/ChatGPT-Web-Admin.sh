@@ -63,8 +63,10 @@ WARN() {
 function PACKAGE_MANAGER() {
     # 判断使用的包管理工具是 yum 还是 dnf
     if command -v dnf &> /dev/null; then
+        dnf clean all &> /dev/null
         package_manager="dnf"
     elif command -v yum &> /dev/null; then
+        yum clean all &> /dev/null
         package_manager="yum"
     else
         ERROR "Unsupported package manager."
