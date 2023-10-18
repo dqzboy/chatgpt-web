@@ -499,7 +499,7 @@ After=network.target
 
 [Service]
 Type=simple
-Environment="OPENAI_API_KEY=${API_KEY}"
+Environment="OPENAI_API_KEY=${OPENAI_API_KEY}"
 Environment="CODE=${CODE}"
 Environment="PROXY_URL=${PROXY_URL}"
 Environment="BASE_URL=${BASE_URL}"
