@@ -170,7 +170,7 @@ function INSTALL_PACKAGE() {
     if [ "$OSVER" = "7" ] || [ "$OSVER" = "8" ] || [ "$OSVER" = "9" ]; then
         # 安装软件包列表中的所有软件包
         for package in "${packages[@]}"; do
-            if ! $package_manager -y install "$package" --skip-broken &>/dev/null; then
+            if ! $package_manager -y install "$package" &>/dev/null; then
                 ERROR "Failed to install package: $package"
                 INFO "To install, run: $package_manager -y install $package"
                 exit 1
