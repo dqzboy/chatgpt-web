@@ -163,8 +163,14 @@ DONE
 function INSTALL_PACKAGE() {
     SUCCESS "Install necessary system components."
     INFO "Installing necessary system components. please wait..."
+    
+    $package_manager -y install epel* --skip-broken &>/dev/null
+    if [ $? -ne 0 ]; then
+        ERROR "安装失败：系统安装源存在问题,请检查之后再次运行此脚本！"
+        exit 1
+    fi
     # 定义要安装的软件包列表
-    packages=("epel-release" "wget" "git" "openssl-devel" "zlib-devel" "gd-devel" "pcre-devel" "pcre2")
+    packages=("wget" "git" "openssl-devel" "zlib-devel" "gd-devel" "pcre-devel" "pcre2")
 
     # 根据不同的操作系统版本，使用不同的包管理工具
     if [ "$OSVER" = "7" ] || [ "$OSVER" = "8" ] || [ "$OSVER" = "9" ]; then
