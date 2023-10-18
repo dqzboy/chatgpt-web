@@ -28,6 +28,10 @@ INFO() {
   ${SETCOLOR_SKYBLUE} && echo "------------------------------------ $1 -------------------------------------"  && ${SETCOLOR_NORMAL}
 }
 
+INFO1() {
+  ${SETCOLOR_SKYBLUE} && echo " $1 "  && ${SETCOLOR_NORMAL}
+}
+
 text="注: 国内服务器请选择参数 2"
 width=75
 padding=$((($width - ${#text}) / 2))
@@ -86,7 +90,6 @@ systemctl disable firewalld &> /dev/null
 systemctl stop iptables &> /dev/null
 systemctl disable iptables &> /dev/null
 ufw disable &> /dev/null
-INFO "Firewall has been disabled."
 
 # Check if SELinux is enforcing
 if [[ "$repo_type" == "centos" || "$repo_type" == "rhel" ]]; then
@@ -94,9 +97,9 @@ if [[ "$repo_type" == "centos" || "$repo_type" == "rhel" ]]; then
         WARN "SELinux is enabled. Disabling SELinux..."
         setenforce 0
         sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
-        INFO "SELinux is already disabled."
+        INFO1 "SELinux is already disabled."
     else
-        INFO "SELinux is already disabled."
+        INFO1 "SELinux is already disabled."
     fi
 fi
 }
