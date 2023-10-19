@@ -301,7 +301,7 @@ function INFO_ENV() {
   read -e -p "$(echo -e ${GREEN}"请输入访问密码,可选.可以使用逗号隔开多个密码："${RESET})" CODE
   read -e -p "$(echo -e ${GREEN}"请输入BASE_URL,默认为 https://api.openai.com："${RESET})" BASE_URL
   read -e -p "$(echo -e ${GREEN}"请输入OPENAI_ORG_ID，可选："${RESET})" OPENAI_ORG_ID
-  read -e -p "$(echo -e ${GREEN}"请输入OPENAI 接口代理 URL，如果有配置代理(eg：http://clash:7890)，可选："${RESET})" PROXY_URL
+  read -e -p "$(echo -e ${GREEN}"请输入本地代理(eg：http://clash:7890)，可选："${RESET})" PROXY_URL
   read -e -p "$(echo -e ${GREEN}"如果你不想让用户自行填入 API Key，请将 HIDE_USER_API_KEY 环境变量设置为 1，可选："${RESET})" HIDE_USER_API_KEY
   read -e -p "$(echo -e ${GREEN}"如果你不想让用户使用 GPT-4，请将 DISABLE_GPT4 环境变量设置为 1，可选："${RESET})" DISABLE_GPT4
   read -e -p "$(echo -e ${GREEN}"如果你不想让用户查询余额，请将 HIDE_BALANCE_QUERY 环境变量设置为 1，可选："${RESET})" HIDE_BALANCE_QUERY
