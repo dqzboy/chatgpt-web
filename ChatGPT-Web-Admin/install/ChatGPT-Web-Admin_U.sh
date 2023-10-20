@@ -261,7 +261,6 @@ case "$choice" in
   y|Y )
     read -e -p "请输入 MongoDB 用户名：" MONGODB_USERNAME
     read -e -s -p "请输入 MongoDB 密码：" MONGODB_PASSWORD
-    echo
     mongosh <<EOF >/dev/null 2>&1
     use admin
     db.createUser({
