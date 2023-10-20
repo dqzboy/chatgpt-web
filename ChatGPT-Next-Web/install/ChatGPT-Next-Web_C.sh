@@ -282,14 +282,14 @@ function NODEJS() {
         
         # 使用不同的包管理工具安装Node.js
         install_nodejs() {
-            curl -fsSL "https://rpm.nodesource.com/setup_16.x" | bash - &>/dev/null
+            $package_manager install https://rpm.nodesource.com/pub_16.x/nodistro/repo/nodesource-release-nodistro-1.noarch.rpm -y &>/dev/null
             if [ $? -ne 0 ]; then
                 ERROR "Node.js installation failed!"
                 exit 1
             fi
             
             while [ $attempts -lt $maxAttempts ]; do
-                $package_manager -y install nodejs &>/dev/null
+                $package_manager install nodejs -y --setopt=nodesource-nodejs.module_hotfixes=1 &>/dev/null
                 if [ $? -ne 0 ]; then
                     ((attempts++))
                     WARN "Attempting to install Node.js >>> (Attempt: $attempts)"
