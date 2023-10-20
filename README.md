@@ -69,8 +69,7 @@ width="2000"  height="3">
 </table>
 
 ## 部署 | Deployment
-- [ChatGPT-WEB](ChatGPT-WEB/README.md)
-- [ChatGPT-WEB-Admin](ChatGPT-Web-Admin/README.md)
+- [ChatGPT-WEB-Admin](ChatGPT-Web/README.md)
 - [ChatGPT-Next-WEB](ChatGPT-Next-Web/README.md)
 
 ## 推荐阅读 | Recommended Reading
