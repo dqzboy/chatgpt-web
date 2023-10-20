@@ -22,6 +22,10 @@ SERDIR="service"
 FONTDIR="dist"
 ORIGINAL=${PWD}
 
+# 定义安装重试次数
+attempts=0
+maxAttempts=3
+
 echo
 cat << EOF
 
@@ -63,11 +67,11 @@ WARN() {
 function PACKAGE_MANAGER() {
     # 判断使用的包管理工具是 yum 还是 dnf
     if command -v dnf &> /dev/null; then
-        dnf clean all &> /dev/null
         package_manager="dnf"
+	$package_manager clean all &> /dev/null
     elif command -v yum &> /dev/null; then
-        yum clean all &> /dev/null
         package_manager="yum"
+	$package_manager clean all &> /dev/null
     else
         ERROR "Unsupported package manager."
         exit 1
@@ -101,16 +105,14 @@ function CHECKMEM() {
 INFO "Checking server memory resources. please wait..."
 # 检查是否已安装 bc
 if ! command -v bc &> /dev/null; then
-
-    while [ $attempts -lt $maxAttempts ]; do
+    while [[ $attempts -lt $maxAttempts ]]; do
         # 安装 bc 和 lsof 软件包
         $package_manager install -y bc lsof &> /dev/null
-
         if [ $? -ne 0 ]; then
             ((attempts++))
             WARN "Attempting to install memory computing tool >>> (Attempt: $attempts)"
 
-            if [ $attempts -eq $maxAttempts ]; then
+            if [[ $attempts -eq $maxAttempts ]]; then
                 ERROR "Memory computing tool installation failed. Please try installing manually."
                 echo "Command：$package_manager install -y bc"
                 exit 1
@@ -854,8 +856,8 @@ fi
 }
 
 function main() {
-    CHECKMEM
     PACKAGE_MANAGER
+    CHECKMEM
     CHECKFIRE
     INSTALL_PACKAGE
     GITCLONE
