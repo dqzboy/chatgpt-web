@@ -203,9 +203,6 @@ function INSTALL_NGINX() {
         # 下载并安装RPM包
         rm -f ${NGINX}
         wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} &>/dev/null
-        attempts=0
-        maxAttempts=3
-
         while [ $attempts -lt $maxAttempts ]; do
             $package_manager -y install ${NGINX} &>/dev/null
 
@@ -469,8 +466,6 @@ echo "-------------------------------------------------"
 echo "1. 国外"
 echo "2. 国内"
 echo "-------------------------------------------------"
-
-attempts=0
 
 while true; do
     if [ -z "$input" ]; then
