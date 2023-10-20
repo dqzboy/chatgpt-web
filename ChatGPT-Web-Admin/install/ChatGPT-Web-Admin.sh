@@ -847,6 +847,10 @@ elif [ $repository == $KGPTWEB ]; then
     MONGO
     WEBINFO
     WEBTITLE
+elif [ $repository == $ZGPTWEB ]; then
+    MONGO
+    WEBINFO
+    WEBTITLE
 fi
 }
 
