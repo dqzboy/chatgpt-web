@@ -438,34 +438,41 @@ SUCCESS "ChatGPT Web Project cloning."
 rm -rf chatgpt-web &>/dev/null
 CGPTWEB="https://github.com/Chanzhaoyu/chatgpt-web"
 KGPTWEB="https://github.com/Kerwin1202/chatgpt-web"
+ZGPTWEB="https://github.com/zhujunsan/chatgpt-web"
 
 ${SETCOLOR_RED} && echo "请选择要克隆的仓库：" && ${SETCOLOR_NORMAL}
-echo "1. Chanzhaoyu/chatgpt-web[不带用户中心]"
-echo "2. Kerwin1202/chatgpt-web[带用户中心]"
+echo "-------------------------------------------------"
+echo "1. Chanzhaoyu/chatgpt-web [用户管理-No]"
+echo "2. Kerwin1202/chatgpt-web [用户管理-Yes]"
+echo "3. zhujunsan/chatgpt-web  [用户管理-Yes]"
+echo "-------------------------------------------------"
 
-for i in {1..3}; do
-    read -n1 inputgpt
+for i in {1..4}; do
+    read -e -n1 inputgpt
     case $inputgpt in
         1) repository=$CGPTWEB; break;;
         2) repository=$KGPTWEB; break;;
+        3) repository=$ZGPTWEB; break;;
         *) ERROR "Invalid option, please retry.";;
     esac
 
-    if [ $i -eq 3 ]; then
+    if [ $i -eq 4 ]; then
         ERROR "Option input error 3 times, exiting the script."
         exit 1
     fi
 done
 echo 
 ${SETCOLOR_RED} && echo "请选择您的服务器网络环境：" && ${SETCOLOR_NORMAL}
+echo "-------------------------------------------------"
 echo "1. 国外"
 echo "2. 国内"
+echo "-------------------------------------------------"
 
 attempts=0
 
 while true; do
     if [ -z "$input" ]; then
-        read -n1 input
+        read -e -n1 input
     fi
 
     case $input in
