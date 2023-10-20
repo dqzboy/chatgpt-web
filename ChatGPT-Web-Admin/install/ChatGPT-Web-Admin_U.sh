@@ -22,6 +22,10 @@ SERDIR="service"
 FONTDIR="dist"
 ORIGINAL=${PWD}
 
+# 定义安装重试次数
+attempts=0
+maxAttempts=3
+
 echo
 cat << EOF
 
@@ -82,13 +86,13 @@ OSVER=$(lsb_release -is)
 function CHECKMEM() {
 INFO "Checking server memory resources. Please wait."
 if ! command -v bc &> /dev/null; then
-    while [ $attempts -lt $maxAttempts ]; do
+    while [[ $attempts -lt $maxAttempts ]]; do
         apt-get install -y bc lsof git &>/dev/null
         if [ $? -ne 0 ]; then
             ((attempts++))
             WARN "尝试安装内存计算工具 (Attempt: $attempts)"
 
-            if [ $attempts -eq $maxAttempts ]; then
+            if [[ $attempts -eq $maxAttempts ]]; then
                 ERROR "内存计算工具安装失败，请尝试手动执行安装。"
                 echo "命令：apt-get install -y bc"
                 exit 1
@@ -369,48 +373,78 @@ DONE
 }
 
 function GITCLONE() {
-SUCCESS "项目克隆"
+SUCCESS "ChatGPT Web Project cloning."
 rm -rf chatgpt-web &>/dev/null
 CGPTWEB="https://github.com/Chanzhaoyu/chatgpt-web"
 KGPTWEB="https://github.com/Kerwin1202/chatgpt-web"
+ZGPTWEB="https://github.com/zhujunsan/chatgpt-web"
 
 ${SETCOLOR_RED} && echo "请选择要克隆的仓库：" && ${SETCOLOR_NORMAL}
-echo "1. Chanzhaoyu/chatgpt-web[不带用户中心]"
-echo "2. Kerwin1202/chatgpt-web[带用户中心]"
+echo "-------------------------------------------------"
+echo "1. Chanzhaoyu/chatgpt-web [用户管理-No]"
+echo "2. Kerwin1202/chatgpt-web [用户管理-Yes]"
+echo "3. zhujunsan/chatgpt-web  [用户管理-Yes]"
+echo "-------------------------------------------------"
 
-while true; do
-    read -n1 input
-    case $input in
+for i in {1..4}; do
+    read -e -n1 inputgpt
+    case $inputgpt in
         1) repository=$CGPTWEB; break;;
         2) repository=$KGPTWEB; break;;
-        *) ERROR "无效的选项，请重试";;
+        3) repository=$ZGPTWEB; break;;
+        *) ERROR "Invalid option, please retry.";;
     esac
+
+    if [ $i -eq 4 ]; then
+        ERROR "Option input error 3 times, exiting the script."
+        exit 1
+    fi
 done
 echo 
 ${SETCOLOR_RED} && echo "请选择您的服务器网络环境：" && ${SETCOLOR_NORMAL}
+echo "-------------------------------------------------"
 echo "1. 国外"
 echo "2. 国内"
+echo "-------------------------------------------------"
+
 while true; do
-    read -n1 input
+    if [ -z "$input" ]; then
+        read -e -n1 input
+    fi
+
     case $input in
         1)
             if git clone $repository; then
                 break
             else
-                ERROR "git clone 失败，请重试"
-                exit 1
+                ((attempts++))
+                ERROR "Git clone failed, please retry. (Attempt: $attempts)"
+                input=1
+                if [ $attempts -ge 3 ]; then
+                    ERROR "Exceeded maximum attempts. Exiting script."
+                    exit 1
+                fi
+                continue
             fi
             ;;
         2)
             if git clone https://ghproxy.com/$repository; then
                 break
             else
-                ERROR "git clone 失败，请重试"
-                exit 2
+                ((attempts++))
+                ERROR "Git clone failed, please retry. (Attempt: $attempts)"
+                input=2
+                if [ $attempts -ge 3 ]; then
+                    ERROR "Exceeded maximum attempts. Exiting script."
+                    exit 2
+                fi
+                continue
             fi
             ;;
         *)
-            ERROR "无效的选项，请重试"
+            ERROR "Invalid option, please retry."
+            input=
+            continue
             ;;
     esac
 done
@@ -769,6 +803,10 @@ if [ $repository == $CGPTWEB ]; then
     WEBINFO
     USERINFO
 elif [ $repository == $KGPTWEB ]; then
+    MONGO
+    WEBINFO
+    WEBTITLE
+elif [ $repository == $ZGPTWEB ]; then
     MONGO
     WEBINFO
     WEBTITLE
