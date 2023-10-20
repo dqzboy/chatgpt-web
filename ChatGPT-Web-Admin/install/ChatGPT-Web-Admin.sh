@@ -161,7 +161,7 @@ function INSTALL_PACKAGE() {
     SUCCESS "Install necessary system components."
     INFO "Installing necessary system components. please wait..."
     
-    $package_manager -y install epel* --skip-broken &>/dev/null
+    $package_manager -y install epel-release --skip-broken &>/dev/null
     if [ $? -ne 0 ]; then
         ERROR "安装失败：系统安装源存在问题,请检查之后再次运行此脚本！"
         exit 1
