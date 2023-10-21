@@ -16,7 +16,7 @@ yum -y install wget curl
 apt -y install wget curl
 
 #（3）下载对应的env.example配置文件；注意执行脚本前先进行修改里面的内容
-【Kerwin1202/chatgpt-web】
+【Kerwin1202/chatgpt-web | zhujunsan/chatgpt-web】
 wget -O env.example https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/Kerwin1202_env.example
 
 【Chanzhaoyu/chatgpt-web】
@@ -28,10 +28,12 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/
 # Ubuntu or Debian
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_U.sh)"
 ```
+---
 
 ## 执行过程
-<img src="https://user-images.githubusercontent.com/42825450/236674720-f332c732-7be5-4517-8a9c-d8ea00b7d6d4.gif" width="1000px">
-<img src="https://user-images.githubusercontent.com/42825450/236674847-0c726d2e-9cd2-4624-8081-d8ab4b204025.png" width="1000px">
+<img src="https://github.com/dqzboy/chatgpt-web/assets/42825450/f167e0b7-7f18-4bdd-ad5d-58a49198ec26" width="1000px">
+
+---
 
 ## Nginx后端配置参考
 - 需要在server块中添加一个location规则用来代理后端API接口地址，配置修改参考如下：
