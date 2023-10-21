@@ -192,7 +192,6 @@ if ! command -v node &> /dev/null;then
 	    exit 1
 	fi
         while [ $attempts -lt $maxAttempts ]; do
-            apt-get install -y nodejs &>/dev/null
 	    NODE_MAJOR=16
             echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list &>/dev/null
             apt-get update &>/dev/null
@@ -212,13 +211,27 @@ if ! command -v node &> /dev/null;then
             fi
         done
     elif [ "$OSVER" = "Debian" ]; then
-	curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - &>/dev/null
-	if [ $? -ne 0 ]; then
-            ERROR "NodeJS安装失败！"
-            exit 1
-        fi
+	apt-get update &>/dev/null
+        if [ $? -ne 0 ]; then
+	    ERROR "NodeJS安装失败！"
+	    exit 1
+	fi
+        mkdir -p /etc/apt/keyrings &>/dev/null
+	apt-get install -y ca-certificates curl gnupg &>/dev/null
+        if [ $? -ne 0 ]; then
+	    ERROR "NodeJS安装失败！"
+	    exit 1
+	fi
+        curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg &>/dev/null
+        if [ $? -ne 0 ]; then
+	    ERROR "NodeJS安装失败！"
+	    exit 1
+	fi
         while [ $attempts -lt $maxAttempts ]; do
-            apt-get install -y nodejs &>/dev/null
+	    NODE_MAJOR=16
+            echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list &>/dev/null
+            apt-get update &>/dev/null
+            apt-get install nodejs -y &>/dev/null
             if [ $? -ne 0 ]; then
                 ((attempts++))
                 WARN "尝试安装NodeJS (Attempt: $attempts)"
