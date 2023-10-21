@@ -285,7 +285,7 @@ function NODEJS() {
             fi
             
             while [ $attempts -lt $maxAttempts ]; do
-                $package_manager install nodejs -y --setopt=nodesource-nodejs.module_hotfixes=1 &>/dev/null
+                $package_manager install nodejs -y --setopt=nodesource-nodejs.module_hotfixes=1 --nogpgcheck &>/dev/null
                 if [ $? -ne 0 ]; then
                     ((attempts++))
                     WARN "Attempting to install Node.js >>> (Attempt: $attempts)"
