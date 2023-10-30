@@ -68,10 +68,8 @@ function PACKAGE_MANAGER() {
     # 判断使用的包管理工具是 yum 还是 dnf
     if command -v dnf &> /dev/null; then
         package_manager="dnf"
-	$package_manager clean all &> /dev/null
     elif command -v yum &> /dev/null; then
         package_manager="yum"
-	$package_manager clean all &> /dev/null
     else
         ERROR "Unsupported package manager."
         exit 1
@@ -103,36 +101,20 @@ OSVER=$(cat /etc/os-release | grep -o '[0-9]' | head -n 1)
 
 function CHECKMEM() {
 INFO "Checking server memory resources. please wait..."
-# 检查是否已安装 bc
-if ! command -v bc &> /dev/null; then
-    while [[ $attempts -lt $maxAttempts ]]; do
-        # 安装 bc 和 lsof 软件包
-        $package_manager install -y bc lsof &> /dev/null
-        if [ $? -ne 0 ]; then
-            ((attempts++))
-            WARN "Attempting to install memory computing tool >>> (Attempt: $attempts)"
 
-            if [[ $attempts -eq $maxAttempts ]]; then
-                ERROR "Memory computing tool installation failed. Please try installing manually."
-                echo "Command：$package_manager install -y bc"
-                exit 1
-            fi
-        else
-            break
-        fi
-    done
-fi
-total=$(free -m | awk 'NR==2{print $2}')  # 获取总内存数
-used=$(free -m | awk 'NR==2{print $3}')   # 获取已使用的内存数
-rate=$(echo "scale=2; $used/$total*100" | bc)  # 计算内存使用率
+# 获取内存使用率，并保留两位小数
+memory_usage=$(free | awk '/^Mem:/ {printf "%.2f", $3/$2 * 100}')
 
-if [[ $(echo "$rate > 70.0" | bc -l) -eq 1 ]]; then  # 判断是否超过 70%
-    read -p "Warning: Memory usage is higher than 70%. Do you want to continue? (y/n) " continu
+# 将内存使用率转为整数（去掉小数部分）
+memory_usage=${memory_usage%.*}
+
+if [ $memory_usage -gt 70 ]; then  # 判断是否超过 70%
+    read -p "Warning: Memory usage is higher than 70%($memory_usage%). Do you want to continue? (y/n) " continu
     if [ "$continu" == "n" ] || [ "$continu" == "N" ]; then
         exit 1
     fi
 else
-    SUCCESS1 "Memory resources are sufficient. Please continue."
+    SUCCESS1 "Memory resources are sufficient. Please continue.($memory_usage%)"
 fi
 DONE
 }
