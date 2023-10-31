@@ -83,6 +83,18 @@ echo
 
 OSVER=$(lsb_release -is)
 
+function PACKAGE_MANAGER() {
+    # 判断使用的包管理工具
+    if command -v apt-get &> /dev/null; then
+        package_manager="apt-get"
+    elif command -v apt &> /dev/null; then
+        package_manager="apt"
+    else
+        ERROR "Unsupported package manager."
+        exit 1
+    fi
+}
+
 function CHECKMEM() {
 INFO "Checking server memory resources. Please wait."
 
@@ -115,6 +127,27 @@ else
     INFO "Firewall is already disabled."
 fi
 DONE
+}
+
+function INSTALL_PACKAGE() {
+    SUCCESS "Install necessary system components."
+    INFO "Installing necessary system components. please wait..."
+
+    # 定义要安装的软件包列表
+    packages=("wget" "git" "curl" "lsof")
+
+    for package in "${packages[@]}"; do
+        echo "正在安装 $package ..."
+        $package_manager -y install "$package" --skip-broken > /dev/null 2>&1
+        if [ $? -ne 0 ]; then
+            ERROR "安装 $Ppackage 失败,请检查系统安装源之后再次运行此脚本！"
+            INFO "To install, run: $package_manager -y install $package"
+            exit 1
+        fi
+    done
+
+    SUCCESS1 "System components installation completed."
+    DONE
 }
 
 function INSTALL_NGINX() {
@@ -827,8 +860,10 @@ fi
 }
 
 function main() {
+    PACKAGE_MANAGER
     CHECKMEM
     CHECKFIRE
+    INSTALL_PACKAGE
     GITCLONE
     INSTALL_NGINX
     NODEJS
