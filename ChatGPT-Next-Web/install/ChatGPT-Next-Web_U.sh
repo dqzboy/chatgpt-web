@@ -525,6 +525,7 @@ SUCCESS "< END >"
 }
 
 function main() {
+   PACKAGE_MANAGER
    CHECKMEM
    CHECKFIRE
    INSTALL_PACKAGE
