@@ -146,7 +146,7 @@ function INSTALL_PACKAGE() {
     INFO "Installing necessary system components. please wait..."
 
     # 定义要安装的软件包列表
-    packages=("epel-release" "wget" "git" "openssl-devel" "zlib-devel" "gd-devel" "pcre-devel" "pcre2")
+    packages=("epel-release" "wget" "git" "lsof" "openssl-devel" "zlib-devel" "gd-devel" "pcre-devel" "pcre2")
 
     for package in "${packages[@]}"; do
         echo "正在安装 $package ..."
@@ -238,7 +238,7 @@ function NODEJS() {
         
         # 安装前的准备工作，不受系统版本影响
         prepare_for_install() {
-            local required_packages=("libstdc++.so.glibc" "glibc" "lsof")
+            local required_packages=("libstdc++.so.glibc" "glibc")
             for package in "${required_packages[@]}"; do
                 if ! command -v "$package" &> /dev/null; then
                     $package_manager -y install "$package" &>/dev/null
