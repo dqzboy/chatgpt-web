@@ -146,15 +146,17 @@ function INSTALL_PACKAGE() {
     INFO "Installing necessary system components. please wait..."
 
     # 定义要安装的软件包列表
-    packages=("epel-release" "wget" "git" "lsof" "openssl-devel" "zlib-devel" "gd-devel" "pcre-devel" "pcre2")
-
-    for package in "${packages[@]}"; do
-        echo "正在安装 $package ..."
-        $package_manager -y install "$package" --skip-broken > /dev/null 2>&1
-        if [ $? -ne 0 ]; then
-            ERROR "安装 $Ppackage 失败,请检查系统安装源之后再次运行此脚本！"
-            INFO "To install, run: $package_manager -y install $package"
-            exit 1
+    PACKAGES_YUM=("epel-release" "wget" "git" "lsof" "openssl-devel" "zlib-devel" "gd-devel" "pcre-devel" "pcre2")
+    for package in "${PACKAGES_YUM[@]}"; do
+        if rpm -q "$package" &>/dev/null; then
+             echo "$package 已经安装，跳过..."
+        else
+            echo "正在安装 $package ..."
+            $package_manager -y install "$package" --skip-broken > /dev/null 2>&1
+            if [ $? -ne 0 ]; then
+                ERROR "安装 $package 失败，请检查系统安装源之后再次运行此脚本！"
+                exit 1
+            fi
         fi
     done
 
