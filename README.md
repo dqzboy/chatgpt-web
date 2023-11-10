@@ -71,8 +71,3 @@ width="2000"  height="3">
 ## 部署 | Deployment
 - [ChatGPT-WEB](ChatGPT-Web-Admin/README.md)
 - [ChatGPT-Next-WEB](ChatGPT-Next-Web/README.md)
-
-## 推荐阅读 | Recommended Reading
-[国内服务器实现科学上网并接入chatGPT-WEB](https://www.dqzboy.com/13754.html) 
-<br>
-[自建ChatGPT反向代理服务器](https://www.dqzboy.com/13935.html) 
