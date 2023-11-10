@@ -53,7 +53,3 @@ bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/chatgpt-web/main
 ```shell
 bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/ChatGPT/main/ChatGPT-Next-Web/uninstall/uninstall.sh)"
 ```
-
-## 推荐阅读文章
-[国内服务器实现科学上网并接入chatGPT-WEB](https://www.dqzboy.com/13754.html) 
-
