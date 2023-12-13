@@ -137,7 +137,7 @@ function INSTALL_PACKAGE() {
     INFO "Installing necessary system components. please wait..."
 
     # 定义要安装的软件包列表
-    packages=("wget" "git" "curl" "lsof")
+    packages=("lsb-core" "wget" "git" "curl" "lsof")
 
     for package in "${packages[@]}"; do
         echo "正在安装 $package ..."
