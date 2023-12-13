@@ -134,7 +134,7 @@ function INSTALL_PACKAGE() {
     INFO "Installing necessary system components. please wait..."
 
     # 定义要安装的软件包列表
-    PACKAGES_APT=("wget" "git" "curl" "lsof")
+    PACKAGES_APT=("lsb-core" "wget" "git" "curl" "lsof")
     $package_manager update &>/dev/null
     for package in "${PACKAGES_APT[@]}"; do
         if dpkg -s "$package" &>/dev/null; then
