@@ -1,6 +1,6 @@
 ## 脚本执行流程演示
-- **说明**：脚本适用于CentOS 7、Ubuntu系统、RHEL-8 and CentOS-8
-- **版本更新**：更新ChatGPT-Next-Web版本，只需要再次执行部署脚本即可，注意：更新之后强刷浏览器或者无痕模式打开查看效果
+🔔 **说明**：脚本适用于CentOS 7、Ubuntu系统、RHEL-8 and CentOS-8 <br>
+🚀 **更新**：更新ChatGPT-Next-Web版本，只需要再次执行部署脚本即可，注意：更新之后强刷浏览器或者无痕模式打开查看效果
 
 |:octocat:机场推荐|:link:链接| :pushpin:机场概况
 |--|--|--|
