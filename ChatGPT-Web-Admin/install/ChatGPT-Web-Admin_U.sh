@@ -343,7 +343,7 @@ fi
 # 检查当前操作系统版本
 if [[ "$(lsb_release -is)" == "Ubuntu" ]]
 then
-    version=$(lsb_release -rs | cut -f1 -d.)
+    version=$(cat /etc/os-release | grep VERSION_ID | cut -d '"' -f 2 | cut -d '.' -f 1)
     if [[ "$version" -ge "22" ]]
     then
         # 安装 MongoDB 6.0 on Ubuntu 22.04 or later
@@ -365,7 +365,7 @@ then
     fi
 elif [[ "$(lsb_release -is)" == "Debian" ]]
 then
-    version=$(lsb_release -rs | cut -f1 -d.)
+    version=$(cat /etc/os-release | grep VERSION_ID | cut -d '"' -f 2 | cut -d '.' -f 1)
     if [[ "$version" -ge "11" ]]
     then
         # 安装 MongoDB 5.0 on Debian 11 or later
