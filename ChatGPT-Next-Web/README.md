@@ -1,7 +1,11 @@
 ## 脚本执行流程演示
 - **说明**：脚本适用于CentOS 7、Ubuntu系统、RHEL-8 and CentOS-8
 - **版本更新**：更新ChatGPT-Next-Web版本，只需要再次执行部署脚本即可，注意：更新之后强刷浏览器或者无痕模式打开查看效果
-- **机场推荐**：[机场1：按量不限时、不限速、不限设备，解锁ChatGPT](https://mojie.me/#/register?code=CG6h8Irm) \ [机场2：按周期、不限速、不限设备、IEPL专线，解锁ChatGPT](https://teacat.cloud/#/register?code=ps4sZcDa) \ [专线机场,不限时不限速不限设备](https://bajie.one/#/register?code=uX4zUk5c)
+
+|:octocat:机场推荐|:link:链接| :pushpin:机场概况
+|--|--|--|
+|:white_check_mark:魔戒|[:link:官网](https://mojie.me/#/register?code=CG6h8Irm)|按量不限时、不限速、不限设备，解锁ChatGPT
+|:white_check_mark:Teacat|[:link:官网](https://teacat.cloud/#/register?code=ps4sZcDa)|按周期、不限速、不限设备、IEPL专线，解锁ChatGPT |
 
 ```shell
 #（1）创建脚本执行目录
