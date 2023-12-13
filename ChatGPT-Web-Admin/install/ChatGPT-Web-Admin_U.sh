@@ -104,7 +104,7 @@ memory_usage=$(free | awk '/^Mem:/ {printf "%.2f", $3/$2 * 100}')
 # 将内存使用率转为整数（去掉小数部分）
 memory_usage=${memory_usage%.*}
 
-if [ $memory_usage -gt 70 ]; then  # 判断是否超过 70%
+if [[ $memory_usage -gt 70 ]]; then  # 判断是否超过 70%
     read -p "Warning: Memory usage is higher than 70%($memory_usage%). Do you want to continue? (y/n) " continu
     if [ "$continu" == "n" ] || [ "$continu" == "N" ]; then
         exit 1
