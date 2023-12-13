@@ -1,15 +1,15 @@
 ## 准备工作
-- **说明**：目前该脚本采用源码编译部署，非容器化运行(内存建议2G+)；目前脚本适用于CentOS7,8,9\RHEL8,9\Rocky8,9\Ubuntu\Debian
-- **重要**：目前脚本主要部署的项目为：[Kerwin1202/chatgpt-web](https://github.com/Kerwin1202/chatgpt-web) 跟 [Chanzhaoyu/chatgpt-web](https://github.com/Chanzhaoyu/chatgpt-web) ；前者带用户管理，多KEY轮询等，后者无。所以**env配置有区别**，部署前请根据自己要部署的项目下载本仓库下面的`env.example`配置文件到你运行脚本的目录下
-- **注意**：***建议使用裸系统运行脚本，脚本里面基础环境都会一键部署完成！*** 如果服务器已经安装了Nginx，那么构建之前请指定ChatGPT-WEB前端项目存放的Nginx根路径
-- **版本更新**：更新chatGPT-web版本，只需要再次执行部署脚本即可，`env`文件无需变更；注意：更新之后清理浏览器缓存或者无痕模式打开
-(https://teacat.cloud/#/register?code=ps4sZcDa) \ [专线机场,不限时不限速不限设备](https://bajie.one/#/register?code=uX4zUk5c) <br>
+🔔 **说明**：目前该脚本采用源码编译部署，非容器化运行(内存建议2G+)；目前脚本适用于CentOS7,8,9\RHEL8,9\Rocky8,9\Ubuntu\Debian <br>
+🔔 **重要**：目前脚本主要部署的项目为：[Kerwin1202/chatgpt-web](https://github.com/Kerwin1202/chatgpt-web) 跟 [Chanzhaoyu/chatgpt-web] (https://github.com/Chanzhaoyu/chatgpt-web) ；前者带用户管理，多KEY轮询等，后者无。所以**env配置有区别**，部署前请根据自己要部署的项目下载本仓库下面的`env.example`配置文件到你运行脚本的目录下 <br>
+⚠️ **注意**：***建议使用裸系统运行脚本，脚本里面基础环境都会一键部署完成！*** 如果服务器已经安装了Nginx，那么构建之前请指定ChatGPT-WEB前端项目存放的Nginx根路径 <br>
+🚀 **更新**：更新chatGPT-web版本，只需要再次执行部署脚本即可，`env`文件无需变更；注意：更新之后清理浏览器缓存或者无痕模式打开 <br>
 > **[TG交流群](https://t.me/+ghs_XDp1vwxkMGU9)**
 
 |:octocat:机场推荐|:link:链接| :pushpin:机场概况
 |--|--|--|
 |:white_check_mark:魔戒|[:link:官网](https://mojie.me/#/register?code=CG6h8Irm)|按量不限时、不限速、不限设备，解锁ChatGPT
-|:white_check_mark:Teacat|[:link:官网](https://teacat.cloud/#/register?code=ps4sZcDa)|按周期、不限速、不限设备、IEPL专线，解锁ChatGPT |
+|:white_check_mark:Teacat|[:link:官网](https://teacat.cloud/#/register?code=ps4sZcDa)|按周期、不限速、不限设备、IEPL专线，解锁ChatGPT
+|:white_check_mark:八戒|[:link:官网](https://bajie.one/#/register?code=uX4zUk5c)|按量不限时、IRPL专线、不限速、不限设备，解锁ChatGPT|
 
 ```shell
 #（1）创建脚本执行目录
