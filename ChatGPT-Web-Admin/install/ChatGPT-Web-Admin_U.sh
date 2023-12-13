@@ -341,20 +341,20 @@ then
 fi
 
 # 检查当前操作系统版本
-if [ "$(lsb_release -is)" == "Ubuntu" ]
+if [[ "$(lsb_release -is)" == "Ubuntu" ]]
 then
     version=$(lsb_release -rs | cut -f1 -d.)
-    if [ "$version" -ge "22" ]
+    if [[ "$version" -ge "22" ]]
     then
         # 安装 MongoDB 6.0 on Ubuntu 22.04 or later
 	wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add - &> /dev/null
 	echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list &> /dev/null
-    elif [ "$version" -ge "20" ]
+    elif [[ "$version" -ge "20" ]]
     then
         # 安装 MongoDB 5.0 on Ubuntu 20.04 or later
         wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add - &> /dev/null
         echo "deb https://mirrors.tuna.tsinghua.edu.cn/mongodb/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb.list &> /dev/null
-    elif [ "$version" -ge "18" ]
+    elif [[ "$version" -ge "18" ]]
     then
         # 安装 MongoDB 5.0 on Ubuntu 18.04 or later
         wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add - &> /dev/null
@@ -363,15 +363,15 @@ then
         echo "Error: Unsupported Ubuntu version."
         exit 1
     fi
-elif [ "$(lsb_release -is)" == "Debian" ]
+elif [[ "$(lsb_release -is)" == "Debian" ]]
 then
     version=$(lsb_release -rs | cut -f1 -d.)
-    if [ "$version" -ge "11" ]
+    if [[ "$version" -ge "11" ]]
     then
         # 安装 MongoDB 5.0 on Debian 11 or later
         wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add - &> /dev/null
         echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/debian bullseye/mongodb-org/5.0 main" | sudo tee /etc/apt/sources.list.d/mongodb.list &> /dev/null
-    elif [ "$version" -ge "10" ]
+    elif [[ "$version" -ge "10" ]]
     then
         # 安装 MongoDB 5.0 on Debian 10 or later
         wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add - &> /dev/null
@@ -386,13 +386,13 @@ else
 fi
 # 更新软件包列表并安装 MongoDB
 apt-get update &> /dev/null
-while [ $attempts -lt $maxAttempts ]; do
+while [[ $attempts -lt $maxAttempts ]]; do
     apt-get install -y mongodb-org &> /dev/null
     if [ $? -ne 0 ]; then
         ((attempts++))
         WARN "尝试安装mongodb (Attempt: $attempts)"
 
-        if [ $attempts -eq $maxAttempts ]; then
+        if [[ $attempts -eq $maxAttempts ]]; then
             ERROR "mongodb安装失败，请尝试手动执行安装。"
             echo "命令：apt-get install -y mongodb-org"
             exit 1
