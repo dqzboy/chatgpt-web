@@ -198,19 +198,11 @@ if ! command -v node &> /dev/null;then
     # 安装 Node.js
     if [ "$OSVER" = "Ubuntu" ]; then
 	apt-get update &>/dev/null
-        if [ $? -ne 0 ]; then
-	    ERROR "NodeJS安装失败！"
-	    exit 1
-	fi
         mkdir -p /etc/apt/keyrings &>/dev/null
 	apt-get install -y ca-certificates curl gnupg &>/dev/null
-        if [ $? -ne 0 ]; then
-	    ERROR "NodeJS安装失败！"
-	    exit 1
-	fi
         curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg &>/dev/null
         if [ $? -ne 0 ]; then
-	    ERROR "NodeJS安装失败！"
+	    ERROR "NodeJS安装失败，请尝试手动执行安装。"
 	    exit 1
 	fi
         while [ $attempts -lt $maxAttempts ]; do
@@ -234,19 +226,11 @@ if ! command -v node &> /dev/null;then
         done
     elif [ "$OSVER" = "Debian" ]; then
 	apt-get update &>/dev/null
-        if [ $? -ne 0 ]; then
-	    ERROR "NodeJS安装失败！"
-	    exit 1
-	fi
         mkdir -p /etc/apt/keyrings &>/dev/null
 	apt-get install -y ca-certificates curl gnupg &>/dev/null
-        if [ $? -ne 0 ]; then
-	    ERROR "NodeJS安装失败！"
-	    exit 1
-	fi
         curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg &>/dev/null
         if [ $? -ne 0 ]; then
-	    ERROR "NodeJS安装失败！"
+	    ERROR "NodeJS安装失败，请尝试手动执行安装。"
 	    exit 1
 	fi
         while [ $attempts -lt $maxAttempts ]; do
