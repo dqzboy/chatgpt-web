@@ -76,11 +76,21 @@ function PACKAGE_MANAGER() {
     fi
 }
 
+function CHECK_PKG_MANAGER() {
+    if command -v rpm &> /dev/null; then
+        pkg_manager="rpm"
+    else
+        ERROR "Unable to determine the package management system."
+        exit 1
+    fi
+}
+
 # 进度条
 function Progress() {
+set +x
 spin='-\|/'
 count=0
-endtime=$((SECONDS+3))
+endtime=$((SECONDS+10))
 
 while [ $SECONDS -lt $endtime ];
 do
@@ -99,6 +109,8 @@ echo
 # OS version
 OSVER=$(cat /etc/os-release | grep -o '[0-9]' | head -n 1)
 
+# 获取系统架构
+ARCH=$(uname -m)
 
 function CHECKMEM() {
 INFO "Checking server memory resources. please wait..."
@@ -143,39 +155,58 @@ DONE
 }
 
 function INSTALL_PACKAGE() {
-    SUCCESS "Install necessary system components."
-    INFO "Installing necessary system components. please wait..."
+SUCCESS "Install necessary system components."
+INFO "Installing necessary system components. please wait..."
 
-    # 定义要安装的软件包列表
-    packages=("epel-release" "wget" "git" "openssl-devel" "zlib-devel" "gd-devel" "pcre-devel" "pcre2" "lsof")
+# 每个软件包的安装超时时间（秒）
+TIMEOUT=300
 
-    for package in "${packages[@]}"; do
+PACKAGES_YUM=("epel-release" "wget" "git" "openssl-devel" "zlib-devel" "gd-devel" "pcre-devel" "pcre2" "lsof")
+for package in "${PACKAGES_YUM[@]}"; do
+    if $pkg_manager -q "$package" &>/dev/null; then
+        echo "已经安装 $package ..."
+    else
         echo "正在安装 $package ..."
-        $package_manager -y install "$package" --skip-broken > /dev/null 2>&1
-        if [ $? -ne 0 ]; then
-            ERROR "安装 $Ppackage 失败,请检查系统安装源之后再次运行此脚本！"
-            INFO "To install, run: $package_manager -y install $package"
-            exit 1
-        fi
-    done
 
-    SUCCESS1 "System components installation completed."
-    DONE
+        # 记录开始时间
+        start_time=$(date +%s)
+
+        # 安装软件包并等待完成
+        $package_manager -y install "$package" --skip-broken > /dev/null 2>&1 &
+        install_pid=$!
+        ERROR "$package 安装失败。请检查系统安装源，然后再次运行此脚本！或尝试手动执行安装：$package_manager -y install $package"
+        exit 1
+    fi
+done
+
+SUCCESS1 "System components installation completed."
+DONE
 }
 
 function INSTALL_NGINX() {
     SUCCESS "Nginx detection and installation."
-
     # 检查是否已安装Nginx
     if which nginx &>/dev/null; then
         SUCCESS1 "Nginx is already installed."
     else
         INFO "Installing Nginx program, please wait..."
-        NGINX="nginx-1.24.0-1.el${OSVER}.ngx.x86_64.rpm"
+        # 根据架构设置对应的 RPM 包名和下载链接
+        case $ARCH in
+            x86_64)
+                NGINX="nginx-1.24.0-1.el${OSVER}.ngx.x86_64.rpm"
+                ;;
+            aarch64|arm*)
+                NGINX="nginx-1.24.0-1.el${OSVER}.ngx.${ARCH}.rpm"
+                ;;
+            *)
+                ERROR "Unsupported architecture: $ARCH"
+                exit 1
+                ;;
+        esac
 
-        # 下载并安装RPM包
+        # 下载并安装 RPM 包
         rm -f ${NGINX}
-        wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} &>/dev/null
+        wget "http://nginx.org/packages/centos/${OSVER}/${ARCH}/RPMS/${NGINX}" &>/dev/null
         attempts=0
         maxAttempts=3
 
@@ -189,7 +220,7 @@ function INSTALL_NGINX() {
                 if [ $attempts -eq $maxAttempts ]; then
                     ERROR "Nginx installation failed. Please try installing manually."
                     rm -f ${NGINX}
-                    echo "Command：wget http://nginx.org/packages/centos/${OSVER}/x86_64/RPMS/${NGINX} && $package_manager -y install ${NGINX}"
+                    echo "Command: wget http://nginx.org/packages/centos/${OSVER}/${ARCH}/RPMS/${NGINX} && $package_manager -y install ${NGINX}"
                     exit 1
                 fi
             else
@@ -531,6 +562,7 @@ SUCCESS "< END >"
 
 function main() {
    PACKAGE_MANAGER
+   CHECK_PKG_MANAGER
    CHECKMEM
    CHECKFIRE
    INSTALL_PACKAGE
