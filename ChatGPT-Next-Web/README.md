@@ -13,12 +13,7 @@
 mkdir -p /data/chatgpt-next-web && cd /data/chatgpt-next-web
 
 #（2）下载主执行脚本 ChatGPT-Next-Web_build.sh 脚本会判断当前系统是Ubuntu还是CentOS，其他系统则不会执行构建
-# CentOS
-yum -y install wget
-# Ubuntu
-apt -y install wget
-
-bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Next-Web/ChatGPT-Next-Web_build.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Next-Web/ChatGPT-Next-Web_build.sh)"
 ```
 <table>
     <tr>
