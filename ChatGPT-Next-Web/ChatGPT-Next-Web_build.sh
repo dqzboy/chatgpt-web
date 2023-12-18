@@ -129,12 +129,12 @@ printf "%*s\033[31m%s\033[0m%*s\n" $padding "" "$text" $padding ""
 SUCCESS "执行完成"
 
 read -e -p "请选择你的服务器网络环境[国外1/国内2]： " NETWORK
-if [ ${NETWORK} == 1 ];then
-    if [ "$repo_type" = "centos" ] || [ "$repo_type" = "rhel" ]; then
+if [[ ${NETWORK} == 1 ]];then
+    if [[ "$repo_type" = "centos" ]] || [[ "$repo_type" = "rhel" ]]; then
         INFO "《This is $repo_type.》"
         SUCCESS "系统环境检测中，请稍等..."
         bash -c "$(wget -q -O- https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Next-Web/install/ChatGPT-Next-Web_C.sh)"
-    elif [ "$repo_type" == "ubuntu" ] || [ "$repo_type" == "debian" ]; then
+    elif [[ "$repo_type" == "ubuntu" ]] || [ "$repo_type" == "debian" ]; then
         INFO "《This is $repo_type.》"
         SUCCESS "系统环境检测中，请稍等..."
         systemctl restart systemd-resolved
@@ -143,12 +143,12 @@ if [ ${NETWORK} == 1 ];then
         echo "Unknown Linux distribution."
         exit 2
     fi
-elif [ ${NETWORK} == 2 ];then
-    if [ "$repo_type" = "centos" ] || [ "$repo_type" = "rhel" ]; then
+elif [[ ${NETWORK} == 2 ]];then
+    if [[ "$repo_type" = "centos" ]] || [[ "$repo_type" = "rhel" ]]; then
         INFO "《This is $repo_type.》"
         SUCCESS "系统环境检测中，请稍等..."
         bash -c "$(wget -q -O- https://ghproxy.com/https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Next-Web/install/ChatGPT-Next-Web_C.sh)"
-    elif [ "$repo_type" == "ubuntu" ] || [ "$repo_type" == "debian" ]; then
+    elif [[ "$repo_type" == "ubuntu" ]] || [[ "$repo_type" == "debian" ]]; then
         INFO "《This is $repo_type.》"
         SUCCESS "系统环境检测中，请稍等..."
         systemctl restart systemd-resolved
