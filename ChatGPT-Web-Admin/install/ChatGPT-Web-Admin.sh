@@ -461,7 +461,7 @@ while true; do
             fi
             ;;
         2)
-            if git clone https://ghproxy.com/$repository; then
+            if git clone https://mirror.ghproxy.com/$repository; then
                 break
             else
                 ((attempts++))
