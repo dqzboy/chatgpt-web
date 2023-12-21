@@ -367,7 +367,7 @@ read -e -p "$(echo -e ${GREEN}"请选择你的服务器网络环境[国外1/国�
 if [ ${NETWORK} == 1 ];then
     cd ${ORIGINAL} && git clone ${GITGPT}
 elif [ ${NETWORK} == 2 ];then
-    cd ${ORIGINAL} && git clone https://ghproxy.com/${GITGPT}
+    cd ${ORIGINAL} && git clone https://mirror.ghproxy.com/${GITGPT}
 fi
 }
 
