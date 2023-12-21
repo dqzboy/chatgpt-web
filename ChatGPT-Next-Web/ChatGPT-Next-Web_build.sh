@@ -147,12 +147,12 @@ elif [[ ${NETWORK} == 2 ]];then
     if [[ "$repo_type" = "centos" ]] || [[ "$repo_type" = "rhel" ]]; then
         INFO "《This is $repo_type.》"
         SUCCESS "系统环境检测中，请稍等..."
-        bash -c "$(wget -q -O- https://ghproxy.com/https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Next-Web/install/ChatGPT-Next-Web_C.sh)"
+        bash -c "$(wget -q -O- https://mirror.ghproxy.com/https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Next-Web/install/ChatGPT-Next-Web_C.sh)"
     elif [[ "$repo_type" == "ubuntu" ]] || [[ "$repo_type" == "debian" ]]; then
         INFO "《This is $repo_type.》"
         SUCCESS "系统环境检测中，请稍等..."
         systemctl restart systemd-resolved
-        bash -c "$(wget -q -O- https://ghproxy.com/https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Next-Web/install/ChatGPT-Next-Web_U.sh)"
+        bash -c "$(wget -q -O- https://mirror.ghproxy.com/https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Next-Web/install/ChatGPT-Next-Web_U.sh)"
     else
         echo "Unknown Linux distribution."
         exit 2
