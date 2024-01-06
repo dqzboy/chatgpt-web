@@ -290,6 +290,7 @@ DONE
 
 function MONGO_USER() {
 # 检查用户是否要创建 MongoDB 用户
+WARN ">>> 提醒：如果之前创建过用户,请勿再次创建同名的用户！<<<"
 read -e -p "是否创建 MongoDB 用户？[y/n] " choice
 case "$choice" in
   y|Y )
@@ -406,82 +407,92 @@ DONE
 }
 
 function GITCLONE() {
-SUCCESS "ChatGPT Web Project cloning."
-rm -rf chatgpt-web &>/dev/null
-CGPTWEB="https://github.com/Chanzhaoyu/chatgpt-web"
-KGPTWEB="https://github.com/Kerwin1202/chatgpt-web"
-ZGPTWEB="https://github.com/zhujunsan/chatgpt-web"
+    SUCCESS "ChatGPT Web Project cloning."
+    rm -rf chatgpt-web* &>/dev/null
+    CGPTWEB="https://github.com/Chanzhaoyu/chatgpt-web"
+    KGPTWEB="https://github.com/Kerwin1202/chatgpt-web"
+    ZGPTWEB="https://github.com/zhujunsan/chatgpt-web"
+    BGPTWEB="https://github.com/BobDu/chatgpt-web-fork"
 
-${SETCOLOR_RED} && echo "请选择要克隆的仓库：" && ${SETCOLOR_NORMAL}
-echo "-------------------------------------------------"
-echo "1. Chanzhaoyu/chatgpt-web [用户管理-No]"
-echo "2. Kerwin1202/chatgpt-web [用户管理-Yes]"
-echo "3. zhujunsan/chatgpt-web  [用户管理-Yes]"
-echo "-------------------------------------------------"
+    ${SETCOLOR_RED} && echo "请选择要克隆的仓库：" && ${SETCOLOR_NORMAL}
+    echo "-------------------------------------------------"
+    echo "1. Chanzhaoyu/chatgpt-web [用户管理-No]"
+    echo "2. Kerwin1202/chatgpt-web [用户管理-Yes]"
+    echo "3. zhujunsan/chatgpt-web  [用户管理-Yes]"
+    echo "4. BobDu/chatgpt-web-fork [用户管理-Yes]"
+    echo "-------------------------------------------------"
 
-for i in {1..4}; do
-    read -e -n1 inputgpt
-    case $inputgpt in
-        1) repository=$CGPTWEB; break;;
-        2) repository=$KGPTWEB; break;;
-        3) repository=$ZGPTWEB; break;;
-        *) ERROR "Invalid option, please retry.";;
-    esac
+    for i in {1..5}; do
+        read -e -n1 inputgpt
+        case $inputgpt in
+            1) repository=$CGPTWEB; CHATDIR=chatgpt-web; break;;
+            2) repository=$KGPTWEB; CHATDIR=chatgpt-web; break;;
+            3) repository=$ZGPTWEB; CHATDIR=chatgpt-web; break;;
+            4) repository=$BGPTWEB; CHATDIR=chatgpt-web-fork; break;;
+            *) ERROR "Invalid option, please retry.";;
+        esac
 
-    if [ $i -eq 4 ]; then
-        ERROR "Option input error 3 times, exiting the script."
-        exit 1
-    fi
-done
-echo 
-${SETCOLOR_RED} && echo "请选择您的服务器网络环境：" && ${SETCOLOR_NORMAL}
-echo "-------------------------------------------------"
-echo "1. 国外"
-echo "2. 国内"
-echo "-------------------------------------------------"
+        if [ $i -eq 4 ]; then
+            ERROR "Option input error 3 times, exiting the script."
+            exit 1
+        fi
+    done
 
-while true; do
-    if [ -z "$input" ]; then
+    attempts=0
+    while true; do
+        echo 
+        ${SETCOLOR_RED} && echo "请选择克隆的项目分支：" && ${SETCOLOR_NORMAL}
+        echo "-------------------------------------------------"
+        echo "1. 默认分支"
+        echo "2. 自选分支"
+        echo "-------------------------------------------------"
+
         read -e -n1 input
-    fi
+        case $input in
+            1)
+                if git clone https://mirror.ghproxy.com/$repository; then
+                    break
+                else
+                    ((attempts++))
+                    ERROR "Git clone failed, please retry. (Attempt: $attempts)"
+                    if [ $attempts -ge 3 ]; then
+                        ERROR "Exceeded maximum attempts. Exiting script."
+                        exit 1
+                    fi
+                fi
+                ;;
+            2)
+                ${SETCOLOR_RED} && echo "请输入要克隆的分支名称：" && ${SETCOLOR_NORMAL}
+                echo "-------------------------------------------------"
+                read -e branch
+                echo "-------------------------------------------------"
+                if [ -z "$branch" ]; then
+                    ERROR "分支名称不能为空，请重新输入。"
+                    continue
+                fi
 
-    case $input in
-        1)
-            if git clone $repository; then
+                while true; do
+                    if git clone -b $branch https://mirror.ghproxy.com/$repository; then
+                        break
+                    else
+                        ((attempts++))
+                        ERROR "Git clone failed, please retry. (Attempt: $attempts)"
+                        if [ $attempts -ge 3 ]; then
+                            ERROR "Exceeded maximum attempts. Exiting script."
+                            exit 2
+                        fi
+                    fi
+                done
                 break
-            else
-                ((attempts++))
-                ERROR "Git clone failed, please retry. (Attempt: $attempts)"
-                input=1
-                if [ $attempts -ge 3 ]; then
-                    ERROR "Exceeded maximum attempts. Exiting script."
-                    exit 1
-                fi
+                ;;
+            *)
+                ERROR "Invalid option, please retry."
+                input=
                 continue
-            fi
-            ;;
-        2)
-            if git clone https://mirror.ghproxy.com/$repository; then
-                break
-            else
-                ((attempts++))
-                ERROR "Git clone failed, please retry. (Attempt: $attempts)"
-                input=2
-                if [ $attempts -ge 3 ]; then
-                    ERROR "Exceeded maximum attempts. Exiting script."
-                    exit 2
-                fi
-                continue
-            fi
-            ;;
-        *)
-            ERROR "Invalid option, please retry."
-            input=
-            continue
-            ;;
-    esac
-done
-DONE
+                ;;
+        esac
+    done
+    DONE
 }
 
 function WEBINFO() {
