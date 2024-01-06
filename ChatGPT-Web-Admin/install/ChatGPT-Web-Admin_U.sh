@@ -741,12 +741,26 @@ else
 fi
 }
 
+function WEBURL(){
+# 获取公网IP
+PUBLIC_IP=$(curl -s https://ifconfig.me)
+
+# 获取所有网络接口的IP地址
+ALL_IPS=$(hostname -I)
+
+# 排除不需要的地址（127.0.0.1和docker0）
+INTERNAL_IP=$(echo "$ALL_IPS" | awk '$1!="127.0.0.1" && $1!="::1" && $1!="docker0" {print $1}')
+
+echo "公网访问地址: http://$PUBLIC_IP"
+echo "内网访问地址: http://$INTERNAL_IP"
+}
+
 # 删除源码包文件
 function DELSOURCE() {
   rm -rf ${ORIGINAL}/${CHATDIR}
   echo
   ${SETCOLOR_SUCCESS} && echo "--------------------------------------------------------------------------------" && ${SETCOLOR_NORMAL}
-  echo "访问网站：http://your_vps_ip:80"
+  WEBURL
   ${SETCOLOR_SUCCESS} && echo "-----------------------------------<部署完成>-----------------------------------" && ${SETCOLOR_NORMAL}
 }
 
