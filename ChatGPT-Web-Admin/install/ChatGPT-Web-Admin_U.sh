@@ -138,7 +138,7 @@ function INSTALL_PACKAGE() {
     $package_manager update &>/dev/null
     for package in "${PACKAGES_APT[@]}"; do
         if dpkg -s "$package" &>/dev/null; then
-            echo "$package 已经安装，跳过..."
+            echo "已经安装 $package ..."
         else
             echo "正在安装 $package ..."
             $package_manager install -y $package > /dev/null 2>&1
@@ -851,6 +851,10 @@ elif [ $repository == $KGPTWEB ]; then
     WEBINFO
     WEBTITLE
 elif [ $repository == $ZGPTWEB ]; then
+    MONGO
+    WEBINFO
+    WEBTITLE
+elif [ $repository == $BGPTWEB ]; then
     MONGO
     WEBINFO
     WEBTITLE
