@@ -449,7 +449,7 @@ function GITCLONE() {
         case $input in
             1)
                 #if git clone https://mirror.ghproxy.com/$repository; then
-		if git clone https://$repository; then
+		if git clone $repository; then
                     break
                 else
                     ((attempts++))
@@ -471,7 +471,7 @@ function GITCLONE() {
                 fi
 
                 while true; do
-                    if git clone -b $branch https://$repository; then
+                    if git clone -b $branch $repository; then
                         break
                     else
                         ((attempts++))
