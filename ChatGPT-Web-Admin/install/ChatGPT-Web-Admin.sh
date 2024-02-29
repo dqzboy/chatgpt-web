@@ -63,14 +63,22 @@ WARN() {
   ${SETCOLOR_YELLOW} && echo "$1"  && ${SETCOLOR_NORMAL}
 }
 
-function PACKAGE_MANAGER() {
-    # 判断使用的包管理工具是 yum 还是 dnf
+function CHECK_PACKAGE_MANAGER() {
     if command -v dnf &> /dev/null; then
         package_manager="dnf"
     elif command -v yum &> /dev/null; then
         package_manager="yum"
     else
         ERROR "Unsupported package manager."
+        exit 1
+    fi
+}
+
+function CHECK_PKG_MANAGER() {
+    if command -v rpm &> /dev/null; then
+        pkg_manager="rpm"
+    else
+        ERROR "Unable to determine the package management system."
         exit 1
     fi
 }
@@ -141,26 +149,55 @@ DONE
 }
 
 function INSTALL_PACKAGE() {
-    SUCCESS "Install necessary system components."
-    INFO "Installing necessary system components. please wait..."
+TIMEOUT=300
+SUCCESS "Install necessary system components."
+INFO "Installing necessary system components. please wait..."
 
-    # 定义要安装的软件包列表
-    PACKAGES_YUM=("epel-release" "wget" "git" "lsof" "openssl-devel" "zlib-devel" "gd-devel" "pcre-devel" "pcre2")
-    for package in "${PACKAGES_YUM[@]}"; do
-        if rpm -q "$package" &>/dev/null; then
-            echo "已经安装 $package ..."
-        else
-            echo "正在安装 $package ..."
-            $package_manager -y install "$package" --skip-broken > /dev/null 2>&1
-            if [ $? -ne 0 ]; then
-                ERROR "安装 $package 失败，请检查系统安装源之后再次运行此脚本！"
+# 定义要安装的软件包列表
+PACKAGES_YUM=("epel-release" "wget" "git" "lsof" "openssl-devel" "zlib-devel" "gd-devel" "pcre-devel" "pcre2")
+
+for package in "${PACKAGES_YUM[@]}"; do
+    if $pkg_manager -q "$package" &>/dev/null; then
+        echo "已经安装 $package ..."
+    else
+        echo "正在安装 $package ..."
+
+        # 记录开始时间
+        start_time=$(date +%s)
+
+        # 安装软件包并等待完成
+        $package_manager -y install "$package" --skip-broken > /dev/null 2>&1 &
+        install_pid=$!
+
+        # 检查安装是否超时
+        while [[ $(($(date +%s) - $start_time)) -lt $TIMEOUT ]] && kill -0 $install_pid &>/dev/null; do
+            sleep 1
+        done
+
+        # 如果安装仍在运行，提示用户
+        if kill -0 $install_pid &>/dev/null; then
+            ERROR "$package 的安装时间超过 $TIMEOUT 秒。是否继续？ (y/n)"
+            read -r continue_install
+            if [ "$continue_install" != "y" ]; then
+                ERROR "$package 的安装超时。退出脚本。"
                 exit 1
+            else
+                # 直接跳过等待，继续下一个软件包的安装
+                continue
             fi
         fi
-    done
 
-    SUCCESS1 "System components installation completed."
-    DONE
+        # 检查安装结果
+        wait $install_pid
+        if [ $? -ne 0 ]; then
+            ERROR "$package 安装失败。请检查系统安装源，然后再次运行此脚本！请尝试手动执行安装：$package_manager -y install $package"
+            exit 1
+        fi
+    fi
+done
+
+SUCCESS1 "System components installation completed."
+DONE
 }
 
 function INSTALL_NGINX() {
@@ -251,12 +288,52 @@ function NODEJS() {
         
         # 使用不同的包管理工具安装Node.js
         install_nodejs() {
-	    $package_manager install https://rpm.nodesource.com/pub_16.x/nodistro/repo/nodesource-release-nodistro-1.noarch.rpm -y &>/dev/null
+	    echo "--------------------------------------------------------"
+            echo -e "${GREEN}Select Node.js version to install:${RESET}"
+            echo -e "1. lts.x"
+            echo -e "2. 21.x"
+            echo -e "3. 20.x"
+            echo -e "4. 18.x"
+            echo -e "5. 17.x"
+            echo -e "6. 16.x"
+	    echo -e "7. Exit"
+	    read -e -p "$(echo -e ${GREEN}"Please enter the corresponding number: "${RESET})" selected_version
+            case $selected_version in
+                1)
+                    version_url="https://rpm.nodesource.com/setup_lts.x"
+                    ;;
+                2)
+                    version_url="https://rpm.nodesource.com/setup_21.x"
+                    ;;
+                3)
+                    version_url="https://rpm.nodesource.com/setup_20.x"
+                    ;;
+                4)
+                    version_url="https://rpm.nodesource.com/setup_18.x"
+                    ;;
+                6)
+                    version_url="https://rpm.nodesource.com/setup_17.x"
+                    ;;
+                6)
+                    version_url="https://rpm.nodesource.com/setup_16.x"
+                    ;;
+                *)
+                    echo "Invalid Node.js version selected."
+                    exit 1
+                    ;;
+            esac
+
+	    curl -fsSL $version_url | bash -
             if [ $? -ne 0 ]; then
                 ERROR "Node.js installation failed!"
                 exit 1
             fi
-            
+	    $package_manager install nodejs -y &>/dev/null
+            if [ $? -ne 0 ]; then
+                ERROR "Node.js installation failed!"
+                exit 2
+            fi
+
             while [ $attempts -lt $maxAttempts ]; do
                 $package_manager install nodejs -y --setopt=nodesource-nodejs.module_hotfixes=1 --nogpgcheck &>/dev/null
                 if [ $? -ne 0 ]; then
@@ -274,6 +351,7 @@ function NODEJS() {
                 fi
             done
         }
+
         install_nodejs      
     else
         SUCCESS1 "Node.js has been installed."
@@ -779,32 +857,7 @@ server {
     listen       80;
     server_name  localhost;
 
-    #access_log  /var/log/nginx/host.access.log  main;
-
-    #禁止境内常见爬虫(根据需求自行控制是否禁止)
-    if ($http_user_agent ~* "qihoobot|Yahoo! Slurp China|Baiduspider|Baiduspider-image|spider|Sogou spider|Sogou web spider|Sogou inst spider|Sogou spider2|Sogou blog|Sogou News Spider|Sogou Orion spider|ChinasoSpider|Sosospider|YoudaoBot|yisouspider|EasouSpider|Tomato Bot|Scooter") {
-        return 403;
-    }
-
-    #禁止境外常见爬虫(根据需求自行控制是否禁止)
-    if ($http_user_agent ~* "Googlebot|Googlebot-Mobile|AdsBot-Google|Googlebot-Image|Mediapartners-Google|Adsbot-Google|Feedfetcher-Google|Yahoo! Slurp|MSNBot|Catall Spider|ArchitextSpider|AcoiRobot|Applebot|Bingbot|Discordbot|Twitterbot|facebookexternalhit|ia_archiver|LinkedInBot|Naverbot|Pinterestbot|seznambot|Slurp|teoma|TelegramBot|Yandex|Yeti|Infoseek|Lycos|Gulliver|Fast|Grabber") {
-        return 403;
-    }
-
-    #禁止指定 UA 及 UA 为空的访问
-    if ($http_user_agent ~ "WinHttp|WebZIP|FetchURL|node-superagent|java/|Bytespider|FeedDemon|Jullo|JikeSpider|Indy Library|Alexa Toolbar|AskTbFXTV|AhrefsBot|CrawlDaddy|CoolpadWebkit|Java|Feedly|Apache-HttpAsyncClient|UniversalFeedParser|ApacheBench|Microsoft URL Control|Swiftbot|ZmEu|oBot|jaunty|Python-urllib|lightDeckReports Bot|YYSpider|DigExt|HttpClient|MJ12bot|heritrix|Ezooms|BOT/0.1|YandexBot|FlightDeckReports|Linguee Bot|iaskspider|^$") {
-        return 403;
-    }
-
-    #禁止非 GET|HEAD|POST 方式的抓取
-    if ($request_method !~ ^(GET|HEAD|POST)$) {
-        return 403;
-    }
-
-    #禁止 Scrapy 等工具的抓取
-    if ($http_user_agent ~* (Scrapy|HttpClient)) {
-        return 403;
-    }
+    access_log  /var/log/nginx/host.access.log  main;
 
     location / {
         root   /usr/share/nginx/html;
@@ -856,7 +909,8 @@ fi
 }
 
 function main() {
-    PACKAGE_MANAGER
+    CHECK_PACKAGE_MANAGER
+    CHECK_PKG_MANAGER
     CHECKMEM
     CHECKFIRE
     INSTALL_PACKAGE
