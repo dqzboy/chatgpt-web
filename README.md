@@ -8,7 +8,13 @@
 
 > Use this script to quickly create your own ChatGPT web site. | 使用此脚本可以快速创建您自己的 ChatGPT 网站。
 
-[TG交流群](https://t.me/+ghs_XDp1vwxkMGU9)
+[TG交流群](https://t.me/+ghs_XDp1vwxkMGU9) 
+<details>
+<summary>点击这里加入微信群</summary>
+<div align="center">
+<img src="https://github.com/dqzboy/ChatGPT-Proxy/assets/42825450/09211fb0-70bd-4ac7-bb99-2ead29561142" width="400px">
+</div>
+</details>
 
 |:octocat:机场推荐|:link:链接| :pushpin:机场概况
 |--|--|--|
