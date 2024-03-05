@@ -801,31 +801,6 @@ http {
 
         #access_log  /var/log/nginx/host.access.log  main;
 
-        #禁止境内常见爬虫(根据需求自行控制是否禁止)
-        if ($http_user_agent ~* "qihoobot|Yahoo! Slurp China|Baiduspider|Baiduspider-image|spider|Sogou spider|Sogou web spider|Sogou inst spider|Sogou spider2|Sogou blog|Sogou News Spider|Sogou Orion spider|ChinasoSpider|Sosospider|YoudaoBot|yisouspider|EasouSpider|Tomato Bot|Scooter") {
-            return 403;
-        }
-
-        #禁止境外常见爬虫(根据需求自行控制是否禁止)
-        if ($http_user_agent ~* "Googlebot|Googlebot-Mobile|AdsBot-Google|Googlebot-Image|Mediapartners-Google|Adsbot-Google|Feedfetcher-Google|Yahoo! Slurp|MSNBot|Catall Spider|ArchitextSpider|AcoiRobot|Applebot|Bingbot|Discordbot|Twitterbot|facebookexternalhit|ia_archiver|LinkedInBot|Naverbot|Pinterestbot|seznambot|Slurp|teoma|TelegramBot|Yandex|Yeti|Infoseek|Lycos|Gulliver|Fast|Grabber") {
-            return 403;
-        }
-
-        #禁止指定 UA 及 UA 为空的访问
-        if ($http_user_agent ~ "WinHttp|WebZIP|FetchURL|node-superagent|java/|Bytespider|FeedDemon|Jullo|JikeSpider|Indy Library|Alexa Toolbar|AskTbFXTV|AhrefsBot|CrawlDaddy|CoolpadWebkit|Java|Feedly|Apache-HttpAsyncClient|UniversalFeedParser|ApacheBench|Microsoft URL Control|Swiftbot|ZmEu|oBot|jaunty|Python-urllib|lightDeckReports Bot|YYSpider|DigExt|HttpClient|MJ12bot|heritrix|Ezooms|BOT/0.1|YandexBot|FlightDeckReports|Linguee Bot|iaskspider|^$") {
-            return 403;
-        }
-
-        #禁止非 GET|HEAD|POST 方式的抓取
-        if ($request_method !~ ^(GET|HEAD|POST)$) {
-            return 403;
-        }
-
-        #禁止 Scrapy 等工具的抓取
-        if ($http_user_agent ~* (Scrapy|HttpClient)) {
-            return 403;
-        }
-
         location / {
             root   /usr/share/nginx/html;
             index  index.html index.htm;
@@ -864,7 +839,7 @@ if [ $repository == $CGPTWEB ]; then
 elif [ $repository == $KGPTWEB ]; then
     MONGO
     WEBINFO
-    WEBTITLE
+    #WEBTITLE
 elif [ $repository == $ZGPTWEB ]; then
     MONGO
     WEBINFO
@@ -872,7 +847,7 @@ elif [ $repository == $ZGPTWEB ]; then
 elif [ $repository == $BGPTWEB ]; then
     MONGO
     WEBINFO
-    WEBTITLE
+    #WEBTITLE
 fi
 }
 
