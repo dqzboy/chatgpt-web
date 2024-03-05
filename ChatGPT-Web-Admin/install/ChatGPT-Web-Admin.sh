@@ -896,7 +896,7 @@ if [ $repository == $CGPTWEB ]; then
 elif [ $repository == $KGPTWEB ]; then
     MONGO
     WEBINFO
-    WEBTITLE
+    #WEBTITLE
 elif [ $repository == $ZGPTWEB ]; then
     MONGO
     WEBINFO
@@ -904,7 +904,7 @@ elif [ $repository == $ZGPTWEB ]; then
 elif [ $repository == $BGPTWEB ]; then
     MONGO
     WEBINFO
-    WEBTITLE
+    #WEBTITLE
 fi
 }
 
