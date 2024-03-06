@@ -15,6 +15,8 @@ SETCOLOR_SUCCESS="echo -en \\E[0;32m"
 SETCOLOR_NORMAL="echo  -en \\E[0;39m"
 SETCOLOR_RED="echo  -en \\E[0;31m"
 SETCOLOR_YELLOW="echo -en \\E[1;33m"
+GREEN='\033[0;32m'
+RESET='\033[0m'
 
 # 定义需要拷贝的文件目录
 CHATDIR="chatgpt-web"
@@ -855,7 +857,12 @@ function main() {
     PACKAGE_MANAGER
     CHECKMEM
     CHECKFIRE
-    INSTALL_PACKAGE
+    read -e -p "$(echo -e ${GREEN}"是否执行软件包安装? [y/n]: "${RESET})" choice_package
+    if [[ "$choice_package" == "y" ]]; then
+        INSTALL_PACKAGE
+    else
+        WARN "跳过软件包安装步骤。"
+    fi
     GITCLONE
     INSTALL_NGINX
     NODEJS
