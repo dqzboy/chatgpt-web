@@ -28,6 +28,41 @@
 width="2000"  height="3">
 </div>
 
+## 部署 | Deployment
+### chatgpt-next-web
+```shell
+#（1）创建脚本执行目录
+mkdir -p /data/chatgpt-next-web && cd /data/chatgpt-next-web
+
+#（2）下载主执行脚本 ChatGPT-Next-Web_build.sh 脚本会判断当前系统是Ubuntu还是CentOS，其他系统则不会执行构建
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Next-Web/ChatGPT-Next-Web_build.sh)"
+```
+
+### chatgpt-web
+```shell
+#（1）创建脚本执行目录
+mkdir -p /data/chatgpt-web && cd /data/chatgpt-web
+
+#（2）下载执行脚本
+# CentOS
+yum -y install wget curl
+# ubuntu
+apt -y install wget curl
+
+#（3）下载对应的env.example配置文件；注意执行脚本前先进行修改里面的内容
+【Kerwin1202/chatgpt-web | zhujunsan/chatgpt-web ｜ BobDu/chatgpt-web-fork】
+wget -O env.example https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/Kerwin1202_env.example
+
+【Chanzhaoyu/chatgpt-web】
+wget -O env.example https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/Chanzhaoyu_env.example
+
+# RHEL and CentOS or Rocky 7/8/9
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin.sh)"
+
+# Ubuntu or Debian
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_U.sh)"
+```
+
 ## 功能 | Functionality
 <details>
   <summary><b> 源代码本地一键编译部署 | One-click compile and deploy of source code locally. </b></summary>
@@ -81,7 +116,3 @@ width="2000"  height="3">
     <tr>
     </tr>
 </table>
-
-## 部署 | Deployment
-- [ChatGPT-WEB](ChatGPT-Web-Admin/README.md)
-- [ChatGPT-Next-WEB](ChatGPT-Next-Web/README.md)
