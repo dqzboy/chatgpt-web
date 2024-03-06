@@ -15,7 +15,8 @@ SETCOLOR_SUCCESS="echo -en \\E[0;32m"
 SETCOLOR_NORMAL="echo  -en \\E[0;39m"
 SETCOLOR_RED="echo  -en \\E[0;31m"
 SETCOLOR_YELLOW="echo -en \\E[1;33m"
-
+GREEN='\033[0;32m'
+RESET='\033[0m'
 # 定义需要拷贝的文件目录,根据项目情况指定,目前无需变动
 SERDIR="service"
 FONTDIR="dist"
@@ -116,7 +117,7 @@ memory_usage=$(free | awk '/^Mem:/ {printf "%.2f", $3/$2 * 100}')
 memory_usage=${memory_usage%.*}
 
 if [[ $memory_usage -gt 70 ]]; then  # 判断是否超过 70%
-    read -p "Warning: Memory usage is higher than 70%($memory_usage%). Do you want to continue? (y/n) " continu
+    read -e -p "Warning: Memory usage is higher than 70%($memory_usage%). Do you want to continue? (y/n) " continu
     if [ "$continu" == "n" ] || [ "$continu" == "N" ]; then
         exit 1
     fi
@@ -478,7 +479,6 @@ EOF
             fi
         done
     fi
-
     DONE
 }
 
@@ -492,7 +492,7 @@ function GITCLONE() {
 
     ${SETCOLOR_RED} && echo "请选择要克隆的仓库：" && ${SETCOLOR_NORMAL}
     echo "-------------------------------------------------"
-    echo "1. Chanzhaoyu/chatgpt-web [用户管理-No]"
+    echo "1. Chanzhaoyu/chatgpt-web [用户管理--No]"
     echo "2. Kerwin1202/chatgpt-web [用户管理-Yes]"
     echo "3. zhujunsan/chatgpt-web  [用户管理-Yes]"
     echo "4. BobDu/chatgpt-web-fork [用户管理-Yes]"
@@ -848,16 +848,16 @@ function DELSOURCE() {
 
 # 添加Nginx后端代理配置
 function NGINX_CONF() {
-read -e -p "是否修改Nginx配置[y/n](通过本脚本部署的Nginx可选择 y)：" NGCONF
-if [ "$NGCONF" = "y" ]; then
-   INFO "You chose yes."
-   INFO "config：/etc/nginx/conf.d/default.conf"
-cat > /etc/nginx/conf.d/default.conf <<\EOF
+read_attempts=0
+while true; do
+    read -e -p "是否修改Nginx配置[y/n](通过本脚本部署的Nginx可选择 y)：" NGCONF
+    if [ "$NGCONF" = "y" ]; then
+        INFO "You chose yes."
+        INFO "config：/etc/nginx/conf.d/default.conf"
+        cat > /etc/nginx/conf.d/default.conf <<\EOF
 server {
     listen       80;
     server_name  localhost;
-
-    access_log  /var/log/nginx/host.access.log  main;
 
     location / {
         root   /usr/share/nginx/html;
@@ -880,12 +880,19 @@ server {
     }
 }
 EOF
-elif [ "$NGCONF" = "n" ]; then
-   WARN "You chose no."
-else
-   ERROR "Invalid parameter. Please enter 'y' or 'n'."
-   exit 1
-fi
+        break
+    elif [ "$NGCONF" = "n" ]; then
+        WARN "You chose no."
+        break
+    else
+        ERROR "Invalid parameter. Please enter 'y' or 'n'."
+        read_attempts=$((read_attempts+1))
+        if [ "$read_attempts" -eq 3 ]; then
+            ERROR "Maximum number of attempts reached. Exiting."
+            exit 1
+        fi
+    fi
+done
 }
 
 function REPO() {
@@ -913,7 +920,13 @@ function main() {
     CHECK_PKG_MANAGER
     CHECKMEM
     CHECKFIRE
-    INSTALL_PACKAGE
+    read -e -p "$(echo -e ${GREEN}"是否执行软件包安装? [y/n]: "${RESET})" choice_package
+    if [[ "$choice_package" == "y" ]]; then
+        INSTALL_PACKAGE
+    else
+        WARN "跳过软件包安装步骤。"
+    fi
+
     GITCLONE
     INSTALL_NGINX
     NODEJS
