@@ -565,7 +565,12 @@ function main() {
    CHECK_PKG_MANAGER
    CHECKMEM
    CHECKFIRE
-   INSTALL_PACKAGE
+   read -e -p "$(echo -e ${GREEN}"是否执行软件包安装? [y/n]: "${RESET})" choice_package
+   if [[ "$choice_package" == "y" ]]; then
+        INSTALL_PACKAGE
+   else
+        WARN "跳过软件包安装步骤。"
+   fi
    NODEJS
    INSTALL_NGINX
    GITCLONE
