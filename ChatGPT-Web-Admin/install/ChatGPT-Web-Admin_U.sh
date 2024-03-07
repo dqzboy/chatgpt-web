@@ -163,14 +163,14 @@ if which nginx &>/dev/null; then
 else
   SUCCESS1 "Installing Nginx..."
   while [ $attempts -lt $maxAttempts ]; do
-      apt-get install nginx -y &>/dev/null
+      $package_manager install nginx -y &>/dev/null
       if [ $? -ne 0 ]; then
           ((attempts++))
           WARN "尝试安装Nginx (Attempt: $attempts)"
 
           if [ $attempts -eq $maxAttempts ]; then
               ERROR "Nginx安装失败，请尝试手动执行安装。"
-              echo "命令：apt-get install nginx -y"
+              echo "命令：$package_manager install nginx -y"
               exit 1
           fi
       else
@@ -199,9 +199,9 @@ if ! command -v node &> /dev/null;then
     ERROR "Node.js 未安装，正在进行安装..."
     # 安装 Node.js
     if [ "$OSVER" = "Ubuntu" ]; then
-	apt-get update &>/dev/null
+	$package_manager update &>/dev/null
         mkdir -p /etc/apt/keyrings &>/dev/null
-	apt-get install -y ca-certificates curl gnupg &>/dev/null
+	$package_manager install -y ca-certificates curl gnupg &>/dev/null
         curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg &>/dev/null
         if [ $? -ne 0 ]; then
 	    ERROR "NodeJS安装失败，请尝试手动执行安装。"
@@ -210,15 +210,15 @@ if ! command -v node &> /dev/null;then
         while [ $attempts -lt $maxAttempts ]; do
 	    NODE_MAJOR=16
             echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list &>/dev/null
-            apt-get update &>/dev/null
-            apt-get install nodejs -y &>/dev/null
+            $package_manager update &>/dev/null
+            $package_manager install nodejs -y &>/dev/null
             if [ $? -ne 0 ]; then
                 ((attempts++))
                 WARN "尝试安装NodeJS (Attempt: $attempts)"
 
                 if [ $attempts -eq $maxAttempts ]; then
                     ERROR "NodeJS安装失败，请尝试手动执行安装。"
-                    echo "命令：apt-get install -y nodejs"
+                    echo "命令：$package_manager install -y nodejs"
                     exit 1
                 fi
             else
@@ -227,9 +227,9 @@ if ! command -v node &> /dev/null;then
             fi
         done
     elif [ "$OSVER" = "Debian" ]; then
-	apt-get update &>/dev/null
+	$package_manager update &>/dev/null
         mkdir -p /etc/apt/keyrings &>/dev/null
-	apt-get install -y ca-certificates curl gnupg &>/dev/null
+	$package_manager install -y ca-certificates curl gnupg &>/dev/null
         curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg &>/dev/null
         if [ $? -ne 0 ]; then
 	    ERROR "NodeJS安装失败，请尝试手动执行安装。"
@@ -238,15 +238,15 @@ if ! command -v node &> /dev/null;then
         while [ $attempts -lt $maxAttempts ]; do
 	    NODE_MAJOR=16
             echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list &>/dev/null
-            apt-get update &>/dev/null
-            apt-get install nodejs -y &>/dev/null
+            $package_manager update &>/dev/null
+            $package_manager install nodejs -y &>/dev/null
             if [ $? -ne 0 ]; then
                 ((attempts++))
                 WARN "尝试安装NodeJS (Attempt: $attempts)"
 
                 if [ $attempts -eq $maxAttempts ]; then
                     ERROR "NodeJS安装失败，请尝试手动执行安装。"
-                    echo "命令：apt-get install -y nodejs"
+                    echo "命令：$package_manager install -y nodejs"
                     exit 1
                 fi
             else
@@ -372,16 +372,16 @@ else
     exit 1
 fi
 # 更新软件包列表并安装 MongoDB
-apt-get update &> /dev/null
+$package_manager update &> /dev/null
 while [[ $attempts -lt $maxAttempts ]]; do
-    apt-get install -y mongodb-org &> /dev/null
+    $package_manager install -y mongodb-org &> /dev/null
     if [ $? -ne 0 ]; then
         ((attempts++))
         WARN "尝试安装mongodb (Attempt: $attempts)"
 
         if [[ $attempts -eq $maxAttempts ]]; then
             ERROR "mongodb安装失败，请尝试手动执行安装。"
-            echo "命令：apt-get install -y mongodb-org"
+            echo "命令：$package_manager install -y mongodb-org"
             exit 1
         fi
     else
