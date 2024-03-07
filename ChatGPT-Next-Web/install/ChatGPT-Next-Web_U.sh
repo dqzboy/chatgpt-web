@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #===============================================================================
 #
-#          FILE: ChatGPT-Next-Web_C.sh
+#          FILE: ChatGPT-Next-Web_U.sh
 # 
-#         USAGE: ./ChatGPT-Next-Web_C.sh
+#         USAGE: ./ChatGPT-Next-Web_U.sh
 #
 #   DESCRIPTION: ChatGPT-Next-Web项目一键构建、部署、升级更新脚本
 # 
