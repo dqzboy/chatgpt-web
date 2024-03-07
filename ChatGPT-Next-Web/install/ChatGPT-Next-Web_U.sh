@@ -65,25 +65,17 @@ WARN() {
 }
 
 function PACKAGE_MANAGER() {
-    # 判断使用的包管理工具是 yum 还是 dnf
-    if command -v dnf &> /dev/null; then
-        package_manager="dnf"
-    elif command -v yum &> /dev/null; then
-        package_manager="yum"
+    # 判断使用的包管理工具
+    if command -v apt-get &> /dev/null; then
+        package_manager="apt-get"
+    elif command -v apt &> /dev/null; then
+        package_manager="apt"
     else
         ERROR "Unsupported package manager."
         exit 1
     fi
 }
 
-function CHECK_PKG_MANAGER() {
-    if command -v rpm &> /dev/null; then
-        pkg_manager="rpm"
-    else
-        ERROR "Unable to determine the package management system."
-        exit 1
-    fi
-}
 
 # 进度条
 function Progress() {
@@ -155,190 +147,166 @@ DONE
 }
 
 function INSTALL_PACKAGE() {
-SUCCESS "Install necessary system components."
-INFO "Installing necessary system components. please wait..."
+    SUCCESS "Install necessary system components."
+    INFO "Installing necessary system components. please wait..."
 
-# 每个软件包的安装超时时间（秒）
-TIMEOUT=300
+    # 定义要安装的软件包列表
+    PACKAGES_APT=("lsb-core" "wget" "git" "curl" "lsof")
+    $package_manager update &>/dev/null
+    for package in "${PACKAGES_APT[@]}"; do
+        if dpkg -s "$package" &>/dev/null; then
+            echo "已经安装 $package ..."
+        else
+            echo "正在安装 $package ..."
+            $package_manager install -y $package > /dev/null 2>&1
+            if [ $? -ne 0 ]; then
+                ERROR "安装 $package 失败,请检查系统安装源之后再次运行此脚本！"
+                exit 1
+            fi
+        fi
+    done
 
-PACKAGES_YUM=("epel-release" "wget" "git" "openssl-devel" "zlib-devel" "gd-devel" "pcre-devel" "pcre2" "lsof")
-for package in "${PACKAGES_YUM[@]}"; do
-    if $pkg_manager -q "$package" &>/dev/null; then
-        echo "已经安装 $package ..."
-    else
-        echo "正在安装 $package ..."
-
-        # 记录开始时间
-        start_time=$(date +%s)
-
-        # 安装软件包并等待完成
-        $package_manager -y install "$package" --skip-broken > /dev/null 2>&1 &
-        install_pid=$!
-        ERROR "$package 安装失败。请检查系统安装源，然后再次运行此脚本！或尝试手动执行安装：$package_manager -y install $package"
-        exit 1
-    fi
-done
+    SUCCESS1 "System components installation completed."
+    DONE
+}
 
 SUCCESS1 "System components installation completed."
 DONE
 }
 
 function INSTALL_NGINX() {
-    SUCCESS "Nginx detection and installation."
-    # 检查是否已安装Nginx
-    if which nginx &>/dev/null; then
-        SUCCESS1 "Nginx is already installed."
-    else
-        INFO "Installing Nginx program, please wait..."
-        # 根据架构设置对应的 RPM 包名和下载链接
-        case $ARCH in
-            x86_64)
-                NGINX="nginx-1.24.0-1.el${OSVER}.ngx.x86_64.rpm"
-                ;;
-            aarch64|arm*)
-                NGINX="nginx-1.24.0-1.el${OSVER}.ngx.${ARCH}.rpm"
-                ;;
-            *)
-                ERROR "Unsupported architecture: $ARCH"
-                exit 1
-                ;;
-        esac
+SUCCESS "Nginx detection and installation."
+# 检查是否已安装Nginx
+if which nginx &>/dev/null; then
+  INFO "Nginx is already installed."
+else
+  SUCCESS1 "Installing Nginx..."
+  while [ $attempts -lt $maxAttempts ]; do
+      $package_manager install nginx -y &>/dev/null
+      if [ $? -ne 0 ]; then
+          ((attempts++))
+          WARN "尝试安装Nginx (Attempt: $attempts)"
 
-        # 下载并安装 RPM 包
-        rm -f ${NGINX}
-        wget "http://nginx.org/packages/centos/${OSVER}/${ARCH}/RPMS/${NGINX}" &>/dev/null
-        attempts=0
-        maxAttempts=3
+          if [ $attempts -eq $maxAttempts ]; then
+              ERROR "Nginx安装失败，请尝试手动执行安装。"
+              echo "命令：$package_manager install nginx -y"
+              exit 1
+          fi
+      else
+          INFO "Nginx installed."
+          break
+      fi
+  done
+fi
 
-        while [ $attempts -lt $maxAttempts ]; do
-            $package_manager -y install ${NGINX} &>/dev/null
-
-            if [ $? -ne 0 ]; then
-                ((attempts++))
-                WARN "Attempting to install Nginx >>> (Attempt: $attempts)"
-
-                if [ $attempts -eq $maxAttempts ]; then
-                    ERROR "Nginx installation failed. Please try installing manually."
-                    rm -f ${NGINX}
-                    echo "Command: wget http://nginx.org/packages/centos/${OSVER}/${ARCH}/RPMS/${NGINX} && $package_manager -y install ${NGINX}"
-                    exit 1
-                fi
-            else
-                INFO "Nginx installed."
-                rm -f ${NGINX}
-                break
-            fi
-        done
-    fi
-
-    # 定义一个函数来启动 Nginx
-    start_nginx() {
-        systemctl enable nginx &>/dev/null
-        systemctl restart nginx
-    }
-
-    # 检查 Nginx 是否正在运行
-    if pgrep "nginx" > /dev/null; then
-        SUCCESS1 "Nginx is already running."
-    else
-        WARN "Nginx is not running. Attempting to start Nginx..."
-        start_attempts=3
-
-        # 最多尝试启动 3 次
-        for ((i=1; i<=$start_attempts; i++)); do
-            start_nginx
-            if pgrep "nginx" > /dev/null; then
-                SUCCESS1 "Nginx has been successfully started."
-                break
-            else
-                if [ $i -eq $start_attempts ]; then
-                    ERROR "Nginx couldn't start after $start_attempts attempts. Please check the configuration."
-                    exit 1
-                else
-                    WARN "Failed to start Nginx for the $i time. Retrying..."
-                fi
-            fi
-        done
-    fi
-
-    DONE
+# 检查Nginx是否正在运行
+if pgrep "nginx" > /dev/null;then
+    INFO "Nginx is already running."
+else
+    WARN "Nginx is not running. Starting Nginx..."
+    systemctl start nginx
+    systemctl enable nginx &>/dev/null
+    INFO "Nginx started."
+fi
+DONE
 }
 
-function NODEJS() {
-    SUCCESS "Node.js detection and installation."
-    
-    # 检查是否安装了Node.js
-    if ! command -v node &> /dev/null; then
-        INFO "Node.js is not installed, installation in progress, please wait..."
-        
-        # 安装前的准备工作，不受系统版本影响
-        prepare_for_install() {
-            local required_packages=("libstdc++.so.glibc" "glibc" "lsof")
-            for package in "${required_packages[@]}"; do
-                if ! command -v "$package" &> /dev/null; then
-                    $package_manager -y install "$package" &>/dev/null
-                fi
-            done
-        }
-        
-        prepare_for_install
-        
-        # 使用不同的包管理工具安装Node.js
-        install_nodejs() {
-            $package_manager install https://rpm.nodesource.com/pub_16.x/nodistro/repo/nodesource-release-nodistro-1.noarch.rpm -y &>/dev/null
-            if [ $? -ne 0 ]; then
-                ERROR "Node.js installation failed!"
-                exit 1
-            fi
-            
-            while [ $attempts -lt $maxAttempts ]; do
-                $package_manager install nodejs -y --setopt=nodesource-nodejs.module_hotfixes=1 &>/dev/null
-                if [ $? -ne 0 ]; then
-                    ((attempts++))
-                    WARN "Attempting to install Node.js >>> (Attempt: $attempts)"
 
-                    if [ $attempts -eq $maxAttempts ]; then
-                        ERROR "Node.js installation failed. Please try installing manually."
-                        echo "Command：$package_manager -y install nodejs"
-                        exit 1
-                    fi
-                else
-                    SUCCESS1 "Node.js installation successful."
-                    break
-                fi
-            done
-        }
-        install_nodejs      
-    else
-        SUCCESS1 "Node.js has been installed."
-    fi
-    
-    # 检查是否安装了 yarn
-    if ! command -v yarn &> /dev/null; then
-        INFO "yarn is not installed, installation in progress, please wait..."
-        
-        # 安装 yarn
+function NODEJS() {
+SUCCESS "Node.js detection and installation."
+# 检查是否安装了Node.js
+if ! command -v node &> /dev/null;then
+    ERROR "Node.js 未安装，正在进行安装..."
+    # 安装 Node.js
+    if [ "$OSVER" = "Ubuntu" ]; then
+	$package_manager update &>/dev/null
+        mkdir -p /etc/apt/keyrings &>/dev/null
+	$package_manager install -y ca-certificates curl gnupg &>/dev/null
+        curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg &>/dev/null
+        if [ $? -ne 0 ]; then
+	    ERROR "NodeJS安装失败，请尝试手动执行安装。"
+	    exit 1
+	fi
         while [ $attempts -lt $maxAttempts ]; do
-            npm install -g yarn &>/dev/null
+	    NODE_MAJOR=16
+            echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list &>/dev/null
+            $package_manager update &>/dev/null
+            $package_manager install nodejs -y &>/dev/null
             if [ $? -ne 0 ]; then
                 ((attempts++))
-                WARN "Attempting to install yarn >>> (Attempt: $attempts)"
+                WARN "尝试安装NodeJS (Attempt: $attempts)"
 
                 if [ $attempts -eq $maxAttempts ]; then
-                    ERROR "yarn installation failed. Please try installing manually."
-                    echo "Command：npm install -g yarn"
+                    ERROR "NodeJS安装失败，请尝试手动执行安装。"
+                    echo "命令：$package_manager install -y nodejs"
                     exit 1
                 fi
             else
-                SUCCESS1 "yarn installation successful."
+                INFO "NodeJS installed."
+                break
+            fi
+        done
+    elif [ "$OSVER" = "Debian" ]; then
+	$package_manager update &>/dev/null
+        mkdir -p /etc/apt/keyrings &>/dev/null
+	$package_manager install -y ca-certificates curl gnupg &>/dev/null
+        curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg &>/dev/null
+        if [ $? -ne 0 ]; then
+	    ERROR "NodeJS安装失败，请尝试手动执行安装。"
+	    exit 1
+	fi
+        while [ $attempts -lt $maxAttempts ]; do
+	    NODE_MAJOR=16
+            echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list &>/dev/null
+            $package_manager update &>/dev/null
+            $package_manager install nodejs -y &>/dev/null
+            if [ $? -ne 0 ]; then
+                ((attempts++))
+                WARN "尝试安装NodeJS (Attempt: $attempts)"
+
+                if [ $attempts -eq $maxAttempts ]; then
+                    ERROR "NodeJS安装失败，请尝试手动执行安装。"
+                    echo "命令：$package_manager install -y nodejs"
+                    exit 1
+                fi
+            else
+                INFO "NodeJS installed."
                 break
             fi
         done
     else
-        SUCCESS1 "yarn has been installed." 
+        ERROR "Unsupported OS version: $OSVER"
+        exit 1
     fi
+else
+    INFO "Node.js Installed..."
+fi
     
-    DONE
+# 检查是否安装了 yarn
+if ! command -v yarn &> /dev/null; then
+INFO "yarn is not installed, installation in progress, please wait..."
+
+# 安装 yarn
+while [ $attempts -lt $maxAttempts ]; do
+   npm install -g yarn &>/dev/null
+   if [ $? -ne 0 ]; then
+       ((attempts++))
+       WARN "Attempting to install yarn >>> (Attempt: $attempts)"
+
+       if [ $attempts -eq $maxAttempts ]; then
+           ERROR "yarn installation failed. Please try installing manually."
+           echo "Command：npm install -g yarn"
+           exit 1
+       fi
+   else
+       SUCCESS1 "yarn installation successful."
+       break
+   fi
+done
+else
+SUCCESS1 "yarn has been installed." 
+fi
+DONE
 }
 
 
@@ -429,31 +397,6 @@ server {
     server_name  localhost;
 
     #access_log  /var/log/nginx/host.access.log  main;
-
-    #禁止境内常见爬虫(根据需求自行控制是否禁止)
-    if ($http_user_agent ~* "qihoobot|Yahoo! Slurp China|Baiduspider|Baiduspider-image|spider|Sogou spider|Sogou web spider|Sogou inst spider|Sogou spider2|Sogou blog|Sogou News Spider|Sogou Orion spider|ChinasoSpider|Sosospider|YoudaoBot|yisouspider|EasouSpider|Tomato Bot|Scooter") {
-        return 403;
-    }
-
-    #禁止境外常见爬虫(根据需求自行控制是否禁止)
-    if ($http_user_agent ~* "Googlebot|Googlebot-Mobile|AdsBot-Google|Googlebot-Image|Mediapartners-Google|Adsbot-Google|Feedfetcher-Google|Yahoo! Slurp|MSNBot|Catall Spider|ArchitextSpider|AcoiRobot|Applebot|Bingbot|Discordbot|Twitterbot|facebookexternalhit|ia_archiver|LinkedInBot|Naverbot|Pinterestbot|seznambot|Slurp|teoma|TelegramBot|Yandex|Yeti|Infoseek|Lycos|Gulliver|Fast|Grabber") {
-        return 403;
-    }
-
-    #禁止指定 UA 及 UA 为空的访问
-    if ($http_user_agent ~ "WinHttp|WebZIP|FetchURL|node-superagent|java/|Bytespider|FeedDemon|Jullo|JikeSpider|Indy Library|Alexa Toolbar|AskTbFXTV|AhrefsBot|CrawlDaddy|CoolpadWebkit|Java|Feedly|Apache-HttpAsyncClient|UniversalFeedParser|ApacheBench|Microsoft URL Control|Swiftbot|ZmEu|oBot|jaunty|Python-urllib|lightDeckReports Bot|YYSpider|DigExt|HttpClient|MJ12bot|heritrix|Ezooms|BOT/0.1|YandexBot|FlightDeckReports|Linguee Bot|iaskspider|^$") {
-        return 403;
-    }
-
-    #禁止非 GET|HEAD|POST 方式的抓取
-    if ($request_method !~ ^(GET|HEAD|POST)$) {
-        return 403;
-    }
-
-    #禁止 Scrapy 等工具的抓取
-    if ($http_user_agent ~* (Scrapy|HttpClient)) {
-        return 403;
-    }
 
     location / {
         proxy_pass http://localhost:3000;
