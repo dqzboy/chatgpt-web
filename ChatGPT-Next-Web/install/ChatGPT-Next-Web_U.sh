@@ -165,13 +165,8 @@ function INSTALL_PACKAGE() {
             fi
         fi
     done
-
     SUCCESS1 "System components installation completed."
     DONE
-}
-
-SUCCESS1 "System components installation completed."
-DONE
 }
 
 function INSTALL_NGINX() {
