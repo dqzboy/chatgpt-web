@@ -37,6 +37,17 @@ width=75
 padding=$((($width - ${#text}) / 2))
 
 
+function PACKAGE_MANAGER() {
+    # 判断使用的包管理工具
+    if command -v apt-get &> /dev/null; then
+        package_manager="apt-get"
+    elif command -v apt &> /dev/null; then
+        package_manager="apt"
+    else
+        ERROR "Unsupported package manager."
+        exit 1
+    fi
+}
 
 function CHECK_OS() {
 if [ -f /etc/os-release ]; then
@@ -110,11 +121,15 @@ PACKAGES_YUM="lsof jq wget postfix yum-utils mailx s-nail git"
 # 检查命令是否存在
 if command -v yum >/dev/null 2>&1; then
     SUCCESS "安装系统必要组件"
-    yum -y install $PACKAGES_YUM --skip-broken &>/dev/null
+    $package_manager -y install $PACKAGES_YUM --skip-broken &>/dev/null
+    systemctl restart postfix &>/dev/null
+elif command -v apt >/dev/null 2>&1; then
+    SUCCESS "安装系统必要组件"
+    $package_manager install -y $PACKAGES_APT --ignore-missing &>/dev/null
     systemctl restart postfix &>/dev/null
 elif command -v apt-get >/dev/null 2>&1; then
     SUCCESS "安装系统必要组件"
-    apt-get install -y $PACKAGES_APT --ignore-missing &>/dev/null
+    $package_manager install -y $PACKAGES_APT --ignore-missing &>/dev/null
     systemctl restart postfix &>/dev/null
 else
     WARN "无法确定可用的包管理器"
@@ -162,9 +177,15 @@ else
 fi
 }
 function main() {
+PACKAGE_MANAGER
 CHECK_OS
 CHECKFIRE
-INSTALL_PACKAGE
+read -e -p "$(echo -e ${GREEN}"是否执行软件包安装? [y/n]: "${RESET})" choice_package
+if [[ "$choice_package" == "y" ]]; then
+    INSTALL_PACKAGE
+else
+    WARN "跳过软件包安装步骤。"
+fi
 DL
 }
 main
