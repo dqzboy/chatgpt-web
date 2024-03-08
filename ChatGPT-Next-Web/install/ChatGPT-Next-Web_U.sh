@@ -134,15 +134,6 @@ if [[ $firewall_status == 'active' ]]; then
 else
     INFO "Firewall is already disabled."
 fi
-
-if sestatus | grep "SELinux status" | grep -q "enabled"; then
-    WARN "SELinux is enabled. Disabling SELinux..."
-    setenforce 0
-    sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
-    INFO "SELinux is already disabled."
-else
-    INFO "SELinux is already disabled."
-fi
 DONE
 }
 
