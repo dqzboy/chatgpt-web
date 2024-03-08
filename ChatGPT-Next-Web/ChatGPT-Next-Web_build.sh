@@ -14,6 +14,10 @@ SETCOLOR_SKYBLUE="echo -en \\E[1;36m"
 SETCOLOR_SUCCESS="echo -en \\E[0;32m"
 SETCOLOR_NORMAL="echo  -en \\E[0;39m"
 SETCOLOR_RED="echo  -en \\E[0;31m"
+SETCOLOR_YELLOW="echo -en \\E[1;33m"
+GREEN="\033[1;32m"
+RESET="\033[0m"
+PURPLE="\033[35m"
 
 
 SUCCESS() {
@@ -30,6 +34,10 @@ INFO() {
 
 INFO1() {
   ${SETCOLOR_SKYBLUE} && echo " $1 "  && ${SETCOLOR_NORMAL}
+}
+
+WARN() {
+  ${SETCOLOR_YELLOW} && echo "$1"  && ${SETCOLOR_NORMAL}
 }
 
 text="注: 国内服务器请选择参数 2"
