@@ -857,12 +857,21 @@ function main() {
     PACKAGE_MANAGER
     CHECKMEM
     CHECKFIRE
-    read -e -p "$(echo -e ${GREEN}"是否执行软件包安装? [y/n]: "${RESET})" choice_package
-    if [[ "$choice_package" == "y" ]]; then
-        INSTALL_PACKAGE
-    else
-        WARN "跳过软件包安装步骤。"
-    fi
+    
+    while true; do
+        read -e -p "$(echo -e ${GREEN}"是否执行软件包安装? [y/n]: "${RESET})" choice_package
+        case "$choice_package" in
+            y|Y )
+                INSTALL_PACKAGE
+                break;;
+            n|N )
+                WARN "跳过软件包安装步骤。"
+                break;;
+            * )
+                echo "请输入 'y' 表示是，或者 'n' 表示否。";;
+        esac
+    done
+
     GITCLONE
     INSTALL_NGINX
     NODEJS
