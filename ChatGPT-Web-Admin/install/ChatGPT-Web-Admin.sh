@@ -348,7 +348,7 @@ function NODEJS() {
         INFO "pnpm has been installed." 
     fi
 
-    # 安装构建所需的Node.js 工具
+    INFO "安装构建所需的Node.js工具包"
     npm install -g run-p &>/dev/null
     npm install -g rimraf &>/dev/null
 }
@@ -360,7 +360,7 @@ WARN ">>> 提醒：如果之前创建过用户,请勿再次创建同名的用户
 read -e -p "是否创建 MongoDB 用户？[y/n] " choice
 case "$choice" in
   y|Y )
-    read -e -p "请输入 MongoDB 用户名：" MONGODB_USERNAME
+    read -e -p "请输入 MongoDB 账户：" MONGODB_USERNAME
     read -e -p "请输入 MongoDB 密码：" MONGODB_PASSWORD
     mongosh <<EOF >/dev/null 2>&1
     use admin
