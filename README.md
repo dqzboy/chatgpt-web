@@ -39,7 +39,10 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/
 ```
 
 ### chatgpt-web
+执行如下命令一键安装chatgpt-web
+#### Kerwin1202/chatgpt-web
 ```shell
+
 #（1）创建脚本执行目录
 mkdir -p /data/chatgpt-web && cd /data/chatgpt-web
 
@@ -49,12 +52,29 @@ yum -y install wget curl
 # ubuntu
 apt -y install wget curl
 
-#（3）下载对应的env.example配置文件；注意执行脚本前先进行修改里面的内容
-【Kerwin1202/chatgpt-web | zhujunsan/chatgpt-web ｜ BobDu/chatgpt-web-fork】
+#（3）下载 env.example 配置文件；注意执行脚本前先进行修改里面的内容
 wget -O env.example https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/Kerwin1202_env.example
 
-【Chanzhaoyu/chatgpt-web】
-wget -O env.example https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/Chanzhaoyu_env.example
+# RHEL and CentOS or Rocky 7/8/9
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin.sh)"
+
+# Ubuntu or Debian
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_U.sh)"
+```
+
+#### Chanzhaoyu/chatgpt-web
+```shell
+
+#（1）创建脚本执行目录
+mkdir -p /data/chatgpt-web && cd /data/chatgpt-web
+
+#（2）下载执行脚本
+# CentOS
+yum -y install wget curl
+# ubuntu
+apt -y install wget curl
+
+#（3）下载 env.example 配置文件；注意执行脚本前先进行修改里面的内容
 
 # RHEL and CentOS or Rocky 7/8/9
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin.sh)"
