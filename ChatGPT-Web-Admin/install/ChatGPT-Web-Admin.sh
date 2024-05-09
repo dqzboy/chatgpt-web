@@ -349,8 +349,39 @@ function NODEJS() {
     fi
 
     INFO "安装构建所需的Node.js工具包"
-    npm install -g run-p &>/dev/null
-    npm install -g rimraf &>/dev/null
+    # 定义最大尝试次数
+    maxAttempts=3
+
+    # 定义 npm 软件包数组
+    packages=("run-p" "rimraf")
+
+    # 定义安装函数
+    install_package() {
+        local package=$1
+        local attempts=0
+
+        while [ $attempts -lt $maxAttempts ]; do
+            npm install -g "$package" &>/dev/null
+            if [ $? -ne 0 ]; then
+                ((attempts++))
+                WARN "Attempting to install $package (Attempt: $attempts)"
+            else
+                INFO "$package installation successful."
+                return 0
+            fi
+
+            if [ $attempts -eq $maxAttempts ]; then
+                ERROR "$package installation failed. Please try installing manually."
+                ERROR "Command: npm install -g $package"
+                return 1
+            fi
+        done
+    }
+
+    # 使用 for 循环来安装数组中的每个包
+    for package in "${packages[@]}"; do
+        install_package "$package"
+    done
 }
 
 
