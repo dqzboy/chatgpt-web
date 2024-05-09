@@ -10,22 +10,6 @@
 #  ORGANIZATION: DingQz dqzboy.com 浅时光博客
 #===============================================================================
 
-SETCOLOR_SKYBLUE="echo -en \\E[1;36m"
-SETCOLOR_SUCCESS="echo -en \\E[0;32m"
-SETCOLOR_NORMAL="echo  -en \\E[0;39m"
-SETCOLOR_RED="echo  -en \\E[0;31m"
-SETCOLOR_YELLOW="echo -en \\E[1;33m"
-GREEN='\033[0;32m'
-RESET='\033[0m'
-# 定义需要拷贝的文件目录,根据项目情况指定,目前无需变动
-SERDIR="service"
-FONTDIR="dist"
-ORIGINAL=${PWD}
-
-# 定义安装重试次数
-attempts=0
-maxAttempts=3
-
 echo
 cat << EOF
 
@@ -39,30 +23,39 @@ cat << EOF
 EOF
 
 echo "----------------------------------------------------------------------------------------------------------"
-echo
 echo -e "\033[32m机场推荐\033[0m(\033[34m按量不限时，解锁ChatGPT\033[0m)：\033[34;4mhttps://mojie.mx/#/register?code=CG6h8Irm\033[0m"
-echo
 echo "----------------------------------------------------------------------------------------------------------"
+echo
+echo
 
-SUCCESS() {
-  ${SETCOLOR_SUCCESS} && echo "------------------------------------< $1 >-------------------------------------"  && ${SETCOLOR_NORMAL}
+GREEN="\033[0;32m"
+RED="\033[31m"
+YELLOW="\033[33m"
+RESET="\033[0m"
+
+INFO="[${GREEN}INFO${RESET}]"
+ERROR="[${RED}ERROR${RESET}]"
+WARN="[${YELLOW}WARN${RESET}]"
+function INFO() {
+    echo -e "${INFO} ${1}"
+}
+function ERROR() {
+    echo -e "${ERROR} ${1}"
+}
+function WARN() {
+    echo -e "${WARN} ${1}"
 }
 
-SUCCESS1() {
-  ${SETCOLOR_SUCCESS} && echo "$1"  && ${SETCOLOR_NORMAL}
-}
+# 定义需要拷贝的文件目录,根据项目情况指定,目前无需变动
+SERDIR="service"
+FONTDIR="dist"
+ORIGINAL=${PWD}
 
-ERROR() {
-  ${SETCOLOR_RED} && echo "$1"  && ${SETCOLOR_NORMAL}
-}
+# 定义安装重试次数
+attempts=0
+maxAttempts=3
 
-INFO() {
-  ${SETCOLOR_SKYBLUE} && echo "$1"  && ${SETCOLOR_NORMAL}
-}
-
-WARN() {
-  ${SETCOLOR_YELLOW} && echo "$1"  && ${SETCOLOR_NORMAL}
-}
+INFO "======================= 检查环境 ======================="
 
 function CHECK_PACKAGE_MANAGER() {
     if command -v dnf &> /dev/null; then
@@ -84,25 +77,6 @@ function CHECK_PKG_MANAGER() {
     fi
 }
 
-# 进度条
-function Progress() {
-spin='-\|/'
-count=0
-endtime=$((SECONDS+3))
-
-while [ $SECONDS -lt $endtime ];
-do
-    spin_index=$(($count % 4))
-    printf "\r[%c] " "${spin:$spin_index:1}"
-    sleep 0.1
-    count=$((count + 1))
-done
-}
-
-DONE () {
-Progress && SUCCESS1 ">>>>> Done"
-echo
-}
 
 # OS version
 OSVER=$(cat /etc/os-release | grep -o '[0-9]' | head -n 1)
@@ -117,18 +91,17 @@ memory_usage=$(free | awk '/^Mem:/ {printf "%.2f", $3/$2 * 100}')
 memory_usage=${memory_usage%.*}
 
 if [[ $memory_usage -gt 70 ]]; then  # 判断是否超过 70%
-    read -e -p "Warning: Memory usage is higher than 70%($memory_usage%). Do you want to continue? (y/n) " continu
+    read -e -p "${WARN} Memory usage is higher than 70%($memory_usage%). Do you want to continue? (y/n) " continu
     if [ "$continu" == "n" ] || [ "$continu" == "N" ]; then
         exit 1
     fi
 else
-    SUCCESS1 "Memory resources are sufficient. Please continue.($memory_usage%)"
+    INFO "Memory resources are sufficient. Please continue.($memory_usage%)"
 fi
-DONE
 }
 
 function CHECKFIRE() {
-SUCCESS "Firewall && SELinux detection."
+INFO "Firewall && SELinux detection."
 firewall_status=$(systemctl is-active firewalld)
 if [[ $firewall_status == 'active' ]]; then
     systemctl stop firewalld
@@ -146,12 +119,11 @@ if sestatus | grep "SELinux status" | grep -q "enabled"; then
 else
     INFO "SELinux is already disabled."
 fi
-DONE
 }
 
 function INSTALL_PACKAGE() {
+# 安装软件超时时间,单位秒
 TIMEOUT=300
-SUCCESS "Install necessary system components."
 INFO "Installing necessary system components. please wait..."
 
 # 定义要安装的软件包列表
@@ -159,9 +131,9 @@ PACKAGES_YUM=("epel-release" "wget" "git" "lsof" "openssl-devel" "zlib-devel" "g
 
 for package in "${PACKAGES_YUM[@]}"; do
     if $pkg_manager -q "$package" &>/dev/null; then
-        echo "已经安装 $package ..."
+        echo -e "${WARN} 已经安装 $package ..."
     else
-        echo "正在安装 $package ..."
+        echo -e "${INFO} 正在安装 $package ..."
 
         # 记录开始时间
         start_time=$(date +%s)
@@ -197,16 +169,14 @@ for package in "${PACKAGES_YUM[@]}"; do
     fi
 done
 
-SUCCESS1 "System components installation completed."
-DONE
+INFO "System components installation completed."
 }
 
 function INSTALL_NGINX() {
-    SUCCESS "Nginx detection and installation."
-
+    INFO "=======================安装NGINX======================="
     # 检查是否已安装Nginx
     if which nginx &>/dev/null; then
-        SUCCESS1 "Nginx is already installed."
+        INFO "Nginx is already installed."
     else
         INFO "Installing Nginx program, please wait..."
         NGINX="nginx-1.24.0-1.el${OSVER}.ngx.x86_64.rpm"
@@ -243,7 +213,7 @@ function INSTALL_NGINX() {
 
     # 检查 Nginx 是否正在运行
     if pgrep "nginx" > /dev/null; then
-        SUCCESS1 "Nginx is already running."
+        INFO "Nginx is already running."
     else
         WARN "Nginx is not running. Attempting to start Nginx..."
         start_attempts=3
@@ -252,7 +222,7 @@ function INSTALL_NGINX() {
         for ((i=1; i<=$start_attempts; i++)); do
             start_nginx
             if pgrep "nginx" > /dev/null; then
-                SUCCESS1 "Nginx has been successfully started."
+                INFO "Nginx has been successfully started."
                 break
             else
                 if [ $i -eq $start_attempts ]; then
@@ -264,13 +234,10 @@ function INSTALL_NGINX() {
             fi
         done
     fi
-
-    DONE
 }
 
 function NODEJS() {
-    SUCCESS "Node.js detection and installation."
-    
+    INFO "=======================安装NODEJS======================="
     # 检查是否安装了Node.js
     if ! command -v node &> /dev/null; then
         INFO "Node.js is not installed, installation in progress, please wait..."
@@ -289,8 +256,7 @@ function NODEJS() {
         
         # 使用不同的包管理工具安装Node.js
         install_nodejs() {
-	    echo "--------------------------------------------------------"
-            echo -e "${GREEN}Select Node.js version to install:${RESET}"
+            echo -e "${INFO} ${GREEN}Select Node.js version to install:${RESET}"
             echo -e "1. lts.x"
             echo -e "2. 21.x"
             echo -e "3. 20.x"
@@ -298,7 +264,7 @@ function NODEJS() {
             echo -e "5. 17.x"
             echo -e "6. 16.x"
 	    echo -e "7. Exit"
-	    read -e -p "$(echo -e ${GREEN}"Please enter the corresponding number: "${RESET})" selected_version
+	    read -e -p "$(echo -e ${INFO} ${GREEN}"Please enter the corresponding number: "${RESET})" selected_version
             case $selected_version in
                 1)
                     version_url="https://rpm.nodesource.com/setup_lts.x"
@@ -347,7 +313,7 @@ function NODEJS() {
                         exit 1
                     fi
                 else
-                    SUCCESS1 "Node.js installation successful."
+                    INFO "Node.js installation successful."
                     break
                 fi
             done
@@ -355,15 +321,14 @@ function NODEJS() {
 
         install_nodejs      
     else
-        SUCCESS1 "Node.js has been installed."
+        INFO "Node.js has been installed."
     fi
     
     # 检查是否安装了 pnpm
     if ! command -v pnpm &> /dev/null; then
-        INFO "pnpm is not installed, installation in progress, please wait..."
-        
+        INFO "======================= 安装PNPM======================="
         # 安装 pnpm
-        while [ $attempts -lt $maxAttempts ]; do
+        while [ $attempts -lt $maxAttempts ]; do           
             npm install -g pnpm &>/dev/null
             if [ $? -ne 0 ]; then
                 ((attempts++))
@@ -375,15 +340,17 @@ function NODEJS() {
                     exit 1
                 fi
             else
-                SUCCESS1 "pnpm installation successful."
+                INFO "pnpm installation successful."
                 break
             fi
         done
     else
-        SUCCESS1 "pnpm has been installed." 
+        INFO "pnpm has been installed." 
     fi
-    
-    DONE
+
+    # 安装构建所需的Node.js 工具
+    npm install -g run-p &>/dev/null
+    npm install -g rimraf &>/dev/null
 }
 
 
@@ -416,8 +383,7 @@ esac
 }
 
 function MONGO() {
-    SUCCESS "Check MongoDB and install it."
-
+    INFO "=======================安装Mongo======================="
     # 检查 MongoDB 仓库配置文件是否存在
     if [ ! -f /etc/yum.repos.d/mongodb-org-6.0.repo ]; then
         cat > /etc/yum.repos.d/mongodb-org-6.0.repo <<EOF
@@ -439,7 +405,7 @@ EOF
             echo "Command: $package_manager install -y mongodb-org"
             exit 1
         else
-            SUCCESS1 "MongoDB installation successful."
+            INFO "MongoDB installation successful."
         fi
     }
 
@@ -456,7 +422,7 @@ EOF
 
     # 检查 MongoDB 是否正在运行
     if systemctl is-active mongod >/dev/null 2>&1; then
-        SUCCESS1 "MongoDB is already running."
+        INFO "MongoDB is already running."
         MONGO_USER
     else
         WARN "MongoDB is not running. Attempting to start MongoDB..."
@@ -466,7 +432,7 @@ EOF
         for ((i=1; i<=$start_attempts; i++)); do
             start_mongodb
             if systemctl is-active mongod >/dev/null 2>&1; then
-                SUCCESS1 "MongoDB has been successfully started."
+                INFO "MongoDB has been successfully started."
                 MONGO_USER
                 break
             else
@@ -478,19 +444,18 @@ EOF
                 fi
             fi
         done
-    fi
-    DONE
+    fi    
 }
 
 function GITCLONE() {
-    SUCCESS "ChatGPT Web Project cloning."
+    INFO "======================= 开始安装 ======================="
     rm -rf chatgpt-web* &>/dev/null
     CGPTWEB="https://github.com/Chanzhaoyu/chatgpt-web"
     KGPTWEB="https://github.com/Kerwin1202/chatgpt-web"
     ZGPTWEB="https://github.com/zhujunsan/chatgpt-web"
     BGPTWEB="https://github.com/BobDu/chatgpt-web-fork"
 
-    ${SETCOLOR_RED} && echo "请选择要克隆的仓库：" && ${SETCOLOR_NORMAL}
+    INFO  "请选择要克隆的仓库："
     echo "-------------------------------------------------"
     echo "1. Chanzhaoyu/chatgpt-web [用户管理--No]"
     echo "2. Kerwin1202/chatgpt-web [用户管理-Yes]"
@@ -516,8 +481,7 @@ function GITCLONE() {
 
     attempts=0
     while true; do
-        echo 
-        ${SETCOLOR_RED} && echo "请选择克隆的项目分支：" && ${SETCOLOR_NORMAL}
+        INFO "请选择克隆的项目分支："
         echo "-------------------------------------------------"
         echo "1. 默认分支"
         echo "2. 自选分支"
@@ -527,7 +491,7 @@ function GITCLONE() {
         case $input in
             1)
                 #if git clone https://mirror.ghproxy.com/$repository; then
-		if git clone $repository; then
+		        if git clone $repository; then
                     break
                 else
                     ((attempts++))
@@ -539,7 +503,7 @@ function GITCLONE() {
                 fi
                 ;;
             2)
-                ${SETCOLOR_RED} && echo "请输入要克隆的分支名称：" && ${SETCOLOR_NORMAL}
+                INFO "请输入要克隆的分支名称："
                 echo "-------------------------------------------------"
                 read -e branch
                 echo "-------------------------------------------------"
@@ -569,11 +533,10 @@ function GITCLONE() {
                 ;;
         esac
     done
-    DONE
 }
 
 function WEBINFO() {
-SUCCESS "构建之前请先指定Nginx根路径!"
+INFO "构建之前请先指定Nginx根路径!"
 
 # 交互输入Nginx根目录(提前进行创建好)
 if [ -f .input ]; then
@@ -581,17 +544,17 @@ if [ -f .input ]; then
   read -e -p "WEB存储绝对路径[上次记录：${last_input} 回车用上次记录]：" WEBDIR
   if [ -z "${WEBDIR}" ];then
       WEBDIR="$last_input"
-      ${SETCOLOR_SKYBLUE} && echo "chatGPT-WEB存储路径：${WEBDIR}" && ${SETCOLOR_NORMAL}
+      INFO "ChatGPT-WEB存储路径：${WEBDIR}"
   else
-      ${SETCOLOR_SUCCESS} && echo "chatGPT-WEB存储路径：${WEBDIR}" && ${SETCOLOR_NORMAL}
+      INFO "ChatGPT-WEB存储路径：${WEBDIR}"
   fi
 else
   read -e -p "WEB存储绝对路径(回车默认Nginx路径)：" WEBDIR
   if [ -z "${WEBDIR}" ];then
       WEBDIR="/usr/share/nginx/html"
-      ${SETCOLOR_SKYBLUE} && echo "chatGPT-WEB存储路径：${WEBDIR}" && ${SETCOLOR_NORMAL}
+      INFO "ChatGPT-WEB存储路径：${WEBDIR}"
   else
-      ${SETCOLOR_SUCCESS} && echo "chatGPT-WEB存储路径：${WEBDIR}" && ${SETCOLOR_NORMAL}
+      INFO "ChatGPT-WEB存储路径：${WEBDIR}"
   fi
 fi
 echo "${WEBDIR}" > .input
@@ -606,8 +569,8 @@ if [ -f .userinfo ]; then
       USER=$(echo "${USERINFO}" | cut -d' ' -f1)
       INFO=$(echo "${USERINFO}" | cut -d' ' -f2)
       AVATAR=$(echo "${USERINFO}" | cut -d' ' -f3)
-      ${SETCOLOR_SUCCESS} && echo "当前用户默认名称为：${USER}" && ${SETCOLOR_NORMAL}
-      ${SETCOLOR_SUCCESS} && echo "当前描述信息默认为：${INFO}" && ${SETCOLOR_NORMAL}
+      INFO "当前用户默认名称为：${USER}"
+      INFO "当前描述信息默认为：${INFO}"
       # 修改个人信息
       sed -i "s/ChenZhaoYu/${USER}/g" ${ORIGINAL}/${CHATDIR}/src/store/modules/user/helper.ts
       sed -i "s/Star on <a href=\"https:\/\/github.com\/Chanzhaoyu\/chatgpt-bot\" class=\"text-blue-500\" target=\"_blank\" >GitHub<\/a>/${INFO}/g" ${ORIGINAL}/${CHATDIR}/src/store/modules/user/helper.ts
@@ -618,8 +581,8 @@ if [ -f .userinfo ]; then
       USER=$(echo "${USERINFO}" | cut -d' ' -f1)
       INFO=$(echo "${USERINFO}" | cut -d' ' -f2)
       AVATAR=$(echo "${USERINFO}" | cut -d' ' -f3)
-      ${SETCOLOR_SUCCESS} && echo "当前用户默认名称为：${USER}" && ${SETCOLOR_NORMAL}
-      ${SETCOLOR_SUCCESS} && echo "当前描述信息默认为：${INFO}" && ${SETCOLOR_NORMAL}
+      INFO "当前用户默认名称为：${USER}"
+      INFO "当前描述信息默认为：${INFO}"
       # 修改个人信息
       sed -i "s/ChenZhaoYu/${USER}/g" ${ORIGINAL}/${CHATDIR}/src/store/modules/user/helper.ts
       sed -i "s/Star on <a href=\"https:\/\/github.com\/Chanzhaoyu\/chatgpt-bot\" class=\"text-blue-500\" target=\"_blank\" >GitHub<\/a>/${INFO}/g" ${ORIGINAL}/${CHATDIR}/src/store/modules/user/helper.ts
@@ -630,13 +593,13 @@ if [ -f .userinfo ]; then
 else
    read -e -p "修改用户默认名称/描述/头像信息,请用空格分隔[回车保持默认不做修改]：" USERINFO
    if [ -z "${USERINFO}" ];then
-      ${SETCOLOR_SKYBLUE} && echo "没有输入,保持默认" && ${SETCOLOR_NORMAL}
+      INFO "没有输入,保持默认"
    else
       USER=$(echo "${USERINFO}" | cut -d' ' -f1)
       INFO=$(echo "${USERINFO}" | cut -d' ' -f2)
       AVATAR=$(echo "${USERINFO}" | cut -d' ' -f3)
-      ${SETCOLOR_SUCCESS} && echo "当前用户默认名称为：${USER}" && ${SETCOLOR_NORMAL}
-      ${SETCOLOR_SUCCESS} && echo "当前描述信息默认为：${INFO}" && ${SETCOLOR_NORMAL}
+      INFO "当前用户默认名称为：${USER}"
+      INFO "当前描述信息默认为：${INFO}"
       # 修改个人信息
       sed -i "s/ChenZhaoYu/${USER}/g" ${ORIGINAL}/${CHATDIR}/src/store/modules/user/helper.ts
       sed -i "s/Star on <a href=\"https:\/\/github.com\/Chanzhaoyu\/chatgpt-bot\" class=\"text-blue-500\" target=\"_blank\" >GitHub<\/a>/${INFO}/g" ${ORIGINAL}/${CHATDIR}/src/store/modules/user/helper.ts
@@ -650,7 +613,7 @@ fi
 
 
 function WEBTITLE() {
-SUCCESS "构建之前请先命名你的网站标题!"
+INFO "构建之前请先命名你的网站标题!"
 
 # 交互输入Nginx根目录(提前进行创建好)
 if [ -f .webtitle ]; then
@@ -680,7 +643,7 @@ echo "${TITLE}" > .webtitle
 
 
 function BUILDWEB() {
-INFO "《前端构建中，请稍等...在构建执行过程中请勿进行任何操作。》"
+INFO "《前端构建中,请稍等...执行过程中请勿进行操作》"
 # 安装依赖
 pnpm bootstrap 2>&1 >/dev/null | grep -E "ERROR|FAIL|WARN"
 # 打包
@@ -688,7 +651,7 @@ pnpm build | grep -E "ERROR|ELIFECYCLE|WARN|*built in*"
 }
 
 function BUILDSEV() {
-INFO "《后端构建中，请稍等...在构建执行过程中请勿进行任何操作。》"
+INFO "《后端构建中,请稍等...执行过程中请勿进行操作》"
 # 安装依赖
 pnpm install 2>&1 >/dev/null | grep -E "ERROR|FAIL|WARN"
 # 打包
@@ -697,8 +660,6 @@ pnpm build | grep -E "ERROR|ELIFECYCLE|WARN|*Build success*"
 
 
 function BUILD() {
-SUCCESS "开始进行构建.构建快慢取决于你的环境"
-
 # 拷贝.env配置替换
 if [ ! -f "${ORIGINAL}/env.example" ]; then
     ERROR "File 'env.example' not found. Please make sure it exists."
@@ -706,8 +667,7 @@ if [ ! -f "${ORIGINAL}/env.example" ]; then
 fi
 cp "${ORIGINAL}/env.example" "${ORIGINAL}/${CHATDIR}/${SERDIR}/.env"
 
-echo
-${SETCOLOR_SUCCESS} && echo "-----------------------------------<前端构建>-----------------------------------" && ${SETCOLOR_NORMAL}
+INFO "======================= 构建前端 ======================="
 # 前端
 cd ${ORIGINAL}/${CHATDIR} && BUILDWEB
 directory="${ORIGINAL}/${CHATDIR}/${FONTDIR}"
@@ -715,48 +675,44 @@ if [ ! -d "$directory" ]; then
     ERROR "Frontend build failed..."
     exit 1
 fi
-${SETCOLOR_SUCCESS} && echo "-------------------------------------< END >-------------------------------------" && ${SETCOLOR_NORMAL}
-echo
-echo
-${SETCOLOR_SUCCESS} && echo "------------------------------------<后端构建>-----------------------------------" && ${SETCOLOR_NORMAL}
+INFO " "
+INFO "======================= 构建后端 ======================="
 # 后端
 cd ${SERDIR} && BUILDSEV
-${SETCOLOR_SUCCESS} && echo "-------------------------------------< END >-------------------------------------" && ${SETCOLOR_NORMAL}
 }
 
 
 # 拷贝构建成品到Nginx网站根目录
 function NGINX() {
 # 拷贝后端并启动
-echo
-${SETCOLOR_SUCCESS} && echo "-----------------------------------<后端部署>-----------------------------------" && ${SETCOLOR_NORMAL}
+INFO "======================= 开始部署 ======================="
 rm -rf ${WEBDIR}/* &>/dev/null
 \cp -fr ${ORIGINAL}/${CHATDIR}/${SERDIR} ${WEBDIR}
 # 检测返回值
 if [ $? -eq 0 ]; then
     # 如果指令执行成功，则继续运行下面的操作
-    echo "Service Copy Success"
+    INFO "Service Copy Success"
 else
     # 如果指令执行不成功，则输出错误日志，并退出脚本
-    echo "Copy Error"
+    ERROR "Copy Error"
     exit 1
 fi
 # 检查名为 node后端 的进程是否正在运行
 pid=$(lsof -t -i:3002)
 if [ -z "$pid" ]; then
-    echo "后端程序未运行,启动中..."
+    INFO "后端程序未运行,启动中..."
 else
-    echo "后端程序正在运行,现在停止程序并更新..."
+    INFO "后端程序正在运行,现在停止程序并更新..."
     kill -9 $pid
 fi
 \cp -fr ${ORIGINAL}/${CHATDIR}/${FONTDIR}/* ${WEBDIR}
 # 检测返回值
 if [ $? -eq 0 ]; then
     # 如果指令执行成功，则继续运行下面的操作
-    echo "WEB Copy Success"
+    INFO "WEB Copy Success"
 else
     # 如果指令执行不成功，则输出错误日志，并退出脚本
-    echo "Copy Error"
+    ERROR "Copy Error"
     exit 2
 fi
 # 添加开机自启
@@ -790,33 +746,28 @@ then
     # 检测端口是否正在监听
     if ss -tuln | grep ":3002" > /dev/null
     then
-        echo "chatgpt-web后端服务已成功启动"
+        INFO "ChatGPT-WEB 后端服务已成功启动"
     else
-        echo
-        echo "ERROR：后端服务端口 3002 未在监听"
-        echo
-        ${SETCOLOR_RED} && echo "----------------chatgpt-web后端服务启动失败，请查看错误日志 ↓↓↓----------------" && ${SETCOLOR_NORMAL}
-        journalctl -u chatgpt-web --no-pager
-        ${SETCOLOR_RED} && echo "----------------chatgpt-web后端服务启动失败，请查看错误日志 ↑↑↑----------------" && ${SETCOLOR_NORMAL}
-        echo
+        ERROR "ChatGPT-WEB 后端服务端口 3002 未在监听"
+        ERROR "-----------ChatGPT-WEB 后端服务启动失败，请查看错误日志 ↓↓↓-----------"
+          journalctl -u chatgpt-web --no-pager
+        ERROR "-----------ChatGPT-WEB 后端服务启动失败，请查看错误日志 ↑↑↑-----------"
         exit 3
     fi
 else
-    echo
-    echo "ERROR：后端服务进程未找到"
-    echo
-    ${SETCOLOR_RED} && echo "----------------chatgpt-web后端服务启动失败，请查看错误日志 ↓↓↓----------------" && ${SETCOLOR_NORMAL}
-    journalctl -u chatgpt-web --no-pager
-    ${SETCOLOR_RED} && echo "----------------chatgpt-web后端服务启动失败，请查看错误日志 ↑↑↑----------------" && ${SETCOLOR_NORMAL}
+
+    ERROR "ChatGPT-WEB 后端服务进程未找到"
+    ERROR "-----------ChatGPT-WEB 后端服务启动失败，请查看错误日志 ↓↓↓-----------"
+      journalctl -u chatgpt-web --no-pager
+    ERROR "-----------ChatGPT-WEB 后端服务启动失败，请查看错误日志 ↑↑↑-----------"
     echo
     exit 4
 fi
 
 
 # 拷贝前端刷新Nginx服务
-${SETCOLOR_SUCCESS} && echo "-----------------------------------<前端部署>-----------------------------------" && ${SETCOLOR_NORMAL}
 if ! nginx -t ; then
-    echo "Nginx 配置文件存在错误，请检查配置"
+    ERROR "ChatGPT-WEB Nginx 配置文件存在错误，请检查配置"
     exit 5
 else
     nginx -s reload
@@ -833,17 +784,26 @@ ALL_IPS=$(hostname -I)
 # 排除不需要的地址（127.0.0.1和docker0）
 INTERNAL_IP=$(echo "$ALL_IPS" | awk '$1!="127.0.0.1" && $1!="::1" && $1!="docker0" {print $1}')
 
-echo "公网访问地址: http://$PUBLIC_IP"
-echo "内网访问地址: http://$INTERNAL_IP"
+INFO "请用浏览器访问面板: "
+INFO "公网访问地址: http://$PUBLIC_IP"
+INFO "内网访问地址: http://$INTERNAL_IP"
+INFO
+INFO "作者博客: https://dqzboy.com"
+INFO "代码仓库: https://github.com/dqzboy/chatgpt-web"
+INFO  
+INFO "如果使用的是云服务器，请至安全组开放 80 端口"
+INFO "公网访问地址: http://$PUBLIC_IP"
+INFO "内网访问地址: http://$INTERNAL_IP"
+INFO
 }
 
 # 删除源码包文件
 function DELSOURCE() {
   rm -rf ${ORIGINAL}/${CHATDIR}
-  echo
-  ${SETCOLOR_SUCCESS} && echo "--------------------------------------------------------------------------------" && ${SETCOLOR_NORMAL}
-  WEBURL
-  ${SETCOLOR_SUCCESS} && echo "-----------------------------------<部署完成>-----------------------------------" && ${SETCOLOR_NORMAL}
+  INFO "=================感谢您的耐心等待，安装已经完成=================="
+  INFO
+    WEBURL
+  INFO "================================================================"
 }
 
 # 添加Nginx后端代理配置
@@ -922,7 +882,7 @@ function main() {
     CHECKFIRE
     
     while true; do
-        read -e -p "$(echo -e ${GREEN}"是否执行软件包安装? [y/n]: "${RESET})" choice_package
+        read -e -p "$(echo -e ${INFO} ${GREEN}"是否执行软件包安装? [y/n]: "${RESET})" choice_package
         case "$choice_package" in
             y|Y )
                 INSTALL_PACKAGE
@@ -931,7 +891,7 @@ function main() {
                 WARN "跳过软件包安装步骤。"
                 break;;
             * )
-                echo "请输入 'y' 表示是，或者 'n' 表示否。";;
+                INFO "请输入 'y' 表示是，或者 'n' 表示否。";;
         esac
     done
     
