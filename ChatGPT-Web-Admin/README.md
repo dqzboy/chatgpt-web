@@ -1,5 +1,5 @@
 ## 准备工作
-🔔 **说明**：目前该脚本采用源码编译部署，非容器化运行(内存建议2G+)；目前脚本适用于CentOS7,8,9\RHEL8,9\Rocky8,9\Ubuntu\Debian <br>
+🔔 **说明**：目前该脚本采用源码编译部署，非容器化运行(内存建议2G+)；脚本适用于 CentOS7,8,9 \ RHEL8,9 \ Rocky8,9 \Ubuntu(18.04 ～ 22.04) \ Debian(10 ～ 11) <br>
 🔔 **重要**：目前脚本主要部署的项目为：[Kerwin1202/chatgpt-web](https://github.com/Kerwin1202/chatgpt-web) 跟 [Chanzhaoyu/chatgpt-web](https://github.com/Chanzhaoyu/chatgpt-web) 还有基于Kerwin1202/chatgpt-web二次开发的项目；前者带用户管理，多KEY轮询等，后者无。所以**env配置有区别**，部署前请根据自己要部署的项目下载本仓库下面的`env.example`配置文件到你运行脚本的目录下 <br>
 ⚠️ **注意**：***建议使用裸系统运行脚本，脚本里面基础环境都会一键部署完成！*** 如果服务器已经安装了Nginx，那么构建之前请指定ChatGPT-WEB前端项目存放的Nginx根路径 <br>
 🚀 **更新**：更新chatGPT-web版本，只需要再次执行部署脚本即可，`env`文件无需变更；注意：更新之后清理浏览器缓存或者无痕模式打开 <br>
@@ -12,7 +12,11 @@
 |:white_check_mark:八戒|[:link:官网](https://bajie.one/#/register?code=uX4zUk5c)|按量不限时、IEPL专线、不限速、不限设备、低延迟，高网速，解锁ChatGPT|
 |:white_check_mark:acyun|[:link:官网](https://yysw.acyun.tk/index.php#/register?code=ZvmLh28A)|按量不限时(3T只需40RMB)、高速中转线路、不限速、不限制客户端数量，解锁ChatGPT|
 
+## 快速开始
+执行如下命令一键安装chatgpt-web
+### Kerwin1202/chatgpt-web
 ```shell
+
 #（1）创建脚本执行目录
 mkdir -p /data/chatgpt-web && cd /data/chatgpt-web
 
@@ -22,12 +26,9 @@ yum -y install wget curl
 # ubuntu
 apt -y install wget curl
 
-#（3）下载对应的env.example配置文件；注意执行脚本前先进行修改里面的内容
+#（3）下载 env.example 配置文件；注意执行脚本前先进行修改里面的内容
 【Kerwin1202/chatgpt-web | zhujunsan/chatgpt-web ｜ BobDu/chatgpt-web-fork】
 wget -O env.example https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/Kerwin1202_env.example
-
-【Chanzhaoyu/chatgpt-web】
-wget -O env.example https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/Chanzhaoyu_env.example
 
 # RHEL and CentOS or Rocky 7/8/9
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin.sh)"
@@ -35,7 +36,27 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/
 # Ubuntu or Debian
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_U.sh)"
 ```
----
+
+### Chanzhaoyu/chatgpt-web
+```shell
+
+#（1）创建脚本执行目录
+mkdir -p /data/chatgpt-web && cd /data/chatgpt-web
+
+#（2）下载执行脚本
+# CentOS
+yum -y install wget curl
+# ubuntu
+apt -y install wget curl
+
+#（3）下载 env.example 配置文件；注意执行脚本前先进行修改里面的内容
+
+# RHEL and CentOS or Rocky 7/8/9
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin.sh)"
+
+# Ubuntu or Debian
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_U.sh)"
+```
 
 ## 执行过程
 <img src="https://github.com/dqzboy/chatgpt-web/assets/42825450/f167e0b7-7f18-4bdd-ad5d-58a49198ec26" width="1000px">
