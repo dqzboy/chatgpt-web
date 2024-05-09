@@ -49,6 +49,7 @@ yum -y install wget curl
 apt -y install wget curl
 
 #（3）下载 env.example 配置文件；注意执行脚本前先进行修改里面的内容
+wget -O env.example https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/Chanzhaoyu_env.example
 
 # RHEL and CentOS or Rocky 7/8/9
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin.sh)"
