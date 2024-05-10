@@ -58,8 +58,26 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_U.sh)"
 ```
 
-## 执行过程
-<img src="https://github.com/dqzboy/chatgpt-web/assets/42825450/f167e0b7-7f18-4bdd-ad5d-58a49198ec26" width="1000px">
+## 部署过程
+<br/>
+<table>
+    <tr>
+      <td width="50%" align="center"><b>所需组件检测</b></td>
+      <td width="50%" align="center"><b>交互定义信息</b></td>
+    </tr>
+    <tr>
+        <td width="50%" align="center"><img src="https://github.com/dqzboy/chatgpt-web/assets/42825450/7293db62-a284-48b1-b193-0c98af099943?raw=true"></td>
+        <td width="50%" align="center"><img src="https://github.com/dqzboy/chatgpt-web/assets/42825450/426aaa15-11c6-432b-9473-36fbde59a31c?raw=true"></td>
+    </tr>
+    <tr>
+      <td width="50%" align="center"><b>OS组件环境检测</b></td>
+      <td width="50%" align="center"><b>自定义网站目录</b></td>
+    </tr>
+        <td width="50%" align="center"><img src="https://github.com/dqzboy/chatgpt-web/assets/42825450/626ba006-4753-413d-a155-c2896ab95506?raw=true"></td>
+        <td width="50%" align="center"><img src="https://github.com/dqzboy/chatgpt-web/assets/42825450/1848fb65-ddc7-487f-8f2e-c50d7edef039?raw=true"></td>
+    <tr>
+    </tr>
+</table>
 
 ---
 
@@ -126,7 +144,7 @@ nginx -t
 nginx -s reload
 ```
 
-## 常见问题总结
+## 常见问题
 ### 问题1：500 错误
 #### 问题描述
 > 部署 Kerwin1202/chatgpt-web 项目之后，访问页面提示500
@@ -150,3 +168,15 @@ nginx -s reload
 #### 问题解决
 - 1、检查组件是否正确安装，可以根据编译时终端显示的日志确认具体问题
 - 2、机器内存如果小于等于1G，建议内存给大点，起码2G+；或者在大内存的机器进行构建，然后把构建好的制品打包上传到小规格的机器上也可以。
+
+### 问题3：前端构建run-p: command not found 或 rimraf: command not found
+#### 问题解决
+```shell
+# 安装
+npm install -g run-p
+npm install -g rimraf
+
+# 检查
+npm list -g --depth=0 | grep run-p
+npm list -g --depth=0 | grep rimraf
+```
