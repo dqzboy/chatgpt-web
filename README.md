@@ -117,15 +117,15 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/
       <td width="50%" align="center"><b>交互定义信息</b></td>
     </tr>
     <tr>
-        <td width="50%" align="center"><img src="https://user-images.githubusercontent.com/42825450/232283480-2fe73cc9-32d9-49eb-bb3f-c58caec74b59.png?raw=true"></td>
-        <td width="50%" align="center"><img src="https://user-images.githubusercontent.com/42825450/232283587-36338ca5-fbce-460d-8b6f-f805bf42ba30.png?raw=true"></td>
+        <td width="50%" align="center"><img src="https://github.com/dqzboy/chatgpt-web/assets/42825450/7293db62-a284-48b1-b193-0c98af099943?raw=true"></td>
+        <td width="50%" align="center"><img src="https://github.com/dqzboy/chatgpt-web/assets/42825450/426aaa15-11c6-432b-9473-36fbde59a31c?raw=true"></td>
     </tr>
     <tr>
-      <td width="50%" align="center"><b>OS系统环境检测</b></td>
+      <td width="50%" align="center"><b>OS组件环境检测</b></td>
       <td width="50%" align="center"><b>自定义网站目录</b></td>
     </tr>
-        <td width="50%" align="center"><img src="https://user-images.githubusercontent.com/42825450/229756730-8c39a416-69e2-4f62-9404-e61f7e3b61e5.png?raw=true"></td>
-        <td width="50%" align="center"><img src="https://user-images.githubusercontent.com/42825450/236621779-f795321f-23c0-4f37-9ed7-b71f2de9cddd.png?raw=true"></td>
+        <td width="50%" align="center"><img src="https://github.com/dqzboy/chatgpt-web/assets/42825450/626ba006-4753-413d-a155-c2896ab95506?raw=true"></td>
+        <td width="50%" align="center"><img src="https://github.com/dqzboy/chatgpt-web/assets/42825450/1848fb65-ddc7-487f-8f2e-c50d7edef039?raw=true"></td>
     <tr>
     </tr>
     <tr>
