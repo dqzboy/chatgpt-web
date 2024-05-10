@@ -12,7 +12,7 @@
 |:white_check_mark:acyun|[:link:官网](https://yysw.acyun.tk/index.php#/register?code=ZvmLh28A)|按量不限时(3T只需40RMB)、高速中转线路、不限速、不限制客户端数量，解锁ChatGPT|
 
 ## 快速开始
-执行如下命令一键安装chatgpt-web
+执行如下命令一键安装chatnio
 ```shell
 #（1）创建脚本执行目录
 mkdir -p /data/chatnio/config && cd /data/chatnio
@@ -27,7 +27,7 @@ wget https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/chatnio/env.examp
 #（4）下载 config.yaml 配置文件到config目录下；无特殊要求不要修改
 wget -P config/ https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/chatnio/config.yaml
 
-#（5）
+#（5）执行如下命令一键安装chatnio
 # RHEL and CentOS or Rocky 7/8/9
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin.sh)"
 ```
