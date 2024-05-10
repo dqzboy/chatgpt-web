@@ -24,7 +24,7 @@ yum -y install wget curl
 #（3）下载 env.example 配置文件；注意执行脚本前先进行修改里面后端地址为你自己的
 wget https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/chatnio/env.example
 
-#（4）下载 config.yaml 配置文件到config目录下；注意执行脚本前先进行修改里面的配置
+#（4）下载 config.yaml 配置文件到config目录下；无特殊要求不要修改
 wget -P config/ https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/chatnio/config.yaml
 
 #（5）
