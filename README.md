@@ -81,7 +81,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/
 # Ubuntu or Debian
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_U.sh)"
 ```
-#### Deeptrain-Community/chatnio
+### Deeptrain-Community/chatnio
 ```shell
 #（1）创建脚本执行目录
 mkdir -p /data/chatnio/config && cd /data/chatnio
