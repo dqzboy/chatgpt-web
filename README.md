@@ -42,7 +42,6 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/
 执行如下命令一键安装chatgpt-web
 #### Kerwin1202/chatgpt-web
 ```shell
-
 #（1）创建脚本执行目录
 mkdir -p /data/chatgpt-web && cd /data/chatgpt-web
 
@@ -64,7 +63,6 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/
 
 #### Chanzhaoyu/chatgpt-web
 ```shell
-
 #（1）创建脚本执行目录
 mkdir -p /data/chatgpt-web && cd /data/chatgpt-web
 
@@ -82,6 +80,25 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/
 
 # Ubuntu or Debian
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_U.sh)"
+```
+#### Deeptrain-Community/chatnio
+```shell
+#（1）创建脚本执行目录
+mkdir -p /data/chatnio/config && cd /data/chatnio
+
+#（2）下载执行脚本
+# CentOS
+yum -y install wget curl
+
+#（3）下载 env.example 配置文件；注意执行脚本前先进行修改里面后端地址为你自己的
+wget https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/chatnio/env.example
+
+#（4）下载 config.yaml 配置文件到config目录下；无特殊要求不要修改
+wget -P config/ https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/chatnio/config.yaml
+
+#（5）执行如下命令一键安装chatnio
+# RHEL and CentOS or Rocky 7/8/9
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/chatnio/Install/chatnio_install.sh)"
 ```
 
 ## 功能 | Functionality
