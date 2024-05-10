@@ -1,9 +1,6 @@
 # 设置 "true" 以禁用 OpenAI API 调试日志
 OPENAI_API_DISABLE_DEBUG=
 
-# 访问jwt加密参数，可选 不为空则允许登录 同时需要设置 MONGODB_URL
-AUTH_SECRET_KEY=123456
-
 # 每小时最大请求次数，可选，默认无限
 MAX_REQUEST_PER_HOUR=0
 
@@ -17,7 +14,7 @@ SITE_TITLE="ChatGPT WEB"
 # MONGODB_URL=mongodb://chatgpt:xxxx@yourip:port
 MONGODB_URL=mongodb://your_user:your_passwd@127.0.0.1:27017
 
-# jwt 的密钥，如果不为空，则需要登录
+# 访问jwt加密参数，可选 不为空则允许登录 同时需要设置 MONGODB_URL
 AUTH_SECRET_KEY=
 
 # ----- 仅在设置AUTH_SECRET_KEY开始后有效 ----
