@@ -307,27 +307,40 @@ function NODEJS() {
     # 定义 npm 软件包数组
     packages=("run-p" "rimraf")
 
+    # 检查 npm 包是否已经安装
+    is_package_installed() {
+        local package=$1
+        npm list -g "$package" >/dev/null2>&1
+        return $?
+    }
+
+
     # 定义安装函数
     install_package() {
         local package=$1
         local attempts=0
 
-        while [ $attempts -lt $maxAttempts ]; do
-            npm install -g "$package" &>/dev/null
-            if [ $? -ne 0 ]; then
-                ((attempts++))
-                WARN "Attempting to install $package (Attempt: $attempts)"
-            else
-                INFO "$package installation successful."
-                return 0
-            fi
+        # 检查是否已经安装
+        if is_package_installed "$package"; then
+            echo -e "${WARN} 已经安装 $package ..."
+        else
+            echo -e "${INFO} 正在安装 $package ..."
+            while [ $attempts -lt $maxAttempts ]; do
+                npm install -g "$package" &>/dev/null
+                if [ $? -ne 0 ]; then
+                    ((attempts++))
+                    WARN "Attempting to install $package (Attempt: $attempts)"
+                else
+                    return 0
+                fi
 
-            if [ $attempts -eq $maxAttempts ]; then
-                ERROR "$package installation failed. Please try installing manually."
-                ERROR "Command: npm install -g $package"
-                return 1
-            fi
-        done
+                if [ $attempts -eq $maxAttempts ]; then
+                    ERROR "$package installation failed. Please try installing manually."
+                    ERROR "Command: npm install -g $package"
+                    return 1
+                fi
+            done
+        fi
     }
 
     # 使用 for 循环来安装数组中的每个包
