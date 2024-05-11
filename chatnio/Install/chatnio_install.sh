@@ -533,15 +533,6 @@ function CREATE_MYSQL_DB() {
                 ERROR "数据库 '$DB_NAME' 创建失败,错误信息：$mysql_error"
                 exit 1
             fi
-
-            # 给root用户授权
-            mysql_error=$(mysql --connect-expired-password -u root -p"$MYSQL_PWD" -e "GRANT ALL PRIVILEGES ON $DB_NAME.* TO 'root'@'localhost' IDENTIFIED BY '$MYSQL_PWD'; FLUSH PRIVILEGES;" 2>&1)
-            if [ $? -eq 0 ]; then
-                INFO "数据库 '$DB_NAME' 授权成功。"
-            else
-                ERROR "数据库 '$DB_NAME' 授权失败,错误信息：$mysql_error"
-                exit 1
-            fi
         fi
     else
         WARN "跳过创建数据库。"
@@ -652,8 +643,7 @@ function GITCLONE() {
         case $input in
             1)
                 #if git clone https://mirror.ghproxy.com/$repository; then
-		if git clone $repository; then
-		        #if git clone $repository; then
+		        if git clone $repository; then
                     break
                 else
                     ((attempts++))
@@ -894,7 +884,7 @@ fi
 
 function WEBURL(){
 # 获取公网IP
-PUBLIC_IP=$(curl -s https://ifconfig.me)
+PUBLIC_IP=$(curl -s ip.sb)
 
 # 获取所有网络接口的IP地址
 ALL_IPS=$(hostname -I)
