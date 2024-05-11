@@ -1,4 +1,4 @@
-## 准备工作
+## 📝 准备工作
 🔔 **说明**：目前该脚本采用源码编译部署，非容器化运行(机器规格建议2C/4G)；脚本适用于 CentOS7,8,9 \ RHEL8,9 \ Rocky8,9 \Ubuntu(18.04 ～ 22.04) \ Debian(10 ～ 11) <br>
 🔔 **重要**：目前脚本主要部署的项目为：[Kerwin1202/chatgpt-web](https://github.com/Kerwin1202/chatgpt-web) 跟 [Chanzhaoyu/chatgpt-web](https://github.com/Chanzhaoyu/chatgpt-web) 还有基于Kerwin1202/chatgpt-web二次开发的项目；前者带用户管理，多KEY轮询等，后者无。所以**env配置有区别**，部署前请根据自己要部署的项目下载本仓库下面的`env.example`配置文件到你运行脚本的目录下 <br>
 ⚠️  **注意**：***建议使用裸系统运行脚本，脚本里面基础环境都会一键部署完成！*** 如果服务器已经安装了Nginx，那么构建之前请指定ChatGPT-WEB前端项目存放的Nginx根路径 <br>
@@ -12,9 +12,9 @@
 |:white_check_mark:八戒|[:link:官网](https://bajie.one/#/register?code=uX4zUk5c)|按量不限时、IEPL专线、不限速、不限设备、低延迟，高网速，解锁ChatGPT|
 |:white_check_mark:acyun|[:link:官网](https://yysw.acyun.tk/index.php#/register?code=ZvmLh28A)|按量不限时(3T只需40RMB)、高速中转线路、不限速、不限制客户端数量，解锁ChatGPT|
 
-## 快速开始
+## 📦 快速开始
 执行如下命令一键安装chatgpt-web
-### Kerwin1202/chatgpt-web
+### ✨ Kerwin1202/chatgpt-web
 ```shell
 
 #（1）创建脚本执行目录
@@ -36,7 +36,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_U.sh)"
 ```
 
-### Chanzhaoyu/chatgpt-web
+### ✨ Chanzhaoyu/chatgpt-web
 ```shell
 
 #（1）创建脚本执行目录
@@ -58,7 +58,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_U.sh)"
 ```
 
-## 部署过程
+## ⚡ 部署过程
 <br/>
 <table>
     <tr>
@@ -81,7 +81,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/
 
 ---
 
-## Nginx后端配置参考
+## ⚒ Nginx后端配置参考
 - 需要在server块中添加一个location规则用来代理后端API接口地址，配置修改参考如下：
 
 > /etc/nginx/conf.d/default.conf
@@ -144,7 +144,7 @@ nginx -t
 nginx -s reload
 ```
 
-## 常见问题
+## ❓ 常见问题 Q&A
 ### 问题1：500 错误
 #### 问题描述
 > 部署 Kerwin1202/chatgpt-web 项目之后，访问页面提示500
