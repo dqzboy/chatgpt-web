@@ -29,7 +29,7 @@ width="2000"  height="3">
 </div>
 
 ## 📦 部署 | Deployment
-### ✨ chatgpt-next-web
+### ✨ [ChatGPT-Next-Web](ChatGPT-Next-Web/README.md)
 ```shell
 #（1）创建脚本执行目录
 mkdir -p /data/chatgpt-next-web && cd /data/chatgpt-next-web
@@ -38,7 +38,7 @@ mkdir -p /data/chatgpt-next-web && cd /data/chatgpt-next-web
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Next-Web/ChatGPT-Next-Web_build.sh)"
 ```
 
-### ✨ chatgpt-web
+### ✨ [ChatGPT-Web](ChatGPT-Web-Admin/README.md)
 执行如下命令一键安装chatgpt-web
 #### Kerwin1202/chatgpt-web
 ```shell
@@ -81,7 +81,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/
 # Ubuntu or Debian
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_U.sh)"
 ```
-### ✨ Deeptrain-Community/chatnio
+### ✨ [Chat Nio](chatnio/README.md)
 ```shell
 #（1）创建脚本执行目录
 mkdir -p /data/chatnio/config && cd /data/chatnio
