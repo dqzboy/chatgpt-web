@@ -28,8 +28,8 @@
 width="2000"  height="3">
 </div>
 
-## 部署 | Deployment
-### chatgpt-next-web
+## 📦 部署 | Deployment
+### ✨ chatgpt-next-web
 ```shell
 #（1）创建脚本执行目录
 mkdir -p /data/chatgpt-next-web && cd /data/chatgpt-next-web
@@ -38,7 +38,7 @@ mkdir -p /data/chatgpt-next-web && cd /data/chatgpt-next-web
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Next-Web/ChatGPT-Next-Web_build.sh)"
 ```
 
-### chatgpt-web
+### ✨ chatgpt-web
 执行如下命令一键安装chatgpt-web
 #### Kerwin1202/chatgpt-web
 ```shell
@@ -81,7 +81,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/
 # Ubuntu or Debian
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/ChatGPT-Web-Admin/install/ChatGPT-Web-Admin_U.sh)"
 ```
-### Deeptrain-Community/chatnio
+### ✨ Deeptrain-Community/chatnio
 ```shell
 #（1）创建脚本执行目录
 mkdir -p /data/chatnio/config && cd /data/chatnio
@@ -101,7 +101,7 @@ wget -P config/ https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/chatni
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/chatnio/Install/chatnio_install.sh)"
 ```
 
-## 功能 | Functionality
+## 🔨 功能 | Functionality
 <details>
   <summary><b> 源代码本地一键编译部署 | One-click compile and deploy of source code locally. </b></summary>
 </details>
@@ -126,7 +126,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/
   <summary><b> 支持一键快速卸载 | Supports one-click fast uninstallation</b></summary>
 </details>
 
-## 截图 | Screenshot
+## 📚 截图 | Screenshot
 <br/>
 <table>
     <tr>
