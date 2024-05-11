@@ -294,8 +294,8 @@ function INSTALL_NODEJS() {
             echo -e "4. 18.x"
             echo -e "5. 17.x"
             echo -e "6. 16.x"
-	    echo -e "7. Exit"
-	    read -e -p "$(echo -e ${INFO} ${GREEN}"Please enter the corresponding number: "${RESET})" selected_version
+        echo -e "7. Exit"
+        read -e -p "$(echo -e ${INFO} ${GREEN}"Please enter the corresponding number: "${RESET})" selected_version
             case $selected_version in
                 1)
                     version_url="https://rpm.nodesource.com/setup_lts.x"
@@ -321,13 +321,13 @@ function INSTALL_NODEJS() {
                     ;;
             esac
 
-	    curl -fsSL $version_url | bash -
+        curl -fsSL $version_url | bash -
             if [ $? -ne 0 ]; then
                 ERROR "Node.js installation failed!"
                 exit 1
             fi
 
-	    $package_manager install nodejs -y &>/dev/null
+        $package_manager install nodejs -y &>/dev/null
             if [ $? -ne 0 ]; then
                 ERROR "Node.js installation failed!"
                 exit 2
@@ -528,7 +528,7 @@ function CREATE_MYSQL_DB() {
             mysql_error=$(mysql --connect-expired-password -u root -p"$MYSQL_PWD" -e "CREATE DATABASE $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>&1) 
             # 检查mysql命令的退出状态码
             if [ $? -eq 0 ]; then
-                WARN "数据库 '$DB_NAME' 已存在。"
+                INFO "数据库 '$DB_NAME' 创建完成。"
             else
                 ERROR "数据库 '$DB_NAME' 创建失败,错误信息：$mysql_error"
                 exit 1
@@ -643,7 +643,7 @@ function GITCLONE() {
         case $input in
             1)
                 #if git clone https://mirror.ghproxy.com/$repository; then
-		        if git clone $repository; then
+                if git clone $repository; then
                     break
                 else
                     ((attempts++))
