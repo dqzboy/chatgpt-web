@@ -651,7 +651,8 @@ function GITCLONE() {
         read -e -n1 input
         case $input in
             1)
-                if git clone https://mirror.ghproxy.com/$repository; then
+                #if git clone https://mirror.ghproxy.com/$repository; then
+		if git clone $repository; then
 		        #if git clone $repository; then
                     break
                 else
