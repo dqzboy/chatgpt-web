@@ -321,13 +321,13 @@ function INSTALL_NODEJS() {
                     ;;
             esac
 
-	        curl -fsSL $version_url | bash -
+	    curl -fsSL $version_url | bash -
             if [ $? -ne 0 ]; then
                 ERROR "Node.js installation failed!"
                 exit 1
             fi
 
-	        $package_manager install nodejs -y &>/dev/null
+	    $package_manager install nodejs -y &>/dev/null
             if [ $? -ne 0 ]; then
                 ERROR "Node.js installation failed!"
                 exit 2
@@ -516,7 +516,7 @@ function CREATE_MYSQL_DB() {
     read -e -p "是否创建数据库？[y/n] " create_db_choice
 
     if [[ "$create_db_choice" == "y" || "$create_db_choice" == "Y" ]]; then
-        read -e -p "请输入数据库名称：" DB_NAME
+        read -e -p "请输入数据库名称(不能包含连字符 - )：" DB_NAME
 
         # 检查数据库是否存在
         mysql --connect-expired-password -u root -p"$MYSQL_PWD" -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$DB_NAME';" 2>/dev/null | grep -q "$DB_NAME"
