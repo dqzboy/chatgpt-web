@@ -905,6 +905,7 @@ INTERNAL_IP=$(echo "$ALL_IPS" | awk '$1!="127.0.0.1" && $1!="::1" && $1!="docker
 INFO "请用浏览器访问面板: "
 INFO "公网访问地址: http://$PUBLIC_IP"
 INFO "内网访问地址: http://$INTERNAL_IP"
+INFO "管理员账号密码: root｜chatnio123456"
 INFO
 INFO "作者博客: https://dqzboy.com"
 INFO "技术交流: https://t.me/dqzboyblog"
