@@ -508,28 +508,27 @@ function CREATE_MYSQL_DB() {
             exit 1
         fi
     else
-        INFO "跳过修改MySQL ROOT密码。"
+        WARN "跳过修改MySQL ROOT密码。"
+        read -e -p "请输入数据库Root密码：" MYSQL_PWD
     fi
 
     # 检查用户是否要创建数据库
-    read -e -p "是否创建数据库(数据库名称需与config.yaml配置中DB名称一致)？[y/n] " create_db_choice
+    read -e -p "是否创建数据库？[y/n] " create_db_choice
 
     if [[ "$create_db_choice" == "y" || "$create_db_choice" == "Y" ]]; then
         read -e -p "请输入数据库名称：" DB_NAME
 
         # 检查数据库是否存在
-        mysql --connect-expired-password -u root -p"$MYSQL_PWD" <<EOF
-        SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='$DB_NAME';
-EOF
+        mysql --connect-expired-password -u root -p"$MYSQL_PWD" -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$DB_NAME';" 2>/dev/null | grep -q "$DB_NAME"
 
         if [ $? -eq 0 ]; then
-            WARN "数据库 '$DB_NAME' 已经存在。"
+            WARN "数据库 '$DB_NAME' 已存在。"
         else
             # 数据库不存在，创建数据库
-            mysql_error=$(mysql --connect-expired-password -u root -p"$MYSQL_PWD" -e "CREATE DATABASE $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"2>&1) 
+            mysql_error=$(mysql --connect-expired-password -u root -p"$MYSQL_PWD" -e "CREATE DATABASE $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>&1) 
             # 检查mysql命令的退出状态码
             if [ $? -eq 0 ]; then
-                INFO "数据库 '$DB_NAME' 已存在。"
+                WARN "数据库 '$DB_NAME' 已存在。"
             else
                 ERROR "数据库 '$DB_NAME' 创建失败,错误信息：$mysql_error"
                 exit 1
@@ -546,6 +545,7 @@ EOF
         fi
     else
         WARN "跳过创建数据库。"
+        read -e -p "请输入数据库名称：" DB_NAME
     fi
 }
 
@@ -727,6 +727,7 @@ INFO "《前端构建中,请稍等...执行过程中请勿进行操作》"
 
 # 安装依赖
 pnpm install 2>&1 >/dev/null | grep -E "ERROR|FAIL|WARN"
+pnpm install typescript --save-dev 2>&1 >/dev/null | grep -E "ERROR|FAIL|WARN"
 # 打包
 pnpm build | grep -E "ERROR|ELIFECYCLE|WARN|*built in*"
 }
@@ -741,22 +742,23 @@ go build -o chatnio 2>&1 >/dev/null | grep -E "ERROR|FAIL|WARN"
 function BUILD() {
 INFO "======================= 构建前端 ======================="
 # 定义前端构建目录
+# CHATDIR就是项目的名称chatnio
 APPDIR="${CHATDIR}/app"
 # 拷贝.env配置替换
 if [ ! -f "${ORIGINAL}/env.example" ]; then
     ERROR "File 'env.example' not found. Please make sure it exists."
     exit 1
 fi
-cp "${ORIGINAL}/env.example" "${ORIGINAL}/${APPDIR}/.env"
+cp "${ORIGINAL}/env.example" "${ORIGINAL}/${APPDIR}/.env.deeptrain"
 
 # 进入到前端目录下
-cd ${ORIGINAL}/${CHATDIR}/app && BUILDWEB
-directory="${ORIGINAL}/${CHATDIR}/${FONTDIR}"
+cd ${ORIGINAL}/${APPDIR} && BUILDWEB
+directory="${ORIGINAL}/${APPDIR}/${FONTDIR}"
 if [ ! -d "$directory" ]; then
     ERROR "Frontend build failed..."
     exit 1
 fi
-INFO " "
+INFO
 INFO "======================= 构建后端 ======================="
 # 进入到后端目录下
 cd ${ORIGINAL}/${CHATDIR} && BUILDSEV
@@ -774,32 +776,33 @@ APPDIR="${CHATDIR}/app"
 EXE_FILE="chatnio"
 # 定义后端配置存放目录和文件名称
 CONFIG_DIR="config"
-CONFIG_FILE="$CONFIG_DIR/config.yaml"
+CONFIG_FILE="${CONFIG_DIR}/config.yaml"
 
 #检查目录是否存在
-if [ -d "$CONFIG_DIR" ]; then
-    INFO "Directory $CONFIG_DIR exists."
+if [ -d "${ORIGINAL}/${CONFIG_DIR}" ]; then
+    INFO "Directory ${CONFIG_DIR} exists."
 else
-    ERROR "Directory $CONFIG_DIR does not exist."
+    ERROR "Directory ${CONFIG_DIR} does not exist."
     exit 1
 fi
 
 #检查文件是否存在
-if [ -f "$CONFIG_FILE" ]; then
-    INFO "File $CONFIG_FILE exists."
+if [ -f "${ORIGINAL}/${CONFIG_FILE}" ]; then
+    INFO "File ${CONFIG_FILE} exists."
 else
-    ERROR "File $CONFIG_FILE does not exist."
+    ERROR "File ${CONFIG_FILE} does not exist."
     exit 1
 fi
-# 
-sed  -i "s#PASSWD#${MYSQL_PWD}#g"  ${CONFIG_FILE}
-sed  -i "s#DBNAME#${DB_NAME}#g"  ${CONFIG_FILE}
+
+# 修改后端的mysql数据库confit.yaml配置 
+sed  -i "s#PASSWD#${MYSQL_PWD}#g"  ${ORIGINAL}/${CONFIG_FILE}
+sed  -i "s#DBNAME#${DB_NAME}#g"  ${ORIGINAL}/${CONFIG_FILE}
 
 
 # 移除目录下原有的文件，拷贝构建完成的后端执行文件和配置过去
 rm -rf ${WEBDIR}/* &>/dev/null
 \cp -fr ${ORIGINAL}/${CHATDIR}/${EXE_FILE} ${WEBDIR}
-\cp -fr ${ORIGINAL}/${CHATDIR}/${CONFIG_DIR} ${WEBDIR}
+\cp -fr ${ORIGINAL}/${CONFIG_DIR} ${WEBDIR}
 # 检测返回值
 if [ $? -eq 0 ]; then
     # 如果指令执行成功，则继续运行下面的操作
@@ -823,10 +826,10 @@ fi
 # 检测返回值
 if [ $? -eq 0 ]; then
     # 如果指令执行成功，则继续运行下面的操作
-    INFO "WEB Copy Success"
+    INFO "Front-end service deployment was successful"
 else
     # 如果指令执行不成功，则输出错误日志，并退出脚本
-    ERROR "Copy Error"
+    ERROR "Front-end service deployment failed"
     exit 2
 fi
 # 添加开机自启
@@ -839,7 +842,7 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=${WEBDIR}
-ExecStart=chatnio
+ExecStart=${WEBDIR}/chatnio
 Restart=always
 ExecReload=/bin/kill -s HUP \$MAINPID
 ExecStop=/bin/kill -s QUIT \$MAINPID
@@ -912,16 +915,6 @@ INFO "内网访问地址: http://$INTERNAL_IP"
 INFO
 }
 
-# 删除源码包文件
-function DELSOURCE() {
-  rm -rf ${ORIGINAL}/${CHATDIR}
-  INFO
-  INFO "=================感谢您的耐心等待，安装已经完成=================="
-  INFO
-    WEBURL
-  INFO "================================================================"
-}
-
 # 添加Nginx后端代理配置
 function NGINX_CONF() {
 read_attempts=0
@@ -950,7 +943,7 @@ server {
         root   /usr/share/nginx/html;
     }
 
-    location / {
+    location /api {
         proxy_pass http://localhost:8094;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -979,6 +972,15 @@ EOF
 done
 }
 
+# 删除源码包文件,并调用最后的作者提示信息
+function DELSOURCE() {
+  rm -rf ${ORIGINAL}/${CHATDIR}
+  INFO
+  INFO "=================感谢您的耐心等待，安装已经完成=================="
+  INFO
+    WEBURL
+  INFO "================================================================"
+}
 
 function main() {
     CHECK_PACKAGE_MANAGER
@@ -1013,6 +1015,8 @@ function main() {
                 break;;
             n|N )
                 WARN "跳过软件包安装步骤。"
+                read -e -p "请输入连接的数据库名称: " DB_NAME
+                read -e -p "请输入数据库Root密码: " MYSQL_PWD
                 break;;
             * )
                 INFO "请输入 'y' 表示是，或者 'n' 表示否。";;
@@ -1022,8 +1026,8 @@ function main() {
     GITCLONE
     WEBINFO
     BUILD
+    DEPLOY_SERVER
     NGINX_CONF
-    NGINX
     DELSOURCE
 }
 main
