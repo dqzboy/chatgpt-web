@@ -177,7 +177,7 @@ INFO "System components installation completed."
 function INSTALL_GOLANG () {
     INFO "=======================安装GOLANG======================="
     # 检查是否已安装golang
-    if which GOLANG &>/dev/null; then
+    if which go &>/dev/null; then
         INFO "GOLANG is already installed."
     else
         INFO "Installing GOLANG program, please wait..."
