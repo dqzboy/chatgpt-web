@@ -98,7 +98,7 @@ wget -P config/ https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/chatni
 
 #（5）执行如下命令一键安装chatnio
 # RHEL and CentOS 8/9 or Rocky 8/9
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/chatnio/Install/chatnio_install.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/dqzboy/chatgpt-web/main/chatnio/Install/ChatNio_Install.sh)"
 ```
 
 ## 🔨 功能 | Functionality
