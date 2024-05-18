@@ -761,8 +761,8 @@ cd ${ORIGINAL}/${CHATDIR} && BUILDSEV
 function DEPLOY_SERVER() {
 # 拷贝后端并启动
 INFO "======================= 开始部署 ======================="
-# 定义前端构建目录
-APPDIR="${CHATDIR}/app"
+# 定义构建完成的整个项目目录.CHATDIR就是项目的名称chatnio
+APPDIR="${${ORIGINAL}}/${CHATDIR}"
 
 # go编译完成的执行文件名称
 EXE_FILE="chatnio"
@@ -791,18 +791,28 @@ sed  -i "s#PASSWD#${MYSQL_PWD}#g"  ${ORIGINAL}/${CONFIG_FILE}
 sed  -i "s#DBNAME#${DB_NAME}#g"  ${ORIGINAL}/${CONFIG_FILE}
 
 
-# 移除目录下原有的文件，拷贝构建完成的后端执行文件和配置过去
+# 移除目录下原有的文件，拷贝构建后的整个项目目录(包括前端和后端执行文件)
 rm -rf ${WEBDIR}/* &>/dev/null
-\cp -fr ${ORIGINAL}/${CHATDIR}/${EXE_FILE} ${WEBDIR}
-\cp -fr ${ORIGINAL}/${CONFIG_DIR} ${WEBDIR}
+\cp -fr ${APPDIR}/* ${WEBDIR}
 # 检测返回值
 if [ $? -eq 0 ]; then
     # 如果指令执行成功，则继续运行下面的操作
-    INFO "Backend service deployment was successful"
+    INFO "Front-end and Backend service deployment was successful"
 else
     # 如果指令执行不成功，则输出错误日志，并退出脚本
     ERROR "Backend service deployment failed"
     exit 1
+fi
+# 拷贝后端配置文件
+\cp -fr ${ORIGINAL}/${CONFIG_DIR} ${WEBDIR}
+
+# 检查后端进程是否正在运行
+pid=$(lsof -t -i:8094)
+if [ -z "$pid" ]; then
+    INFO "Backend service not running, starting up..."
+else
+    INFO "The backend service is running, now stop the program and update..."
+    kill -9 $pid
 fi
 
 # 检查后端进程是否正在运行
@@ -813,28 +823,7 @@ else
     INFO "The backend service is running, now stop the program and update..."
     kill -9 $pid
 fi
-# 拷贝前端构建完成的文件到Nginx托管目录下
-\cp -fr ${ORIGINAL}/${UTILSDIR} ${WEBDIR}
-# 检测返回值
-if [ $? -eq 0 ]; then
-    # 如果指令执行成功，则继续运行下面的操作
-    INFO "Front-end service deployment was successful（utils）（app）"
-else
-    # 如果指令执行不成功，则输出错误日志，并退出脚本
-    ERROR "Front-end service deployment failed"
-    exit 2
-fi
 
-\cp -fr ${ORIGINAL}/${APPDIR} ${WEBDIR}
-# 检测返回值
-if [ $? -eq 0 ]; then
-    # 如果指令执行成功，则继续运行下面的操作
-    INFO "Front-end service deployment was successful"
-else
-    # 如果指令执行不成功，则输出错误日志，并退出脚本
-    ERROR "Front-end service deployment failed"
-    exit 2
-fi
 # 添加开机自启
 cat > /etc/systemd/system/chatnio.service <<EOF
 [Unit]
