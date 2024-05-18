@@ -973,13 +973,6 @@ server {
     server_name  localhost;
 
     location / {
-        root   /usr/share/nginx/html;
-        index  index.html index.htm;
-    }
-
-    error_page   500 502 503 504  /50x.html;
-
-    location / {
         proxy_pass http://127.0.0.1:8094;
         proxy_set_header Host 127.0.0.1:$server_port;
         proxy_set_header X-Real-IP $remote_addr;
