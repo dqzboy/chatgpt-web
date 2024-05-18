@@ -818,7 +818,7 @@ fi
 # 检测返回值
 if [ $? -eq 0 ]; then
     # 如果指令执行成功，则继续运行下面的操作
-    INFO "Front-end service deployment was successful"
+    INFO "Front-end service deployment was successful（utils）（app）"
 else
     # 如果指令执行不成功，则输出错误日志，并退出脚本
     ERROR "Front-end service deployment failed"
