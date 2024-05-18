@@ -813,7 +813,7 @@ else
     kill -9 $pid
 fi
 # 拷贝前端构建完成的文件到Nginx托管目录下
-\cp -fr ${ORIGINAL}/${APPDIR}/${FONTDIR}/* ${WEBDIR}
+\cp -fr ${ORIGINAL}/${APPDIR} ${WEBDIR}
 # 检测返回值
 if [ $? -eq 0 ]; then
     # 如果指令执行成功，则继续运行下面的操作
@@ -935,17 +935,21 @@ server {
         root   /usr/share/nginx/html;
     }
 
-    location /api {
-        proxy_pass http://localhost:8094;
-        proxy_set_header Host $host;
+    location / {
+        proxy_pass http://127.0.0.1:8094;
+        proxy_set_header Host 127.0.0.1:$server_port;
         proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;        
-        # 下面这两行是关键
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header REMOTE-HOST $remote_addr;
+        add_header X-Cache $upstream_cache_status;
+        proxy_set_header X-Host $host:$server_port;
+        proxy_set_header X-Scheme $scheme;
+        proxy_connect_timeout 30s;
+        proxy_read_timeout 86400s;
+        proxy_send_timeout 30s;
+        proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection $connection_upgrade;
-
-        proxy_buffering off;
-        proxy_redirect off;
+        proxy_set_header Connection "upgrade";
     }
 }
 EOF
