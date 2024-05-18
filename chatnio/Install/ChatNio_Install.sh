@@ -642,6 +642,7 @@ function GITCLONE() {
         read -e -n1 input
         case $input in
             1)
+		            # 国内服务器使用代理加速 git 克隆
                 #if git clone https://mirror.ghproxy.com/$repository; then
                 if git clone $repository; then
                     break
@@ -732,16 +733,18 @@ go build -o chatnio 2>&1 >/dev/null | grep -E "ERROR|FAIL|WARN"
 
 function BUILD() {
 INFO "======================= 构建前端 ======================="
-# 定义前端拷贝目录.CHATDIR就是项目的名称chatnio
+# 定义前端构建目录
+# CHATDIR就是项目的名称chatnio
 APPDIR="${CHATDIR}/app"
-UTILSDIR="${CHATDIR}/utils"
-
 # 拷贝.env配置替换
 if [ ! -f "${ORIGINAL}/env.example" ]; then
     ERROR "File 'env.example' not found. Please make sure it exists."
     exit 1
 fi
 cp "${ORIGINAL}/env.example" "${ORIGINAL}/${APPDIR}/.env.deeptrain"
+
+# 修改默认暗黑模式为亮色模式
+#sed -i "s#dark#light#g" ${ORIGINAL}/${APPDIR}/src/components/ThemeProvider.tsx
 
 # 进入到前端目录下
 cd ${ORIGINAL}/${APPDIR} && BUILDWEB
@@ -756,27 +759,11 @@ INFO "======================= 构建后端 ======================="
 cd ${ORIGINAL}/${CHATDIR} && BUILDSEV
 }
 
-
-# 拷贝构建成品到Nginx网站根目录
-function DEPLOY_SERVER() {
-# 拷贝后端并启动
-INFO "======================= 开始部署 ======================="
-# 定义构建完成的整个项目目录.CHATDIR就是项目的名称chatnio
-APPDIR="${${ORIGINAL}}/${CHATDIR}"
-
-# go编译完成的执行文件名称
-EXE_FILE="chatnio"
+# 用来处理新环境部署还是更新服务
+function DEPLOY_CONFIG() {
 # 定义后端配置存放目录和文件名称
 CONFIG_DIR="config"
 CONFIG_FILE="${CONFIG_DIR}/config.yaml"
-
-#检查目录是否存在
-if [ -d "${ORIGINAL}/${CONFIG_DIR}" ]; then
-    INFO "Directory ${CONFIG_DIR} exists."
-else
-    ERROR "Directory ${CONFIG_DIR} does not exist."
-    exit 1
-fi
 
 #检查文件是否存在
 if [ -f "${ORIGINAL}/${CONFIG_FILE}" ]; then
@@ -790,21 +777,71 @@ fi
 sed  -i "s#PASSWD#${MYSQL_PWD}#g"  ${ORIGINAL}/${CONFIG_FILE}
 sed  -i "s#DBNAME#${DB_NAME}#g"  ${ORIGINAL}/${CONFIG_FILE}
 
+#检查目录是否存在
+if [ -d "${ORIGINAL}/${CONFIG_DIR}" ]; then
+    INFO "Directory ${CONFIG_DIR} exists."
+else
+    ERROR "Directory ${CONFIG_DIR} does not exist."
+    exit 1
+fi
 
-# 移除目录下原有的文件，拷贝构建后的整个项目目录(包括前端和后端执行文件)
-rm -rf ${WEBDIR}/* &>/dev/null
-\cp -fr ${APPDIR}/* ${WEBDIR}
+# 拷贝当前目录下的配置文件到项目部署目录下
+\cp -fr ${ORIGINAL}/${CONFIG_DIR} ${WEBDIR}
+}
+
+
+# 拷贝构建成品到Nginx网站根目录
+function DEPLOY_SERVER() {
+# 拷贝后端并启动
+INFO "======================= 开始部署 ======================="
+if [ -f ${ORIGINAL}/.choice ]; then
+    last_choice=$(cat ${ORIGINAL}/.choice)
+    read -e -p "$(echo -e ${INFO} ${GREEN}"新装 or 更新? [上次记录：${last_choice} 回车用上次记录]："${RESET})" choice_install
+    if [ -z "${choice_install}" ];then
+        choice_install="$last_choice"
+        INFO "选择：${choice_install}"
+    else
+        INFO "选择：${choice_install}"
+    fi
+else
+    read -e -p "$(echo -e ${INFO} ${GREEN}"新装 or 更新? [1/2]: "${RESET})" choice_install
+    if [ -z "${choice_install}" ];then
+        choice_install="1"
+        INFO "选择：${choice_install}"
+    else
+        INFO "选择：${choice_install}"
+    fi
+fi
+
+echo "${choice_install}" > ${ORIGINAL}/.choice
+
+if [ "$choice_install" == "1" ]; then
+    rm -rf ${WEBDIR}/* &>/dev/null
+    DEPLOY_CONFIG
+elif [ "$choice_install" == "2" ]; then
+    find "${WEBDIR}" -mindepth 1 -maxdepth 1 ! -name "config" -exec rm -rf {} +
+else
+    INFO "请输入 '1' 表示安装，或者 '2' 表示更新"
+fi
+
+# 定义前端构建目录.CHATDIR就是项目的名称chatnio
+APPDIR="${CHATDIR}/app"
+UTILSDIR="${CHATDIR}/utils"
+
+# go编译完成的执行文件名称
+EXE_FILE="chatnio"
+
+# 拷贝构建完成的后端执行文件和配置过去
+\cp -fr ${ORIGINAL}/${CHATDIR}/${EXE_FILE} ${WEBDIR}
 # 检测返回值
 if [ $? -eq 0 ]; then
     # 如果指令执行成功，则继续运行下面的操作
-    INFO "Front-end and Backend service deployment was successful"
+    INFO "Backend service deployment was successful"
 else
     # 如果指令执行不成功，则输出错误日志，并退出脚本
     ERROR "Backend service deployment failed"
     exit 1
 fi
-# 拷贝后端配置文件
-\cp -fr ${ORIGINAL}/${CONFIG_DIR} ${WEBDIR}
 
 # 检查后端进程是否正在运行
 pid=$(lsof -t -i:8094)
@@ -815,13 +852,27 @@ else
     kill -9 $pid
 fi
 
-# 检查后端进程是否正在运行
-pid=$(lsof -t -i:8094)
-if [ -z "$pid" ]; then
-    INFO "Backend service not running, starting up..."
+# 拷贝前端构建完成的文件到Nginx托管目录下
+\cp -fr ${ORIGINAL}/${UTILSDIR} ${WEBDIR}
+# 检测返回值
+if [ $? -eq 0 ]; then
+    # 如果指令执行成功，则继续运行下面的操作
+    INFO "Front-end service deployment was successful（utils）"
 else
-    INFO "The backend service is running, now stop the program and update..."
-    kill -9 $pid
+    # 如果指令执行不成功，则输出错误日志，并退出脚本
+    ERROR "Front-end service deployment failed"
+    exit 2
+fi
+
+\cp -fr ${ORIGINAL}/${APPDIR} ${WEBDIR}
+# 检测返回值
+if [ $? -eq 0 ]; then
+    # 如果指令执行成功，则继续运行下面的操作
+    INFO "Front-end service deployment was successful（app）"
+else
+    # 如果指令执行不成功，则输出错误日志，并退出脚本
+    ERROR "Front-end service deployment failed"
+    exit 2
 fi
 
 # 添加开机自启
@@ -917,11 +968,6 @@ while true; do
         INFO "You chose yes."
         INFO "config：/etc/nginx/conf.d/default.conf"
         cat > /etc/nginx/conf.d/default.conf <<\EOF
-map $http_upgrade $connection_upgrade {
-    default upgrade;
-    ''      close;
-}
-
 server {
     listen       80;
     server_name  localhost;
@@ -932,9 +978,6 @@ server {
     }
 
     error_page   500 502 503 504  /50x.html;
-    location = /50x.html {
-        root   /usr/share/nginx/html;
-    }
 
     location / {
         proxy_pass http://127.0.0.1:8094;
