@@ -732,9 +732,10 @@ go build -o chatnio 2>&1 >/dev/null | grep -E "ERROR|FAIL|WARN"
 
 function BUILD() {
 INFO "======================= 构建前端 ======================="
-# 定义前端构建目录
-# CHATDIR就是项目的名称chatnio
+# 定义前端拷贝目录.CHATDIR就是项目的名称chatnio
 APPDIR="${CHATDIR}/app"
+UTILSDIR="${CHATDIR}/utils"
+
 # 拷贝.env配置替换
 if [ ! -f "${ORIGINAL}/env.example" ]; then
     ERROR "File 'env.example' not found. Please make sure it exists."
@@ -813,6 +814,17 @@ else
     kill -9 $pid
 fi
 # 拷贝前端构建完成的文件到Nginx托管目录下
+\cp -fr ${ORIGINAL}/${UTILSDIR} ${WEBDIR}
+# 检测返回值
+if [ $? -eq 0 ]; then
+    # 如果指令执行成功，则继续运行下面的操作
+    INFO "Front-end service deployment was successful"
+else
+    # 如果指令执行不成功，则输出错误日志，并退出脚本
+    ERROR "Front-end service deployment failed"
+    exit 2
+fi
+
 \cp -fr ${ORIGINAL}/${APPDIR} ${WEBDIR}
 # 检测返回值
 if [ $? -eq 0 ]; then
