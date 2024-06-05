@@ -954,8 +954,6 @@ INFO "技术交流: https://t.me/dqzboyblog"
 INFO "代码仓库: https://github.com/dqzboy/chatgpt-web"
 INFO  
 INFO "如果使用的是云服务器，请至安全组开放 80 端口"
-INFO "公网访问地址: http://$PUBLIC_IP"
-INFO "内网访问地址: http://$INTERNAL_IP"
 INFO
 }
 
