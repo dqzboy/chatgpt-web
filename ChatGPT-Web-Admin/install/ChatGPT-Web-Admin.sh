@@ -401,11 +401,11 @@ function NODEJS() {
 function MONGO_USER() {
 # 检查用户是否要创建 MongoDB 用户
 WARN ">>> 提醒：如果之前创建过用户,请勿再次创建同名的用户！<<<"
-read -e -p "是否创建 MongoDB 用户？[y/n] " choice
+read -e -p "$(INFO '是否创建 MongoDB 用户？[y/n]: ')" choice
 case "$choice" in
   y|Y )
-    read -e -p "请输入 MongoDB 账户：" MONGODB_USERNAME
-    read -e -p "请输入 MongoDB 密码：" MONGODB_PASSWORD
+    read -e -p "$(INFO '请输入 MongoDB 账户: ')" MONGODB_USERNAME
+    read -e -p "$(INFO '请输入 MongoDB 密码: ')" MONGODB_PASSWORD
     mongosh <<EOF >/dev/null 2>&1
     use admin
     db.createUser({
@@ -593,7 +593,7 @@ if [ -f .input ]; then
       INFO "ChatGPT-WEB存储路径：${WEBDIR}"
   fi
 else
-  read -e -p "WEB存储绝对路径(回车默认Nginx路径)：" WEBDIR
+  read -e -p "$(INFO 'WEB存储绝对路径(回车默认Nginx路径): ')" WEBDIR
   if [ -z "${WEBDIR}" ];then
       WEBDIR="/usr/share/nginx/html"
       INFO "ChatGPT-WEB存储路径：${WEBDIR}"
@@ -854,7 +854,7 @@ function DELSOURCE() {
 function NGINX_CONF() {
 read_attempts=0
 while true; do
-    read -e -p "是否修改Nginx配置[y/n](通过本脚本部署的Nginx可选择 y)：" NGCONF
+    read -e -p "$(INFO '是否修改Nginx配置[y/n](通过本脚本部署的Nginx可选择 y): ')" NGCONF
     if [ "$NGCONF" = "y" ]; then
         INFO "You chose yes."
         INFO "config：/etc/nginx/conf.d/default.conf"
