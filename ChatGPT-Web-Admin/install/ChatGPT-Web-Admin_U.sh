@@ -669,6 +669,7 @@ INFO "《前端构建中,请稍等...执行过程中请勿进行操作》"
 # 安装依赖
 pnpm bootstrap 2>&1 >/dev/null | grep -E "error|fail|warning"
 # 打包
+npm i npm-run-all --save-dev &>/dev/null
 pnpm build | grep -E "ERROR|ELIFECYCLE|WARN|*built in*"
 }
 
