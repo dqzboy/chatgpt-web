@@ -8,7 +8,7 @@
 
 > Use this script to quickly create your own ChatGPT web site. | 使用此脚本可以快速创建您自己的 ChatGPT 网站。
 
-[Telegram Group](https://t.me/+ghs_XDp1vwxkMGU9) 
+[Telegram Group](https://t.me/+ghs_XDp1vwxkMGU9) ｜ [QQ 交流频道](https://pd.qq.com/s/9q92s709c)
 <details>
 <summary>Click here to join the WeChat group</summary>
 <div align="center">
