@@ -9,13 +9,8 @@
 > Use this script to quickly create your own ChatGPT web site. | 使用此脚本可以快速创建您自己的 ChatGPT 网站。
 
 [Telegram Group](https://t.me/+ghs_XDp1vwxkMGU9) ｜ [QQ 交流频道](https://pd.qq.com/s/9q92s709c)
-<details>
-<summary>Click here to join the WeChat group</summary>
-<div align="center">
-<img src="https://github.com/dqzboy/ChatGPT-Proxy/assets/42825450/09211fb0-70bd-4ac7-bb99-2ead29561142" width="400px">
-</div>
-</details>
 
+---
 |:octocat:机场推荐|:link:链接| :pushpin:机场概况
 |--|--|--|
 |:white_check_mark:赔钱机场|[:link:官网](https://www.xn--mes358aby2apfg.site/#/register?code=hsJRRcIk)|按量不限时、不限速、电信移动联通高质量线路、不限客户端数量、全网高性价比机场、解锁奈菲，迪士尼，TikTok，ChatGPT
