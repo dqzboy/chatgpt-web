@@ -796,7 +796,7 @@ function DEPLOY_SERVER() {
 INFO "======================= 开始部署 ======================="
 if [ -f ${ORIGINAL}/.choice ]; then
     last_choice=$(cat ${ORIGINAL}/.choice)
-    read -e -p "$(echo -e ${INFO} ${GREEN}"新装 or 更新? [上次记录：${last_choice} 回车用上次记录]："${RESET})" choice_install
+    read -e -p "$(echo -e ${INFO} ${GREEN}"新装 or 更新? [1/2] [上次记录：${last_choice} 回车用上次记录]："${RESET})" choice_install
     if [ -z "${choice_install}" ];then
         choice_install="$last_choice"
         INFO "选择：${choice_install}"
