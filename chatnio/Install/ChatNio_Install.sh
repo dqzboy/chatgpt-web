@@ -445,7 +445,7 @@ function INSTALL_REDIS() {
     }
 
     # 检查 Redis 是否已经安装
-    if ! command -v redis &> /dev/null; then
+    if ! command -v redis-server &> /dev/null; then
         start_redis
     fi
 
