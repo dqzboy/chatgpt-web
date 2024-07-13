@@ -487,12 +487,12 @@ function CREATE_MYSQL_DB() {
     mysql_root_password=$(grep 'temporary password' /var/log/mysqld*.log 2>/dev/null | tail -1 | awk '{print $NF}')
 
     # 提示用户是否要修改root密码
-    read -e -p "是否要修改MySQL ROOT密码？[y/n] " modify_password_choice
+    read -e -p "$(WARN "是否要修改MySQL ROOT密码？[y/n]: ")"  modify_password_choice
 
     if [[ "$modify_password_choice" == "y" || "$modify_password_choice" == "Y" ]]; then
         # 提示用户输入新的root密码，并进行强度验证
-        read -e -p "请输入新的MySQL ROOT密码（必须包括大小写字母+数字+特殊字符且长度为8位以上）：" new_mysql_pwd
-        read -e -p "请输入旧的MySQL ROOT密码（新数据库临时密码为：${mysql_root_password}）：" old_mysql_pwd
+        read -e -p "$(INFO "请输入新的MySQL ROOT密码（必须包括大小写字母+数字+特殊字符且长度为8位以上: ")"  new_mysql_pwd
+        read -e -p "$(INFO "请输入旧的MySQL ROOT密码（新数据库临时密码为：${mysql_root_password}）: ")" old_mysql_pwd
 
         # 将新密码存储在变量中
         MYSQL_PWD=$new_mysql_pwd
@@ -508,15 +508,15 @@ function CREATE_MYSQL_DB() {
             exit 1
         fi
     else
-        WARN "跳过修改MySQL ROOT密码。"
-        read -e -p "请输入数据库Root密码：" MYSQL_PWD
+        WARN "跳过修改MySQL ROOT密码,请手动输入MySQL ROOT用户密码"
+        read -e -p "$(INFO "请输入MySQL ROOT密码: ")" $MYSQL_PWD
     fi
 
     # 检查用户是否要创建数据库
-    read -e -p "是否创建数据库？[y/n] " create_db_choice
+    read -e -p "$(INFO "是否创建数据库？[y/n]: ")" create_db_choice 
 
     if [[ "$create_db_choice" == "y" || "$create_db_choice" == "Y" ]]; then
-        read -e -p "请输入数据库名称(不能包含连字符 - )：" DB_NAME
+        read -e -p "$(INFO "请输入数据库名称(不能包含连字符 - ): ")" DB_NAME 
 
         # 检查数据库是否存在
         mysql --connect-expired-password -u root -p"$MYSQL_PWD" -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$DB_NAME';" 2>/dev/null | grep -q "$DB_NAME"
@@ -536,7 +536,7 @@ function CREATE_MYSQL_DB() {
         fi
     else
         WARN "跳过创建数据库。"
-        read -e -p "请输入数据库名称：" DB_NAME
+        read -e -p "$(INFO "请输入数据库名称(不能包含连字符 - ): ")" DB_NAME 
     fi
 }
 
@@ -689,12 +689,12 @@ function GITCLONE() {
 }
 
 function WEBINFO() {
-INFO "构建之前请先指定Nginx根路径!"
+WARN "构建之前请先指定Nginx根路径!"
 
 # 交互输入Nginx根目录(提前进行创建好)
 if [ -f .input ]; then
   last_input=$(cat .input)
-  read -e -p "Chat Nio存储绝对路径[上次记录：${last_input} 回车用上次记录]：" WEBDIR
+  read -e -p "$(INFO "Chat Nio存储绝对路径[上次记录：${last_input} 回车用上次记录]: ")" WEBDIR
   if [ -z "${WEBDIR}" ];then
       WEBDIR="$last_input"
       INFO "Chat Nio 存储路径：${WEBDIR}"
@@ -719,7 +719,6 @@ INFO "《前端构建中,请稍等...执行过程中请勿进行操作》"
 
 # 安装依赖
 pnpm install 2>&1 >/dev/null | grep -E "ERROR|FAIL|WARN"
-pnpm install typescript --save-dev 2>&1 >/dev/null | grep -E "ERROR|FAIL|WARN"
 # 打包
 pnpm build | grep -E "ERROR|ELIFECYCLE|WARN|*built in*"
 }
@@ -1045,9 +1044,9 @@ function main() {
                 INSTALL_MYSQL
                 break;;
             n|N )
-                WARN "跳过软件包安装步骤。"
-                read -e -p "请输入连接的数据库名称: " DB_NAME
-                read -e -p "请输入数据库Root密码: " MYSQL_PWD
+                WARN "跳过MySQL数据库安装,请手动指定数据库名称和MySQL ROOT 密码"
+                read -e -p "$(INFO "请输入连接的数据库名称: ")" DB_NAME
+                read -e -p "$(INFO "请输入数据库Root密码: ")" MYSQL_PWD
                 break;;
             * )
                 INFO "请输入 'y' 表示是，或者 'n' 表示否。";;
