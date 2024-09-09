@@ -31,6 +31,15 @@ body:
         请在上方的`title`中填写你对你所遇到问题的简略总结，这将帮助其他人更好的找到相似问题，谢谢❤️。
   - type: dropdown
     attributes:
+      label: 部署的项目?
+      description: >
+        请选择你运行程序的操作系统类型。
+      options:
+        - ChatGPT-Next-Web
+        - ChatGPT-Web-Admin
+        - chatnio
+  - type: dropdown
+    attributes:
       label: 操作系统类型?
       description: >
         请选择你运行程序的操作系统类型。
