@@ -1,7 +1,7 @@
 name: Issue Translator
 on: 
   issue_comment: 
-    types: [created]
+    types: [创建]
   issues: 
     types: [opened]
 
