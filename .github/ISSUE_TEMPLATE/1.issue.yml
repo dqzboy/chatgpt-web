@@ -33,7 +33,7 @@ body:
     attributes:
       label: 部署的项目?
       description: >
-        请选择你运行程序的操作系统类型。
+        请选择你部署的项目。
       options:
         - ChatGPT-Next-Web
         - ChatGPT-Web-Admin
