@@ -38,6 +38,8 @@ body:
         - ChatGPT-Next-Web
         - ChatGPT-Web-Admin
         - chatnio
+    validations:
+      required: true
   - type: dropdown
     attributes:
       label: 操作系统类型?
